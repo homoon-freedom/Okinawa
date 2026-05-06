@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Local eBook Reader</title>
-    <!-- Supabase 스크립트 제거 -->
     <style>
         /* 기존 스타일 유지 */
         :root {
@@ -96,28 +95,14 @@
         .theme-item { height: 40px; border-radius: 10px; border: 2px solid #eee; cursor: pointer; }
 
         textarea { 
-            width: 100%; 
-            box-sizing: border-box; 
-            height: 250px; 
-            padding: 12px; 
-            border-radius: 10px; 
-            border: 1px solid #ddd; 
-            font-family: inherit; 
-            margin-top: 10px; 
-            line-height: 1.5; 
-            resize: vertical;
-            display: block;
-            font-size: 15px;
+            width: 100%; box-sizing: border-box; height: 250px; padding: 12px; 
+            border-radius: 10px; border: 1px solid #ddd; font-family: inherit; 
+            margin-top: 10px; line-height: 1.5; resize: vertical; display: block; font-size: 15px;
         }
         
         input[type="text"] {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            display: block;
-            font-siz: 15px
+            width: 100%; box-sizing: border-box; padding: 10px;
+            border-radius: 8px; border: 1px solid #ddd; display: block; font-size: 15px;
         }
 
         .btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; box-sizing: border-box; }
@@ -126,6 +111,7 @@
         #temp-measurer {
             width: calc(var(--p-width) - 20vw); font-size: var(--font-size);
             line-height: 1.8; visibility: hidden; position: absolute; white-space: pre-wrap; word-break: break-all;
+            top: -9999px; /* 화면 밖으로 배치 */
         }
         
         .list-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
@@ -163,6 +149,7 @@
         </div>
     </div>
 
+    <!-- 모달 섹션 (동일) -->
     <div id="setting-modal" class="modal">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 id="modal-mode-title" style="margin: 0;">🎨 도서 편집</h3>
@@ -179,10 +166,8 @@
 
         <p style="font-size: 12px; color: #666; margin-bottom: 5px;">제목</p>
         <input type="text" id="book-title" placeholder="제목을 입력하세요">
-        
         <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 15px;">내용</p>
         <textarea id="editor" placeholder="내용을 입력하세요."></textarea>
-        
         <button id="save-btn" class="btn-action" onclick="handleSave()">💾 저장하기</button>
         <button class="btn-action" style="background:#95a5a6;" onclick="closeModal('setting-modal')">닫기</button>
     </div>
@@ -196,7 +181,6 @@
     <div id="temp-measurer"></div>
 
     <script>
-        // 전역 상태 관리
         const viewerContainer = document.getElementById('viewer-container');
         const tempMeasurer = document.getElementById('temp-measurer');
         const editor = document.getElementById('editor');
@@ -209,10 +193,9 @@
         let currentFontSize = 17;
         let currentBookId = null;
 
-        // LocalStorage 데이터 키
         const STORAGE_KEY = 'my_ebook_library';
+        const LAST_BOOK_KEY = 'last_viewed_book_id'; // 마지막 도서 ID 키 추가
 
-        // 데이터 로드/저장 헬퍼 함수
         function getLibrary() {
             const data = localStorage.getItem(STORAGE_KEY);
             return data ? JSON.parse(data) : [];
@@ -222,7 +205,6 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(library));
         }
 
-        // 폰트 조절
         function changeFontSize(delta) {
             currentFontSize = Math.max(12, Math.min(40, currentFontSize + delta));
             document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
@@ -244,31 +226,26 @@
             }
         }
 
-        // 저장 로직 (LocalStorage 전용)
         function handleSave() {
             const title = titleInput.value.trim() || "제목 없음";
             const content = editor.value;
             let library = getLibrary();
             
             if (currentBookId) {
-                // 수정
                 library = library.map(b => b.id === currentBookId ? { ...b, title, content, updatedAt: Date.now() } : b);
-                alert('수정사항이 저장되었습니다.');
             } else {
-                // 신규 생성
                 const newId = 'book_' + Date.now();
                 const newBook = { id: newId, title, content, updatedAt: Date.now() };
                 library.unshift(newBook);
                 currentBookId = newId;
-                alert('서재에 새로운 책이 추가되었습니다.');
             }
             
             saveLibrary(library);
+            localStorage.setItem(LAST_BOOK_KEY, currentBookId); // 현재 도서를 마지막 도서로 저장
             renderBook();
             closeModal('setting-modal');
         }
 
-        // 삭제 로직
         function deleteBook(id, e) {
             e.stopPropagation();
             if (!confirm('정말 삭제하시겠습니까?')) return;
@@ -277,8 +254,10 @@
             library = library.filter(b => b.id !== id);
             saveLibrary(library);
             
-            // 관련 데이터 정리
             localStorage.removeItem(`last_page_${id}`);
+            if (localStorage.getItem(LAST_BOOK_KEY) === id) {
+                localStorage.removeItem(LAST_BOOK_KEY);
+            }
             
             if (document.getElementById('library-modal').style.display === 'block') openLibrary();
             if (currentBookId === id) {
@@ -289,7 +268,6 @@
             }
         }
 
-        // 서재 열기
         function openLibrary() {
             openModal('library-modal');
             const container = document.getElementById('book-list-container');
@@ -311,8 +289,8 @@
             `).join('');
         }
 
-        // 도서 불러오기
-        function loadBook(id) {
+        // 책 불러오기 (마지막 페이지 적용 포함)
+        async function loadBook(id) {
             const library = getLibrary();
             const book = library.find(b => b.id === id);
             
@@ -320,18 +298,19 @@
                 currentBookId = book.id;
                 titleInput.value = book.title;
                 editor.value = book.content;
+                localStorage.setItem(LAST_BOOK_KEY, id); // 마지막 도서 ID 업데이트
                 
-                renderBook().then(() => {
-                    const savedPage = localStorage.getItem(`last_page_${id}`);
-                    currentIndex = savedPage ? parseInt(savedPage) : 0;
-                    if (currentIndex >= totalPages) currentIndex = 0;
-                    updateSlider();
-                    closeModal('library-modal');
-                });
+                await renderBook(); // 렌더링 완료 대기
+                
+                const savedPage = localStorage.getItem(`last_page_${id}`);
+                currentIndex = savedPage ? parseInt(savedPage) : 0;
+                if (currentIndex >= totalPages) currentIndex = 0;
+                
+                updateSlider();
+                closeModal('library-modal');
             }
         }
 
-        // 뷰어 렌더링
         async function renderBook() {
             const rawContent = editor.value || "";
             const viewportH = document.querySelector('.book-viewport').offsetHeight;
@@ -346,7 +325,7 @@
 
             const parts = formattedContent.split(/(<img[^>]*>)/g);
             let currentPageHTML = "";
-            let pageNum = 1;
+            let pageNum = 0;
 
             for (let part of parts) {
                 if (part.startsWith('<img')) {
@@ -366,10 +345,11 @@
                     }
                 }
             }
-            if (currentPageHTML.trim() !== "") addPageToViewer(currentPageHTML);
+            if (currentPageHTML.trim() !== "") { addPageToViewer(currentPageHTML); pageNum++; }
+            
             totalPages = pageNum || 1;
-            updateSlider();
             document.getElementById('display-title').innerText = titleInput.value || "불러온 책 없음";
+            updateSlider();
         }
 
         function addPageToViewer(content) {
@@ -405,8 +385,15 @@
 
         window.addEventListener('resize', () => { if(editor.value) renderBook(); });
         
-        // 초기화: 마지막에 읽던 책이 있다면 불러오기 로직 등을 추가할 수 있습니다.
-        renderBook();
+        // 페이지 로드 시 초기화 로직
+        window.onload = () => {
+            const lastId = localStorage.getItem(LAST_BOOK_KEY);
+            if (lastId) {
+                loadBook(lastId);
+            } else {
+                renderBook();
+            }
+        };
     </script>
 </body>
 </html>

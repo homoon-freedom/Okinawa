@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Local eBook Reader</title>
+    <!-- Supabase 스크립트 제거 -->
+    <style>
+        /* 기존 스타일 유지 */
+        :root {
+            --p-width: 95vw;
+            --p-height: 85vh;
+            --bg-canvas: #1a1a1a;
+            --page-bg: #fcfaf5;
+            --text-color: #2c3e50;
+            --font-size: 17px;
+            --line-color: color-mix(in srgb, var(--text-color), transparent 85%);
+        }
+
+        body { 
+            background: var(--bg-canvas); 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; 
+            height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif;
+            overflow: hidden; transition: background 0.4s ease;
+        }
+
+        .main-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+
+        .book-viewport {
+            width: var(--p-width); height: var(--p-height);
+            position: relative; overflow: hidden; border-radius: 20px; 
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6); 
+            background: var(--page-bg); transition: background 0.4s ease;
+        }
+
+        .book-container { display: flex; height: 100%; transition: transform 0.4s ease; }
+        
+        .page { 
+            min-width: var(--p-width); height: 100%; 
+            padding: 10vh 10vw 10vh 10vw; 
+            box-sizing: border-box; 
+            position: relative; color: var(--text-color); transition: color 0.4s ease;
+        }
+
+        .page-content { 
+            font-size: var(--font-size); line-height: 1.8; text-align: justify; 
+            word-break: break-all; white-space: pre-wrap;
+        }
+
+        .page-content img { max-width: 100%; height: auto; display: block; margin: 10px 0; border-radius: 8px; }
+
+        .book-info { 
+            position: absolute; width: 80%; left: 10%; 
+            opacity: 0.7; font-size: 13px; z-index: 100;
+            color: var(--text-color); transition: all 0.4s ease;
+        }
+        
+        .book-header { 
+            top: 3vh; padding-bottom: 8px; border-bottom: 1.5px solid var(--line-color);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .book-footer { bottom: 2.5vh; padding-top: 8px; border-top: 1.5px solid var(--line-color); text-align: center; }
+
+        .font-controls { display: flex; gap: 8px; align-items: center; }
+        #font-size-val { min-width: 20px; text-align: center; font-weight: bold; font-size: 12px; color: var(--text-color); }
+
+        .font-btn {
+            background: none; border: 1px solid var(--line-color);
+            color: var(--text-color); cursor: pointer; border-radius: 4px;
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; transition: 0.2s;
+        }
+        .font-btn:hover { background: var(--line-color); }
+
+        .nav-area { position: absolute; top: 0; height: 100%; width: 15%; z-index: 50; cursor: pointer; }
+        .prev-area { left: 0; } .next-area { right: 0; }
+
+        .bottom-menu { display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap; }
+        .bottom-btn { 
+            padding: 10px 18px; border-radius: 50px; background: rgba(255,255,255,0.1); 
+            color: white; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: bold;
+            font-size: 13px;
+        }
+        .bottom-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .modal { 
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: min(700px, 90%); max-height: 85vh; background: white; padding: 25px; 
+            border-radius: 25px; z-index: 3000; display: none; color: #333; overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+        
+        .theme-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0; }
+        .theme-item { height: 40px; border-radius: 10px; border: 2px solid #eee; cursor: pointer; }
+
+        textarea { 
+            width: 100%; 
+            box-sizing: border-box; 
+            height: 250px; 
+            padding: 12px; 
+            border-radius: 10px; 
+            border: 1px solid #ddd; 
+            font-family: inherit; 
+            margin-top: 10px; 
+            line-height: 1.5; 
+            resize: vertical;
+            display: block;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            display: block;
+        }
+
+        .btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; box-sizing: border-box; }
+        .btn-new { background: #2ecc71; margin-bottom: 0px; padding: 10px 15px; font-size: 13px; width: auto; }
+
+        #temp-measurer {
+            width: calc(var(--p-width) - 20vw); font-size: var(--font-size);
+            line-height: 1.8; visibility: hidden; position: absolute; white-space: pre-wrap; word-break: break-all;
+        }
+        
+        .list-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .list-main { cursor: pointer; flex-grow: 1; display: flex; flex-direction: column; gap: 4px; }
+        .list-title { font-weight: bold; color: #2c3e50; }
+        .delete-btn { color: #e74c3c; border: 1px solid #e74c3c; background: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        .book-highlight { color: color-mix(in srgb, #3498db, var(--text-color) 30%); }
+        .sup-highlight { font-size: 0.75em; vertical-align: super; line-height: 0; margin-left: 2px; }
+        .book-bold { color: var(--text-color); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="book-viewport">
+            <div class="book-info book-header">
+                <span id="display-title">불러온 책 없음</span>
+                <div class="font-controls">
+                    <button class="font-btn" onclick="changeFontSize(-1)">-</button>
+                    <span id="font-size-val">17</span>
+                    <button class="font-btn" onclick="changeFontSize(1)">+</button>
+                </div>
+            </div>
+
+            <div class="nav-area prev-area" onclick="movePage(-1)"></div>
+            <div class="nav-area next-area" onclick="movePage(1)"></div>
+            <div id="viewer-container" class="book-container"></div>
+            <div class="book-info book-footer" id="page-indicator">1 / 1</div>
+        </div>
+
+        <div class="bottom-menu">
+            <button class="bottom-btn" onclick="openLibrary()">📚 내 서재</button>
+            <button class="bottom-btn" onclick="openEditorModal()">🎨 테마/편집</button>
+        </div>
+    </div>
+
+    <div id="setting-modal" class="modal">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="modal-mode-title" style="margin: 0;">🎨 도서 편집</h3>
+            <button class="bottom-btn btn-new" onclick="prepareNewBook()">🆕 새 글 추가</button>
+        </div>
+        
+        <div class="theme-grid">
+            <div class="theme-item" style="background:#fcfaf5;" onclick="setTheme('#fcfaf5', '#2c3e50', '#1a1a1a')"></div>
+            <div class="theme-item" style="background:#ffffff;" onclick="setTheme('#ffffff', '#111111', '#f0f0f0')"></div>
+            <div class="theme-item" style="background:#f4ecd8;" onclick="setTheme('#f4ecd8', '#5b4636', '#2d241e')"></div>
+            <div class="theme-item" style="background:#e8f4ea;" onclick="setTheme('#e8f4ea', '#1e3a24', '#0d1a11')"></div>
+            <div class="theme-item" style="background:#2d3436;" onclick="setTheme('#2d3436', '#dfe6e9', '#000000')"></div>
+        </div>
+
+        <p style="font-size: 12px; color: #666; margin-bottom: 5px;">제목</p>
+        <input type="text" id="book-title" placeholder="제목을 입력하세요">
+        
+        <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 15px;">내용</p>
+        <textarea id="editor" placeholder="내용을 입력하세요."></textarea>
+        
+        <button id="save-btn" class="btn-action" onclick="handleSave()">💾 저장하기</button>
+        <button class="btn-action" style="background:#95a5a6;" onclick="closeModal('setting-modal')">닫기</button>
+    </div>
+
+    <div id="library-modal" class="modal">
+        <h3>📚 내 서재 (로컬 저장소)</h3>
+        <div id="book-list-container">로드 중...</div>
+        <button class="btn-action" style="background:#95a5a6; margin-top:15px;" onclick="closeModal('library-modal')">닫기</button>
+    </div>
+
+    <div id="temp-measurer"></div>
+
+    <script>
+        // 전역 상태 관리
+        const viewerContainer = document.getElementById('viewer-container');
+        const tempMeasurer = document.getElementById('temp-measurer');
+        const editor = document.getElementById('editor');
+        const titleInput = document.getElementById('book-title');
+        const pageIndicator = document.getElementById('page-indicator');
+        const fontSizeVal = document.getElementById('font-size-val');
+        
+        let currentIndex = 0;
+        let totalPages = 1;
+        let currentFontSize = 17;
+        let currentBookId = null;
+
+        // LocalStorage 데이터 키
+        const STORAGE_KEY = 'my_ebook_library';
+
+        // 데이터 로드/저장 헬퍼 함수
+        function getLibrary() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveLibrary(library) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(library));
+        }
+
+        // 폰트 조절
+        function changeFontSize(delta) {
+            currentFontSize = Math.max(12, Math.min(40, currentFontSize + delta));
+            document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
+            fontSizeVal.innerText = currentFontSize;
+            renderBook();
+        }
+
+        function openEditorModal() {
+            document.getElementById('modal-mode-title').innerText = currentBookId ? "📝 도서 수정" : "🆕 새 도서 작성";
+            openModal('setting-modal');
+        }
+
+        function prepareNewBook() {
+            if (confirm('작성 중인 내용을 지우고 새 글을 작성할까요?')) {
+                currentBookId = null;
+                titleInput.value = "";
+                editor.value = "";
+                document.getElementById('modal-mode-title').innerText = "🆕 새 도서 작성";
+            }
+        }
+
+        // 저장 로직 (LocalStorage 전용)
+        function handleSave() {
+            const title = titleInput.value.trim() || "제목 없음";
+            const content = editor.value;
+            let library = getLibrary();
+            
+            if (currentBookId) {
+                // 수정
+                library = library.map(b => b.id === currentBookId ? { ...b, title, content, updatedAt: Date.now() } : b);
+                alert('수정사항이 저장되었습니다.');
+            } else {
+                // 신규 생성
+                const newId = 'book_' + Date.now();
+                const newBook = { id: newId, title, content, updatedAt: Date.now() };
+                library.unshift(newBook);
+                currentBookId = newId;
+                alert('서재에 새로운 책이 추가되었습니다.');
+            }
+            
+            saveLibrary(library);
+            renderBook();
+            closeModal('setting-modal');
+        }
+
+        // 삭제 로직
+        function deleteBook(id, e) {
+            e.stopPropagation();
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+            
+            let library = getLibrary();
+            library = library.filter(b => b.id !== id);
+            saveLibrary(library);
+            
+            // 관련 데이터 정리
+            localStorage.removeItem(`last_page_${id}`);
+            
+            if (document.getElementById('library-modal').style.display === 'block') openLibrary();
+            if (currentBookId === id) {
+                currentBookId = null;
+                editor.value = "";
+                titleInput.value = "";
+                renderBook();
+            }
+        }
+
+        // 서재 열기
+        function openLibrary() {
+            openModal('library-modal');
+            const container = document.getElementById('book-list-container');
+            const library = getLibrary();
+            
+            if (library.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">서재가 비어있습니다.</p>';
+                return;
+            }
+
+            container.innerHTML = library.map(b => `
+                <div class="list-item">
+                    <div class="list-main" onclick="loadBook('${b.id}')">
+                        <span class="list-title">📘 ${b.title}</span>
+                        <span style="font-size:10px; color:#999;">${new Date(b.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                    <button class="delete-btn" onclick="deleteBook('${b.id}', event)">삭제</button>
+                </div>
+            `).join('');
+        }
+
+        // 도서 불러오기
+        function loadBook(id) {
+            const library = getLibrary();
+            const book = library.find(b => b.id === id);
+            
+            if (book) {
+                currentBookId = book.id;
+                titleInput.value = book.title;
+                editor.value = book.content;
+                
+                renderBook().then(() => {
+                    const savedPage = localStorage.getItem(`last_page_${id}`);
+                    currentIndex = savedPage ? parseInt(savedPage) : 0;
+                    if (currentIndex >= totalPages) currentIndex = 0;
+                    updateSlider();
+                    closeModal('library-modal');
+                });
+            }
+        }
+
+        // 뷰어 렌더링
+        async function renderBook() {
+            const rawContent = editor.value || "";
+            const viewportH = document.querySelector('.book-viewport').offsetHeight;
+            const maxH = viewportH * 0.82; 
+            viewerContainer.innerHTML = "";
+            tempMeasurer.innerHTML = "";
+            
+            const formattedContent = rawContent
+                .replace(/\[(.*?)\]/g, '<strong class="book-bold">$1</strong>')
+                .replace(/\((\d+)\)/g, '<span class="book-highlight sup-highlight">($1)</span>')
+                .replace(/\(([^0-9].*?)\)/g, '<span class="book-highlight">($1)</span>');
+
+            const parts = formattedContent.split(/(<img[^>]*>)/g);
+            let currentPageHTML = "";
+            let pageNum = 1;
+
+            for (let part of parts) {
+                if (part.startsWith('<img')) {
+                    tempMeasurer.innerHTML = currentPageHTML + part;
+                    if (tempMeasurer.offsetHeight > maxH && currentPageHTML !== "") {
+                        addPageToViewer(currentPageHTML); pageNum++; currentPageHTML = part;
+                    } else { currentPageHTML += part; }
+                } else {
+                    const tokens = part.split(/(<[^>]*>|\s+)/);
+                    for (let token of tokens) {
+                        if (!token) continue;
+                        const testContent = currentPageHTML + token;
+                        tempMeasurer.innerHTML = testContent;
+                        if (tempMeasurer.offsetHeight > maxH && currentPageHTML !== "") {
+                            addPageToViewer(currentPageHTML); pageNum++; currentPageHTML = token; tempMeasurer.innerHTML = token;
+                        } else { currentPageHTML = testContent; }
+                    }
+                }
+            }
+            if (currentPageHTML.trim() !== "") addPageToViewer(currentPageHTML);
+            totalPages = pageNum || 1;
+            updateSlider();
+            document.getElementById('display-title').innerText = titleInput.value || "불러온 책 없음";
+        }
+
+        function addPageToViewer(content) {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page';
+            pageDiv.innerHTML = `<div class="page-content">${content}</div>`;
+            viewerContainer.appendChild(pageDiv);
+        }
+
+        function updateSlider() {
+            const w = document.querySelector('.book-viewport').offsetWidth;
+            viewerContainer.style.transform = `translateX(${-currentIndex * w}px)`;
+            pageIndicator.innerText = `${currentIndex + 1} / ${totalPages}`;
+            
+            if (currentBookId) {
+                localStorage.setItem(`last_page_${currentBookId}`, currentIndex);
+            }
+        }
+
+        function movePage(dir) {
+            const newIdx = currentIndex + dir;
+            if (newIdx >= 0 && newIdx < totalPages) { currentIndex = newIdx; updateSlider(); }
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'block'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function setTheme(pBg, text, outerBg) {
+            document.documentElement.style.setProperty('--page-bg', pBg);
+            document.documentElement.style.setProperty('--text-color', text);
+            document.documentElement.style.setProperty('--bg-canvas', outerBg);
+        }
+
+        window.addEventListener('resize', () => { if(editor.value) renderBook(); });
+        
+        // 초기화: 마지막에 읽던 책이 있다면 불러오기 로직 등을 추가할 수 있습니다.
+        renderBook();
+    </script>
+</body>
+</html>

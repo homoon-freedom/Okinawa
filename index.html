@@ -2,397 +2,399 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Local eBook Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오키나와 여행 플래너</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans KR -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* 기존 스타일 유지 */
-        :root {
-            --p-width: 95vw;
-            --p-height: 85vh;
-            --bg-canvas: #1a1a1a;
-            --page-bg: #fcfaf5;
-            --text-color: #2c3e50;
-            --font-size: 17px;
-            --line-color: color-mix(in srgb, var(--text-color), transparent 85%);
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f0fdfa; /* light teal background */
         }
-
-        body { 
-            background: var(--bg-canvas); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            height: 100vh; margin: 0; font-family: 'Pretendard', sans-serif;
-            overflow: hidden; transition: background 0.4s ease;
+        .hero-pattern {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1549880181-56a44cf463cb?auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
         }
-
-        .main-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
-
-        .book-viewport {
-            width: var(--p-width); height: var(--p-height);
-            position: relative; overflow: hidden; border-radius: 20px; 
-            box-shadow: 0 40px 100px rgba(0,0,0,0.6); 
-            background: var(--page-bg); transition: background 0.4s ease;
+        .sticky-sidebar {
+            position: -webkit-sticky;
+            position: sticky;
+            top: 2rem;
         }
-
-        .book-container { display: flex; height: 100%; transition: transform 0.4s ease; }
-        
-        .page { 
-            min-width: var(--p-width); height: 100%; 
-            padding: 10vh 10vw 10vh 10vw; 
-            box-sizing: border-box; 
-            position: relative; color: var(--text-color); transition: color 0.4s ease;
-        }
-
-        .page-content { 
-            font-size: var(--font-size); line-height: 1.8; text-align: justify; 
-            word-break: break-all; white-space: pre-wrap;
-        }
-
-        .page-content img { max-width: 100%; height: auto; display: block; margin: 10px 0; border-radius: 8px; }
-
-        .book-info { 
-            position: absolute; width: 80%; left: 10%; 
-            opacity: 0.7; font-size: 13px; z-index: 100;
-            color: var(--text-color); transition: all 0.4s ease;
-        }
-        
-        .book-header { 
-            top: 3vh; padding-bottom: 8px; border-bottom: 1.5px solid var(--line-color);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        
-        .book-footer { bottom: 2.5vh; padding-top: 8px; border-top: 1.5px solid var(--line-color); text-align: center; }
-
-        .font-controls { display: flex; gap: 8px; align-items: center; }
-        #font-size-val { min-width: 20px; text-align: center; font-weight: bold; font-size: 12px; color: var(--text-color); }
-
-        .font-btn {
-            background: none; border: 1px solid var(--line-color);
-            color: var(--text-color); cursor: pointer; border-radius: 4px;
-            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: bold; transition: 0.2s;
-        }
-        .font-btn:hover { background: var(--line-color); }
-
-        .nav-area { position: absolute; top: 0; height: 100%; width: 15%; z-index: 50; cursor: pointer; }
-        .prev-area { left: 0; } .next-area { right: 0; }
-
-        .bottom-menu { display: flex; gap: 10px; justify-content: center; width: 100%; flex-wrap: wrap; }
-        .bottom-btn { 
-            padding: 10px 18px; border-radius: 50px; background: rgba(255,255,255,0.1); 
-            color: white; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; font-weight: bold;
-            font-size: 13px;
-        }
-        .bottom-btn:hover { background: rgba(255,255,255,0.2); }
-
-        .modal { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
-            width: min(700px, 90%); max-height: 85vh; background: white; padding: 25px; 
-            border-radius: 25px; z-index: 3000; display: none; color: #333; overflow-y: auto;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            box-sizing: border-box;
-        }
-        
-        .theme-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 15px 0; }
-        .theme-item { height: 40px; border-radius: 10px; border: 2px solid #eee; cursor: pointer; }
-
-        textarea { 
-            width: 100%; box-sizing: border-box; height: 250px; padding: 12px; 
-            border-radius: 10px; border: 1px solid #ddd; font-family: inherit; 
-            margin-top: 10px; line-height: 1.5; resize: vertical; display: block; font-size: 15px;
-        }
-        
-        input[type="text"] {
-            width: 100%; box-sizing: border-box; padding: 10px;
-            border-radius: 8px; border: 1px solid #ddd; display: block; font-size: 15px;
-        }
-
-        .btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; box-sizing: border-box; }
-        .btn-new { background: #2ecc71; margin-bottom: 0px; padding: 10px 15px; font-size: 13px; width: auto; }
-
-        #temp-measurer {
-            width: calc(var(--p-width) - 20vw); font-size: var(--font-size);
-            line-height: 1.8; visibility: hidden; position: absolute; white-space: pre-wrap; word-break: break-all;
-            top: -9999px; /* 화면 밖으로 배치 */
-        }
-        
-        .list-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .list-main { cursor: pointer; flex-grow: 1; display: flex; flex-direction: column; gap: 4px; }
-        .list-title { font-weight: bold; color: #2c3e50; }
-        .delete-btn { color: #e74c3c; border: 1px solid #e74c3c; background: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-
-        .book-highlight { color: color-mix(in srgb, #3498db, var(--text-color) 30%); }
-        .sup-highlight { font-size: 0.75em; vertical-align: super; line-height: 0; margin-left: 2px; }
-        .book-bold { color: var(--text-color); font-weight: bold; }
     </style>
 </head>
-<body>
+<body class="text-gray-800 antialiased">
 
-    <div class="main-wrapper">
-        <div class="book-viewport">
-            <div class="book-info book-header">
-                <span id="display-title">불러온 책 없음</span>
-                <div class="font-controls">
-                    <button class="font-btn" onclick="changeFontSize(-1)">-</button>
-                    <span id="font-size-val">17</span>
-                    <button class="font-btn" onclick="changeFontSize(1)">+</button>
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md fixed w-full z-50 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-plane-departure text-teal-600 text-2xl mr-2"></i>
+                    <span class="font-bold text-xl text-teal-800">Okinawa Planner</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#transport" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">이동방법</a>
+                    <a href="#accommodation" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">숙소추천</a>
+                    <a href="#spots" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">관광지 & 액티비티</a>
                 </div>
             </div>
-
-            <div class="nav-area prev-area" onclick="movePage(-1)"></div>
-            <div class="nav-area next-area" onclick="movePage(1)"></div>
-            <div id="viewer-container" class="book-container"></div>
-            <div class="book-info book-footer" id="page-indicator">1 / 1</div>
         </div>
+    </nav>
 
-        <div class="bottom-menu">
-            <button class="bottom-btn" onclick="openLibrary()">📚 내 서재</button>
-            <button class="bottom-btn" onclick="openEditorModal()">🎨 테마/편집</button>
+    <!-- Hero Section -->
+    <header class="hero-pattern h-96 flex items-center justify-center mt-16">
+        <div class="text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">오키나와 힐링 여행 가이드</h1>
+            <p class="text-lg md:text-xl text-gray-200 drop-shadow-md">에메랄드빛 바다와 아름다운 자연이 기다리는 곳</p>
         </div>
-    </div>
+    </header>
 
-    <!-- 모달 섹션 (동일) -->
-    <div id="setting-modal" class="modal">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h3 id="modal-mode-title" style="margin: 0;">🎨 도서 편집</h3>
-            <button class="bottom-btn btn-new" onclick="prepareNewBook()">🆕 새 글 추가</button>
-        </div>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
-        <div class="theme-grid">
-            <div class="theme-item" style="background:#fcfaf5;" onclick="setTheme('#fcfaf5', '#2c3e50', '#1a1a1a')"></div>
-            <div class="theme-item" style="background:#ffffff;" onclick="setTheme('#ffffff', '#111111', '#f0f0f0')"></div>
-            <div class="theme-item" style="background:#f4ecd8;" onclick="setTheme('#f4ecd8', '#5b4636', '#2d241e')"></div>
-            <div class="theme-item" style="background:#e8f4ea;" onclick="setTheme('#e8f4ea', '#1e3a24', '#0d1a11')"></div>
-            <div class="theme-item" style="background:#2d3436;" onclick="setTheme('#2d3436', '#dfe6e9', '#000000')"></div>
+        <!-- Info Sections Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+            
+            <!-- Transportation -->
+            <section id="transport" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-teal-800 mb-6 flex items-center">
+                    <i class="fas fa-car mr-3 text-teal-500"></i> 이동 방법 알아보기
+                </h2>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-car-side fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">렌터카 (추천)</h3>
+                            <p class="text-gray-600 mt-1 text-sm">오키나와 전역을 자유롭게 여행하기 가장 좋은 방법입니다. 츄라우미 수족관 등 북부 지역 방문 시 필수적입니다. 국제운전면허증을 꼭 준비하세요.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-train fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">유이레일 (모노레일)</h3>
+                            <p class="text-gray-600 mt-1 text-sm">나하 공항에서 나하 시내(국제거리, 슈리성 등)로 이동할 때 매우 편리합니다. 뚜벅이 여행객의 시내 이동 수단입니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-bus fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">일일 버스 투어</h3>
+                            <p class="text-gray-600 mt-1 text-sm">렌터카 이용이 어렵다면 주요 관광지를 하루 만에 도는 북부/남부 버스 투어를 예약하는 것을 추천합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Accommodation -->
+            <section id="accommodation" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-teal-800 mb-6 flex items-center">
+                    <i class="fas fa-bed mr-3 text-teal-500"></i> 지역별 숙소 추천
+                </h2>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-city fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">나하 시내 (Naha)</h3>
+                            <p class="text-gray-600 mt-1 text-sm">공항과 가깝고 국제거리가 있어 맛집과 쇼핑을 즐기기 좋습니다. 여행 첫날이나 마지막 날 머물기 좋습니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-umbrella-beach fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">온나손 / 중부 (Onna)</h3>
+                            <p class="text-gray-600 mt-1 text-sm">아름다운 바다를 마주한 오션뷰 리조트들이 밀집해 있습니다. 호캉스와 해양 스포츠를 즐기려는 분들께 최적입니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-tree fa-fw"></i></div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900">모토부 / 북부 (Motobu)</h3>
+                            <p class="text-gray-600 mt-1 text-sm">츄라우미 수족관, 코우리 대교 등 굵직한 관광지와 가까우며 자연 속에서 한적한 휴식을 원할 때 추천합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
 
-        <p style="font-size: 12px; color: #666; margin-bottom: 5px;">제목</p>
-        <input type="text" id="book-title" placeholder="제목을 입력하세요">
-        <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 15px;">내용</p>
-        <textarea id="editor" placeholder="내용을 입력하세요."></textarea>
-        <button id="save-btn" class="btn-action" onclick="handleSave()">💾 저장하기</button>
-        <button class="btn-action" style="background:#95a5a6;" onclick="closeModal('setting-modal')">닫기</button>
-    </div>
+        <!-- Interactive Map and Selection Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left: Places Grid (2 columns) -->
+            <section id="spots" class="lg:col-span-2">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8">어디로 떠나볼까요?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="places-grid">
+                    <!-- Places will be injected here via JavaScript -->
+                </div>
+            </section>
 
-    <div id="library-modal" class="modal">
-        <h3>📚 내 서재 (로컬 저장소)</h3>
-        <div id="book-list-container">로드 중...</div>
-        <button class="btn-action" style="background:#95a5a6; margin-top:15px;" onclick="closeModal('library-modal')">닫기</button>
-    </div>
+            <!-- Right: My Course (Sticky Sidebar) -->
+            <aside class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-teal-100 sticky-sidebar flex flex-col max-h-[85vh]">
+                    <h3 class="text-xl font-bold text-teal-800 mb-4 flex justify-between items-center border-b pb-3">
+                        <span><i class="fas fa-calendar-alt mr-2 text-teal-600"></i> 일정 플래너</span>
+                        <button onclick="addDay()" class="text-xs bg-teal-100 text-teal-700 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors font-bold shadow-sm">+ 일자 추가</button>
+                    </h3>
+                    
+                    <!-- Day Selector Tabs -->
+                    <div class="flex space-x-1 overflow-x-auto pb-2 mb-4 scrollbar-hide border-b border-gray-100" id="day-tabs">
+                        <!-- Tabs injected by JS -->
+                    </div>
 
-    <div id="temp-measurer"></div>
+                    <!-- Transport Selector -->
+                    <div class="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-inner">
+                        <label class="block text-xs font-bold text-gray-600 mb-2">이 날의 주요 이동 수단</label>
+                        <select id="transport-selector" onchange="updateTransport(this.value)" class="w-full bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
+                            <option value="car">🚗 렌터카</option>
+                            <option value="bus">🚌 버스 투어 / 대중교통</option>
+                            <option value="monorail">🚝 유이레일 (모노레일)</option>
+                            <option value="walk">🚶 도보 / 택시</option>
+                        </select>
+                    </div>
 
+                    <div id="my-course-list" class="space-y-3 mb-4 flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- Places for active day -->
+                    </div>
+                    
+                    <div class="bg-teal-50 p-3 rounded-lg text-xs text-teal-800 mt-auto border border-teal-100 leading-relaxed">
+                        <i class="fas fa-info-circle mr-1"></i> 왼쪽에서 장소를 추가하면 <b>현재 선택된 일자</b>에 코스가 추가됩니다.
+                    </div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-300 py-8 text-center mt-12">
+        <p>© 2026 Okinawa Trip Planner. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
     <script>
-        const viewerContainer = document.getElementById('viewer-container');
-        const tempMeasurer = document.getElementById('temp-measurer');
-        const editor = document.getElementById('editor');
-        const titleInput = document.getElementById('book-title');
-        const pageIndicator = document.getElementById('page-indicator');
-        const fontSizeVal = document.getElementById('font-size-val');
-        
-        let currentIndex = 0;
-        let totalPages = 1;
-        let currentFontSize = 17;
-        let currentBookId = null;
-
-        const STORAGE_KEY = 'my_ebook_library';
-        const LAST_BOOK_KEY = 'last_viewed_book_id'; // 마지막 도서 ID 키 추가
-
-        function getLibrary() {
-            const data = localStorage.getItem(STORAGE_KEY);
-            return data ? JSON.parse(data) : [];
-        }
-
-        function saveLibrary(library) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(library));
-        }
-
-        function changeFontSize(delta) {
-            currentFontSize = Math.max(12, Math.min(40, currentFontSize + delta));
-            document.documentElement.style.setProperty('--font-size', currentFontSize + 'px');
-            fontSizeVal.innerText = currentFontSize;
-            renderBook();
-        }
-
-        function openEditorModal() {
-            document.getElementById('modal-mode-title').innerText = currentBookId ? "📝 도서 수정" : "🆕 새 도서 작성";
-            openModal('setting-modal');
-        }
-
-        function prepareNewBook() {
-            if (confirm('작성 중인 내용을 지우고 새 글을 작성할까요?')) {
-                currentBookId = null;
-                titleInput.value = "";
-                editor.value = "";
-                document.getElementById('modal-mode-title').innerText = "🆕 새 도서 작성";
+        // Database of Tourist Spots and Activities
+        const placesData = [
+            {
+                id: 'churaumi',
+                name: '오키나와 츄라우미 수족관',
+                category: '관광지',
+                desc: '거대한 고래상어와 만타가오리를 만날 수 있는 세계 최대 규모급 수족관.',
+                img: 'https://images.unsplash.com/photo-1583156340160-7763f038f32e?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Okinawa Churaumi Aquarium'
+            },
+            {
+                id: 'american-village',
+                name: '아메리칸 빌리지',
+                category: '관광지/쇼핑',
+                desc: '미국 서해안 분위기를 물씬 풍기는 테마타운. 야경과 선셋이 특히 아름답습니다.',
+                img: 'https://images.unsplash.com/photo-1590252994462-817887e224e7?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Mihama American Village Okinawa'
+            },
+            {
+                id: 'blue-cave',
+                name: '푸른동굴 스노클링',
+                category: '액티비티',
+                desc: '마에다 곶에 위치한 신비로운 푸른 빛의 수중 동굴. 열대어와 함께하는 스노클링.',
+                img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Cape Maeda Blue Cave Okinawa'
+            },
+            {
+                id: 'kokusai',
+                name: '나하 국제거리',
+                category: '쇼핑/맛집',
+                desc: '오키나와의 중심지. 기념품 샵, 돈키호테, 다양한 로컬 맛집이 모여있는 거리.',
+                img: 'https://images.unsplash.com/photo-1582236319702-8610f135b91b?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Kokusai Dori Okinawa'
+            },
+            {
+                id: 'kouri',
+                name: '코우리 대교 & 해변',
+                category: '관광지/자연',
+                desc: '에메랄드빛 바다 위를 가로지르는 2km 길이의 아름다운 다리와 투명한 해변.',
+                img: 'https://images.unsplash.com/photo-1606556534267-3312e7f4cdd9?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Kouri Bridge Okinawa'
+            },
+            {
+                id: 'manzamo',
+                name: '만좌모',
+                category: '관광지/자연',
+                desc: '코끼리 코 모양의 독특한 기암절벽과 탁 트인 동중국해의 절경을 감상하는 곳.',
+                img: 'https://images.unsplash.com/photo-1662993881472-7472deff627b?auto=format&fit=crop&w=600&q=80',
+                mapQuery: 'Cape Manzamo Okinawa'
             }
+        ];
+
+        // State Management for Multi-Day Itinerary
+        let itinerary = [
+            { id: 1, transport: 'car', places: [] }
+        ];
+        let activeDayId = 1;
+
+        // Initialize Places
+        function renderPlaces() {
+            const grid = document.getElementById('places-grid');
+            grid.innerHTML = ''; // Clear existing cards
+            
+            const activeDay = itinerary.find(d => d.id === activeDayId);
+
+            placesData.forEach(place => {
+                // Check if the place is already added to the CURRENT active day
+                const isAdded = activeDay.places.some(p => p.id === place.id);
+                const btnClass = isAdded ? 'bg-rose-500 hover:bg-rose-600' : 'bg-teal-600 hover:bg-teal-700';
+                const btnText = isAdded ? '<i class="fas fa-check mr-1"></i> 현재 일정에 추가됨' : '<i class="fas fa-plus mr-1"></i> 코스 추가';
+
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col';
+                
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden">
+                        <img src="${place.img}" alt="${place.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold bg-teal-100 text-teal-800 px-2 py-1 rounded-full mb-2 inline-block">${place.category}</span>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">${place.name}</h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">${place.desc}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <button onclick="togglePlace('${place.id}')" class="${btnClass} text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors flex items-center">
+                                ${btnText}
+                            </button>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.mapQuery)}" target="_blank" class="text-gray-500 hover:text-blue-600 transition-colors" title="구글맵에서 보기">
+                                <i class="fas fa-map-marked-alt text-xl"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        function handleSave() {
-            const title = titleInput.value.trim() || "제목 없음";
-            const content = editor.value;
-            let library = getLibrary();
+        // Handle Add/Remove logic for the Active Day
+        function togglePlace(id) {
+            const place = placesData.find(p => p.id === id);
+            const activeDay = itinerary.find(d => d.id === activeDayId);
             
-            if (currentBookId) {
-                library = library.map(b => b.id === currentBookId ? { ...b, title, content, updatedAt: Date.now() } : b);
+            const existingIndex = activeDay.places.findIndex(p => p.id === id);
+
+            if (existingIndex >= 0) {
+                // Remove if it exists
+                activeDay.places.splice(existingIndex, 1);
             } else {
-                const newId = 'book_' + Date.now();
-                const newBook = { id: newId, title, content, updatedAt: Date.now() };
-                library.unshift(newBook);
-                currentBookId = newId;
+                // Add if it doesn't exist
+                activeDay.places.push(place);
             }
             
-            saveLibrary(library);
-            localStorage.setItem(LAST_BOOK_KEY, currentBookId); // 현재 도서를 마지막 도서로 저장
-            renderBook();
-            closeModal('setting-modal');
+            renderPlaces();
+            renderSidebar();
         }
 
-        function deleteBook(id, e) {
-            e.stopPropagation();
-            if (!confirm('정말 삭제하시겠습니까?')) return;
-            
-            let library = getLibrary();
-            library = library.filter(b => b.id !== id);
-            saveLibrary(library);
-            
-            localStorage.removeItem(`last_page_${id}`);
-            if (localStorage.getItem(LAST_BOOK_KEY) === id) {
-                localStorage.removeItem(LAST_BOOK_KEY);
-            }
-            
-            if (document.getElementById('library-modal').style.display === 'block') openLibrary();
-            if (currentBookId === id) {
-                currentBookId = null;
-                editor.value = "";
-                titleInput.value = "";
-                renderBook();
-            }
+        // Remove place via Sidebar 'X' button
+        function removePlace(dayId, placeId) {
+            const day = itinerary.find(d => d.id === dayId);
+            day.places = day.places.filter(p => p.id !== placeId);
+            renderPlaces();
+            renderSidebar();
         }
 
-        function openLibrary() {
-            openModal('library-modal');
-            const container = document.getElementById('book-list-container');
-            const library = getLibrary();
+        // Add a new Day to the itinerary
+        function addDay() {
+            const newId = itinerary.length + 1;
+            itinerary.push({ id: newId, transport: 'car', places: [] });
+            activeDayId = newId; // Switch to the newly created day
+            renderPlaces();
+            renderSidebar();
+        }
+
+        // Switch active tab
+        function setActiveDay(id) {
+            activeDayId = id;
+            renderPlaces();
+            renderSidebar();
+        }
+
+        // Update transport choice
+        function updateTransport(value) {
+            const activeDay = itinerary.find(d => d.id === activeDayId);
+            activeDay.transport = value;
+        }
+
+        // Update the Sidebar UI
+        function renderSidebar() {
+            const tabsContainer = document.getElementById('day-tabs');
+            tabsContainer.innerHTML = '';
             
-            if (library.length === 0) {
-                container.innerHTML = '<p style="text-align:center; color:#999; padding:20px;">서재가 비어있습니다.</p>';
+            // 1. Render Day Tabs
+            itinerary.forEach(day => {
+                const isActive = day.id === activeDayId;
+                const tab = document.createElement('button');
+                tab.onclick = () => setActiveDay(day.id);
+                tab.className = `whitespace-nowrap px-4 py-2 rounded-t-lg text-sm font-bold transition-colors border-b-2 ${isActive ? 'border-teal-600 text-teal-800 bg-teal-50' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`;
+                tab.innerText = `Day ${day.id}`;
+                tabsContainer.appendChild(tab);
+            });
+
+            const activeDay = itinerary.find(d => d.id === activeDayId);
+            
+            // 2. Set Transport Value for Active Day
+            document.getElementById('transport-selector').value = activeDay.transport;
+
+            // 3. Render Places for Active Day
+            const listContainer = document.getElementById('my-course-list');
+            listContainer.innerHTML = '';
+            
+            if (activeDay.places.length === 0) {
+                listContainer.innerHTML = '<p class="text-gray-400 text-sm text-center mt-12"><i class="fas fa-map-signs text-2xl mb-2 block opacity-50"></i>장소를 추가해<br>Day '+activeDay.id+' 일정을 만들어보세요!</p>';
                 return;
             }
 
-            container.innerHTML = library.map(b => `
-                <div class="list-item">
-                    <div class="list-main" onclick="loadBook('${b.id}')">
-                        <span class="list-title">📘 ${b.title}</span>
-                        <span style="font-size:10px; color:#999;">${new Date(b.updatedAt).toLocaleDateString()}</span>
+            activeDay.places.forEach((place, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex flex-col bg-white p-3 rounded-lg border border-gray-100 shadow-sm animate-[fadeIn_0.3s_ease-in-out] group relative';
+                
+                item.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center">
+                            <div class="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 font-bold flex-shrink-0">
+                                ${index + 1}
+                            </div>
+                            <span class="font-bold text-gray-800 text-sm leading-tight pr-6">${place.name}</span>
+                        </div>
+                        <button onclick="removePlace(${activeDay.id}, '${place.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-rose-500 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
-                    <button class="delete-btn" onclick="deleteBook('${b.id}', event)">삭제</button>
-                </div>
-            `).join('');
+                    <div class="flex justify-between items-center ml-7 mt-1">
+                        <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">${place.category}</span>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.mapQuery)}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-2 py-1 rounded transition-colors flex items-center">
+                            <i class="fas fa-map-marker-alt mr-1"></i>지도
+                        </a>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
         }
 
-        // 책 불러오기 (마지막 페이지 적용 포함)
-        async function loadBook(id) {
-            const library = getLibrary();
-            const book = library.find(b => b.id === id);
-            
-            if (book) {
-                currentBookId = book.id;
-                titleInput.value = book.title;
-                editor.value = book.content;
-                localStorage.setItem(LAST_BOOK_KEY, id); // 마지막 도서 ID 업데이트
-                
-                await renderBook(); // 렌더링 완료 대기
-                
-                const savedPage = localStorage.getItem(`last_page_${id}`);
-                currentIndex = savedPage ? parseInt(savedPage) : 0;
-                if (currentIndex >= totalPages) currentIndex = 0;
-                
-                updateSlider();
-                closeModal('library-modal');
-            }
-        }
+        // Add some basic custom scrollbar styling
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        `;
+        document.head.appendChild(style);
 
-        async function renderBook() {
-            const rawContent = editor.value || "";
-            const viewportH = document.querySelector('.book-viewport').offsetHeight;
-            const maxH = viewportH * 0.82; 
-            viewerContainer.innerHTML = "";
-            tempMeasurer.innerHTML = "";
-            
-            const formattedContent = rawContent
-                .replace(/\[(.*?)\]/g, '<strong class="book-bold">$1</strong>')
-                .replace(/\((\d+)\)/g, '<span class="book-highlight sup-highlight">($1)</span>')
-                .replace(/\(([^0-9].*?)\)/g, '<span class="book-highlight">($1)</span>');
-
-            const parts = formattedContent.split(/(<img[^>]*>)/g);
-            let currentPageHTML = "";
-            let pageNum = 0;
-
-            for (let part of parts) {
-                if (part.startsWith('<img')) {
-                    tempMeasurer.innerHTML = currentPageHTML + part;
-                    if (tempMeasurer.offsetHeight > maxH && currentPageHTML !== "") {
-                        addPageToViewer(currentPageHTML); pageNum++; currentPageHTML = part;
-                    } else { currentPageHTML += part; }
-                } else {
-                    const tokens = part.split(/(<[^>]*>|\s+)/);
-                    for (let token of tokens) {
-                        if (!token) continue;
-                        const testContent = currentPageHTML + token;
-                        tempMeasurer.innerHTML = testContent;
-                        if (tempMeasurer.offsetHeight > maxH && currentPageHTML !== "") {
-                            addPageToViewer(currentPageHTML); pageNum++; currentPageHTML = token; tempMeasurer.innerHTML = token;
-                        } else { currentPageHTML = testContent; }
-                    }
-                }
-            }
-            if (currentPageHTML.trim() !== "") { addPageToViewer(currentPageHTML); pageNum++; }
-            
-            totalPages = pageNum || 1;
-            document.getElementById('display-title').innerText = titleInput.value || "불러온 책 없음";
-            updateSlider();
-        }
-
-        function addPageToViewer(content) {
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'page';
-            pageDiv.innerHTML = `<div class="page-content">${content}</div>`;
-            viewerContainer.appendChild(pageDiv);
-        }
-
-        function updateSlider() {
-            const w = document.querySelector('.book-viewport').offsetWidth;
-            viewerContainer.style.transform = `translateX(${-currentIndex * w}px)`;
-            pageIndicator.innerText = `${currentIndex + 1} / ${totalPages}`;
-            
-            if (currentBookId) {
-                localStorage.setItem(`last_page_${currentBookId}`, currentIndex);
-            }
-        }
-
-        function movePage(dir) {
-            const newIdx = currentIndex + dir;
-            if (newIdx >= 0 && newIdx < totalPages) { currentIndex = newIdx; updateSlider(); }
-        }
-
-        function openModal(id) { document.getElementById(id).style.display = 'block'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        function setTheme(pBg, text, outerBg) {
-            document.documentElement.style.setProperty('--page-bg', pBg);
-            document.documentElement.style.setProperty('--text-color', text);
-            document.documentElement.style.setProperty('--bg-canvas', outerBg);
-        }
-
-        window.addEventListener('resize', () => { if(editor.value) renderBook(); });
-        
-        // 페이지 로드 시 초기화 로직
+        // Initialize on load
         window.onload = () => {
-            const lastId = localStorage.getItem(LAST_BOOK_KEY);
-            if (lastId) {
-                loadBook(lastId);
-            } else {
-                renderBook();
-            }
+            renderPlaces();
+            renderSidebar();
         };
     </script>
 </body>

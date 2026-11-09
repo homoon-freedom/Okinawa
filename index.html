@@ -11,12 +11,12 @@
 
     <!-- Header -->
     <header class="bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold flex items-center gap-2">
                     <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
                 </h1>
-                <p class="text-cyan-100 mt-1">남부→ 중부→ 북부 순서의 타임라인 일정 및 구글 맵 연동</p>
+                <p class="text-cyan-100 mt-1">타임라인 기반 일정 관리 및 구글 맵 연동</p>
             </div>
             <!-- 항공 및 날짜 설정 바 -->
             <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-center text-sm">
@@ -33,95 +33,142 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <main class="max-w-4xl mx-auto px-4 py-8">
         
-        <!-- Left Column: Places Browser -->
-        <div class="lg:col-span-7 space-y-8">
-            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
-                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-location-dot text-cyan-600"></i> 오키나와 명소 탐색
-                    </h2>
-                    
-                    <button onclick="openAddModal()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm flex items-center gap-1.5">
-                        <i class="fa-solid fa-plus"></i> 신규 장소 직접 등록
-                    </button>
-                </div>
+        <!-- My Trip Planner (중앙 메인 배치) -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i> 나의 오키나와 타임라인
+                </h2>
+                <span id="trip-info-badge" class="text-sm bg-cyan-100 text-cyan-800 px-3 py-1.5 rounded-lg font-bold"></span>
+            </div>
 
-                <!-- 1단계: 지역별 탭 (남부 / 중부 / 북부) -->
-                <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
-                    <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition bg-white text-cyan-700 shadow-sm">📍 남부</button>
-                    <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900">📍 중부</button>
-                    <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900">📍 북부</button>
-                </div>
+            <div class="mb-6">
+                <div id="day-tabs" class="flex flex-wrap gap-2"></div>
+            </div>
 
-                <!-- 2단계: 카테고리별 서브 탭 (관광지 / 식당 / 액티비티) -->
-                <div class="flex gap-2 border-b border-slate-100 pb-4 mb-6">
-                    <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-sm">🏞️ 관광지</button>
-                    <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200">🍽️ 식당</button>
-                    <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200">🏄 액티비티</button>
-                </div>
+            <div id="day-content" class="space-y-4"></div>
 
-                <!-- 장소 카드 목록 영역 -->
-                <div id="places-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Javascript 동적 렌더링 -->
-                </div>
-            </section>
-        </div>
-
-        <!-- Right Column: My Trip Planner -->
-        <div class="lg:col-span-5">
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 sticky top-6">
-                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i> 타임라인 & 구글 맵 연동
-                    </h2>
-                    <span id="trip-info-badge" class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded font-medium"></span>
-                </div>
-
-                <div class="mb-4">
-                    <div id="day-tabs" class="flex flex-wrap gap-1.5"></div>
-                </div>
-
-                <div id="day-content" class="space-y-4"></div>
-
-                <div class="mt-6 pt-4 border-t border-slate-100 flex gap-2">
-                    <button onclick="manualSaveData()" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i> 일정 저장
-                    </button>
-                    <button onclick="resetPlanner()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm transition">
-                        초기화
-                    </button>
-                </div>
+            <div class="mt-8 pt-4 border-t border-slate-100 flex gap-3">
+                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-bold text-sm transition shadow-sm">
+                    <i class="fa-solid fa-floppy-disk mr-1"></i> 현재 일정 전체 저장
+                </button>
+                <button onclick="resetPlanner()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-6 py-3 rounded-xl font-bold text-sm transition">
+                    일정 초기화
+                </button>
             </div>
         </div>
 
     </main>
 
-    <!-- Custom Place Modal (신규 장소 등록) -->
-    <div id="addPlaceModal" class="hidden fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
-            <div class="bg-gradient-to-r from-indigo-500 to-cyan-500 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-magnifying-glass-location mr-2"></i>새로운 장소 검색 및 추가</h3>
+    <!-- Timeline Add Modal (장소 탐색 및 일정 추가 통합 모달) -->
+    <div id="timelineAddModal" class="hidden fixed inset-0 z-[50] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-calendar-plus mr-2"></i>타임라인에 장소 추가</h3>
+                <button onclick="closeTimelineAddModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            
+            <!-- 모달 내 탭 전환 -->
+            <div class="flex bg-slate-100 p-1.5 m-4 mb-2 rounded-xl text-sm font-bold shrink-0">
+                <button onclick="switchModalTab('browser')" id="modalTabBrowser" class="flex-1 py-2.5 rounded-lg bg-white text-cyan-700 shadow-sm transition">📍 오키나와 명소 탐색</button>
+                <button onclick="switchModalTab('hotel')" id="modalTabHotel" class="flex-1 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition">🔍 숙소 / 기타 장소 검색</button>
+            </div>
+
+            <div class="p-6 overflow-y-auto bg-slate-50 flex-1">
+                
+                <!-- 탭 1: 오키나와 명소 탐색 브라우저 -->
+                <div id="modalSectionBrowser" class="space-y-6">
+                    <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-sm font-bold text-slate-700">원하는 명소를 찾아 일정에 바로 추가하세요.</span>
+                        <button onclick="openAddModal()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> 신규 장소 직접 등록
+                        </button>
+                    </div>
+
+                    <!-- 지역 탭 -->
+                    <div class="flex bg-slate-200/70 p-1 rounded-xl">
+                        <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
+                        <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800">중부</button>
+                        <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800">북부</button>
+                    </div>
+
+                    <!-- 카테고리 탭 -->
+                    <div class="flex gap-2 border-b border-slate-200 pb-4">
+                        <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm">🏞️ 관광지</button>
+                        <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">🍽️ 식당</button>
+                        <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">🏄 액티비티</button>
+                    </div>
+
+                    <!-- 장소 카드 목록 -->
+                    <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- JS 렌더링 -->
+                    </div>
+                </div>
+
+                <!-- 탭 2: 숙소 및 기타 검색/수동 추가 영역 -->
+                <div id="modalSectionHotel" class="space-y-6 hidden bg-white p-5 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">장소/숙소명 검색 (OpenStreetMap)</label>
+                        <div class="flex gap-1">
+                            <input type="text" id="hsQuery" placeholder="예: 몬토레 오키나와" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-cyan-500" onkeydown="if(event.key==='Enter') searchHotelApi()">
+                            <button onclick="searchHotelApi()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg transition"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="border border-slate-200 rounded-lg overflow-hidden flex flex-col h-48">
+                        <div class="bg-slate-100 px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-600 flex justify-between items-center">
+                            <span>검색 결과</span>
+                        </div>
+                        <div id="hsResults" class="overflow-y-auto p-2 flex-1 text-sm bg-white relative">
+                            <p class="text-slate-400 text-center mt-6 text-xs flex flex-col items-center gap-2">
+                                <i class="fa-solid fa-hotel text-2xl text-slate-300"></i>
+                                장소나 숙소 이름을 검색해주세요.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 space-y-3">
+                        <label class="block text-xs font-bold text-slate-700"><i class="fa-solid fa-map-pin mr-1 text-rose-500"></i>검색이 안 되나요? 구글 맵 좌표로 직접 입력</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="number" step="any" id="manualLat" placeholder="위도 (예: 26.2120)" class="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-500">
+                            <input type="number" step="any" id="manualLng" placeholder="경도 (예: 127.6800)" class="border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-cyan-500">
+                        </div>
+                        <button onclick="addManualHotelWithCoords()" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-sm">
+                            입력한 좌표로 타임라인에 추가
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Place Modal (신규 장소 직접 등록) -->
+    <div id="addPlaceModal" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-base"><i class="fa-solid fa-plus-circle mr-2"></i>명소 데이터 등록</h3>
                 <button onclick="closeAddModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="p-5 space-y-4">
                 <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-1">장소명</label>
-                    <input type="text" id="customPlaceName" placeholder="예: 국제거리, 슈리성" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">장소명</label>
+                    <input type="text" id="customPlaceName" placeholder="예: 류큐무라" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">지역</label>
-                        <select id="customPlaceRegion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">지역</label>
+                        <select id="customPlaceRegion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
                             <option value="south">남부</option>
                             <option value="central">중부</option>
                             <option value="north">북부</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-1">분류</label>
-                        <select id="customPlaceGroup" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">분류</label>
+                        <select id="customPlaceGroup" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white">
                             <option value="관광지">관광지</option>
                             <option value="식당">식당</option>
                             <option value="액티비티">액티비티</option>
@@ -130,87 +177,9 @@
                 </div>
                 <div class="pt-4 flex gap-2">
                     <button onclick="searchAndAddPlace()" id="customAddBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-sm transition">
-                        검색 및 추가
+                        목록에 등록
                     </button>
-                    <button onclick="closeAddModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition">취소</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Timeline Item Add / Hotel Search Modal (타임라인 일정추가 모달) -->
-    <div id="hotelSearchModal" class="hidden fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden flex flex-col">
-            <div class="bg-gradient-to-r from-indigo-500 to-cyan-600 px-6 py-4 flex justify-between items-center text-white shrink-0">
-                <h3 id="modalMainTitle" class="font-bold text-lg"><i class="fa-solid fa-calendar-plus mr-2"></i>타임라인 일정 추가</h3>
-                <button onclick="closeHotelSearchModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            
-            <!-- 탭 전환 (등록된 장소 선택 / 숙소 검색 및 직접 추가) -->
-            <div class="flex bg-slate-100 p-1 m-4 mb-0 rounded-xl text-xs font-bold">
-                <button onclick="switchModalTab('registered')" id="modalTabRegistered" class="flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition">등록된 명소에서 고르기</button>
-                <button onclick="switchModalTab('hotelOrCustom')" id="modalTabHotel" class="flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">숙소/기타 장소 검색·추가</button>
-            </div>
-
-            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                <!-- 탭 1: 등록된 장소 선택 영역 -->
-                <div id="modalSectionRegistered" class="space-y-3">
-                    <p class="text-xs text-slate-500">좌측 '오키나와 명소 탐색'에 등록된 장소 중 하나를 선택해 현재 Day 일정에 추가합니다.</p>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">방문 시간</label>
-                        <select id="modalRegTime" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-cyan-500">
-                            <!-- JS 24시간 -->
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">장소 선택</label>
-                        <select id="modalRegPlaceSelect" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-cyan-500">
-                            <!-- JS 동적 생성 -->
-                        </select>
-                    </div>
-                    <button onclick="addRegisteredPlaceToTimeline()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-sm mt-2">
-                        선택한 장소를 타임라인에 추가
-                    </button>
-                </div>
-
-                <!-- 탭 2: 숙소 및 기타 검색/수동 추가 영역 -->
-                <div id="modalSectionHotel" class="space-y-4 hidden">
-                    <div class="flex gap-3">
-                        <div class="w-1/3">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">방문 시간</label>
-                            <select id="hsTime" class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:border-indigo-500 bg-white">
-                                <!-- JS로 24시간 옵션 생성 -->
-                            </select>
-                        </div>
-                        <div class="w-2/3">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">장소/호텔명 검색</label>
-                            <div class="flex gap-1">
-                                <input type="text" id="hsQuery" placeholder="예: 몬토레, 숙소명" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" onkeydown="if(event.key==='Enter') searchHotelApi()">
-                                <button onclick="searchHotelApi()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg transition"><i class="fa-solid fa-magnifying-glass"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="border border-slate-200 rounded-lg overflow-hidden flex flex-col h-32">
-                        <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-600 flex justify-between items-center">
-                            <span>검색 결과</span>
-                            <span class="text-[10px] font-normal text-slate-400">OpenStreetMap 기반</span>
-                        </div>
-                        <div id="hsResults" class="overflow-y-auto p-2 flex-1 text-sm bg-white relative">
-                            <p class="text-slate-400 text-center mt-4 text-xs absolute inset-0 flex items-start justify-center pt-2">장소나 호텔 이름을 검색해주세요.</p>
-                        </div>
-                    </div>
-
-                    <div class="pt-2 border-t border-slate-100 space-y-2">
-                        <label class="block text-xs font-bold text-indigo-700"><i class="fa-solid fa-map-pin mr-1"></i>검색이 안 되나요? 구글 맵 좌표로 수동 추가</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="number" step="any" id="manualLat" placeholder="위도 (예: 26.2120)" class="border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
-                            <input type="number" step="any" id="manualLng" placeholder="경도 (예: 127.6800)" class="border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
-                        </div>
-                        <button onclick="addManualHotelWithCoords()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-xs transition shadow-sm">
-                            입력한 이름과 좌표로 타임라인 추가
-                        </button>
-                    </div>
+                    <button onclick="closeAddModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm transition">취소</button>
                 </div>
             </div>
         </div>
@@ -302,7 +271,7 @@
             for (let i = 0; i < dayCount; i++) {
                 let currDate = new Date(start);
                 currDate.setDate(start.getDate() + i);
-                let dateStr = `${currDate.getMonth() + 1}/${currDate.getDate()} (${weekNames[currDate.getDay()]}바이)`;
+                let dateStr = `${currDate.getMonth() + 1}/${currDate.getDate()} (${weekNames[currDate.getDay()]})`;
                 let existing = oldDays[i] || { events: [] };
                 newDays.push({ dayNum: i + 1, date: dateStr, events: existing.events });
             }
@@ -316,14 +285,14 @@
             tripData.endDate = document.getElementById('endDate').value;
             generateDaysFromDates();
             renderPlanner();
-            renderPlaces();
             alert('날짜 설정이 저장되었습니다.');
         }
 
+        /* --- 모달 내 명소 탐색 브라우저 로직 --- */
         function switchRegion(region) {
             currentRegion = region;
-            const activeClass = 'flex-1 py-2.5 rounded-xl text-sm font-bold transition bg-white text-cyan-700 shadow-sm';
-            const inactiveClass = 'flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900';
+            const activeClass = 'flex-1 py-2 rounded-lg text-xs font-bold transition bg-white text-cyan-700 shadow-sm';
+            const inactiveClass = 'flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800';
             document.getElementById('btn-south').className = region === 'south' ? activeClass : inactiveClass;
             document.getElementById('btn-central').className = region === 'central' ? activeClass : inactiveClass;
             document.getElementById('btn-north').className = region === 'north' ? activeClass : inactiveClass;
@@ -335,9 +304,9 @@
             ['관광지', '식당', '액티비티'].forEach(cat => {
                 const btn = document.getElementById(`cat-${cat}`);
                 if (cat === category) {
-                    btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-sm';
+                    btn.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm';
                 } else {
-                    btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+                    btn.className = 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
                 }
             });
             renderPlaces();
@@ -350,20 +319,20 @@
 
             let html = '';
             if (filteredPlaces.length === 0) {
-                html = `<div class="col-span-1 md:col-span-2 text-center py-12 text-slate-400 text-xs">해당 카테고리에 등록된 장소가 없습니다.</div>`;
+                html = `<div class="col-span-1 sm:col-span-2 text-center py-12 text-slate-400 text-sm">해당 카테고리에 등록된 장소가 없습니다.</div>`;
             } else {
                 filteredPlaces.forEach(p => {
                     html += `
-                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4">
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4 hover:border-cyan-300 transition">
                         <div class="flex justify-between items-start mb-2 gap-2">
-                            <h4 class="font-bold text-base text-slate-900 leading-tight">${p.name}</h4>
-                            <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium whitespace-nowrap">${p.category}</span>
+                            <div class="flex items-start gap-2">
+                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-[10px] font-bold py-1 px-1.5 rounded transition shadow-sm mt-0.5" title="일정에 추가">
+                                    <i class="fa-solid fa-plus"></i> 추가
+                                </button>
+                                <h4 class="font-bold text-sm text-slate-900 leading-tight pt-0.5">${p.name}</h4>
+                            </div>
                         </div>
-                        <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">${p.desc}</p>
-                        <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] text-slate-400">
-                            <span>위도/경도 연동됨</span>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' 오키나와')}" target="_blank" class="text-cyan-600 hover:underline font-bold">지도 보기 <i class="fa-solid fa-arrow-up-right-from-square ml-0.5"></i></a>
-                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed">${p.desc}</p>
                     </div>
                     `;
                 });
@@ -371,6 +340,26 @@
             container.innerHTML = html;
         }
 
+        function addPlaceFromBrowser(placeId) {
+            let targetPlace = Object.values(placesData).flat().find(p => p.id === placeId);
+            
+            if(targetPlace) {
+                let eventObj = JSON.parse(JSON.stringify(targetPlace));
+                eventObj.type = 'place';
+                eventObj.time = "10:00"; 
+                eventObj.transport = '렌터카';
+                
+                tripData.days[tripData.activeDay].events.push(eventObj);
+                tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
+                
+                renderPlanner();
+                saveDataToLocalStorage();
+                
+                alert(`[${targetPlace.name}] 장소가 Day ${tripData.days[tripData.activeDay].dayNum} 일정에 추가되었습니다! (시간은 타임라인에서 수정하세요)`);
+            }
+        }
+
+        /* --- 타임라인 렌더링 로직 --- */
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
             if (!lat1 || !lon1 || !lat2 || !lon2) return { distance: '알 수 없음', duration: '-' };
             const R = 6371;
@@ -379,7 +368,9 @@
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             let d = R * c;
-            let speed = mode === '택시' ? 35 : mode === '대중교통' ? 25 : mode === '도보' ? 4 : 40;
+            
+            // 수단에 따른 속도 변경 적용 (대중교통 -> 버스/모노레일 분리)
+            let speed = mode === '택시' ? 35 : (mode === '버스' || mode === '모노레일') ? 25 : mode === '도보' ? 4 : 40;
             let hours = d / speed;
             let mins = Math.max(5, Math.round(hours * 60));
             return { distance: `${d.toFixed(1)} km`, duration: mins >= 60 ? `${Math.floor(mins/60)}시간 ${mins%60}분` : `${mins}분` };
@@ -387,10 +378,10 @@
 
         function renderPlanner() {
             const days = tripData.days || [];
-            document.getElementById('trip-info-badge').innerText = `${days.length}일 일정`;
+            document.getElementById('trip-info-badge').innerText = `총 ${days.length}일 코스`;
 
             document.getElementById('day-tabs').innerHTML = days.map((d, idx) => `
-                <button onclick="setActiveDay(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${idx === tripData.activeDay ? 'bg-cyan-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                <button onclick="setActiveDay(${idx})" class="px-4 py-2 rounded-xl text-sm font-bold transition ${idx === tripData.activeDay ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
                     Day ${d.dayNum}
                 </button>
             `).join('');
@@ -405,7 +396,14 @@
             let prevValidEvent = null;
 
             if (currentDayObj.events.length === 0) {
-                eventsHtml = `<p class="text-xs text-slate-400 text-center py-6 bg-white rounded-xl border border-dashed border-slate-200">등록된 일정이 없습니다. 아래 버튼을 눌러 장소를 추가해주세요.</p>`;
+                eventsHtml = `
+                    <div class="py-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center">
+                        <i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i>
+                        <p class="text-sm text-slate-500 mb-4">등록된 일정이 없습니다.</p>
+                        <button onclick="openTimelineAddModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm transition">
+                            명소 탐색 및 일정 추가하기
+                        </button>
+                    </div>`;
             } else {
                 currentDayObj.events.forEach((evt, evtIdx) => {
                     const hasCoords = (evt.lat && evt.lng);
@@ -413,14 +411,19 @@
                     if (hasCoords && prevValidEvent) {
                         let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, evt.transport || '렌터카');
                         eventsHtml += `
-                            <div class="my-1.5 ml-8 pl-4 border-l-2 border-dashed border-cyan-300 flex items-center gap-3 text-[11px] text-slate-500 py-1">
-                                <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded px-1 py-0.5 outline-none">
-                                    <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
-                                    <option value="택시" ${(evt.transport||'')==='택시'?'selected':''}>🚕 택시</option>
-                                    <option value="대중교통" ${(evt.transport||'')==='대중교통'?'selected':''}>🚌 대중교통</option>
-                                </select>
-                                <span>거리: <strong>${route.distance}</strong></span>
-                                <span>시간: <strong class="text-cyan-600">${route.duration}</strong></span>
+                            <div class="my-3 flex items-center justify-between bg-slate-100/70 px-4 py-2.5 rounded-xl text-xs text-slate-600 border border-slate-200/60 shadow-sm w-full">
+                                <div class="flex items-center gap-2">
+                                    <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 transition">
+                                        <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
+                                        <option value="택시" ${(evt.transport||'')==='택시'?'selected':''}>🚕 택시</option>
+                                        <option value="버스" ${(evt.transport||'')==='버스'?'selected':''}>🚌 버스</option>
+                                        <option value="모노레일" ${(evt.transport||'')==='모노레일'?'selected':''}>🚝 모노레일</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <span>이동 거리: <strong class="text-slate-800">${route.distance}</strong></span>
+                                    <span>예상 시간: <strong class="text-cyan-600">${route.duration}</strong></span>
+                                </div>
                             </div>
                         `;
                     }
@@ -434,36 +437,39 @@
 
                     const isHotel = evt.type === 'hotel';
                     const iconColor = isHotel ? 'bg-indigo-500' : 'bg-cyan-600';
-                    const numCircle = displayNum ? `<span class="w-6 h-6 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-[11px] shadow-sm">${displayNum}</span>` : `<span class="w-6 h-6 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-[11px] shadow-sm"><i class="fa-solid fa-location-dot"></i></span>`;
+                    const numCircle = displayNum ? `<span class="w-7 h-7 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shrink-0">${displayNum}</span>` : `<span class="w-7 h-7 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
 
                     const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
 
-                    // 순서 변경 버튼 조건
-                    let moveUpBtn = evtIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 px-1 py-1" title="위로 이동"><i class="fa-solid fa-arrow-up"></i></button>` : '';
-                    let moveDownBtn = evtIdx < currentDayObj.events.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 px-1 py-1" title="아래로 이동"><i class="fa-solid fa-arrow-down"></i></button>` : '';
+                    // 위아래 이동 버튼
+                    let moveUpBtn = evtIdx > 0 
+                        ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition" title="위로 이동"><i class="fa-solid fa-chevron-up"></i></button>` 
+                        : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up"></i></span>`;
+                    let moveDownBtn = evtIdx < currentDayObj.events.length - 1 
+                        ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition" title="아래로 이동"><i class="fa-solid fa-chevron-down"></i></button>` 
+                        : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down"></i></span>`;
 
                     eventsHtml += `
-                        <div class="flex items-stretch bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                            <div class="bg-slate-50 border-r border-slate-100 px-2 py-2 flex flex-col justify-center items-center w-24 shrink-0">
-                                <select onchange="updateEventTime(${evtIdx}, this.value)" class="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded px-1 py-1 w-full text-center outline-none focus:border-cyan-500" title="시간 변경">
+                        <div class="flex items-stretch bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group">
+                            
+                            <!-- 왼쪽 타임 슬롯 및 상하 이동버튼 -->
+                            <div class="bg-slate-50 border-r border-slate-100 px-1 py-2 flex flex-col justify-center items-center w-24 shrink-0">
+                                ${moveUpBtn}
+                                <select onchange="updateEventTime(${evtIdx}, this.value)" class="text-sm font-extrabold text-slate-800 bg-transparent text-center outline-none cursor-pointer w-full my-0.5" title="시간 변경">
                                     ${generateTimeOptions(evt.time)}
                                 </select>
+                                ${moveDownBtn}
                             </div>
-                            <div class="flex-1 p-3 flex items-center justify-between">
-                                <div class="flex items-center gap-3">
+                            
+                            <!-- 오른쪽 장소 정보 영역 -->
+                            <div class="flex-1 p-4 flex items-center justify-between gap-3">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
                                     ${numCircle}
-                                    <div>
-                                        <h4 class="font-bold text-slate-900 flex items-center gap-1">${evt.name}</h4>
-                                        <span class="text-[10px] text-slate-500">${evt.group || '숙소'}</span>
-                                    </div>
+                                    <h4 class="font-bold text-base text-slate-900 break-keep leading-snug">${evt.name}</h4>
                                 </div>
-                                <div class="flex items-center gap-1">
-                                    <div class="flex flex-col border-r border-slate-100 pr-1 mr-1">
-                                        ${moveUpBtn}
-                                        ${moveDownBtn}
-                                    </div>
-                                    <a href="${singleMapUrl}" target="_blank" class="text-cyan-600 hover:text-cyan-800 p-2 text-xs" title="구글 맵에서 보기"><i class="fa-solid fa-map-location-dot"></i></a>
-                                    <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:text-rose-600 p-2" title="일정 삭제"><i class="fa-solid fa-trash-can"></i></button>
+                                <div class="flex items-center gap-2 shrink-0 opacity-100 sm:opacity-60 group-hover:opacity-100 transition-opacity">
+                                    <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="구글 맵 보기"><i class="fa-solid fa-map-location-dot"></i></a>
+                                    <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="일정 삭제"><i class="fa-solid fa-trash-can"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -483,21 +489,21 @@
                 const gmUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
 
                 googleMapLinkHtml = `
-                    <a href="${gmUrl}" target="_blank" class="block w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white text-center py-3 rounded-xl text-xs font-bold shadow-md transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-map-location-dot text-sm"></i> 구글 맵스로 한글 전체 경로 (내비게이션) 열기
+                    <a href="${gmUrl}" target="_blank" class="block w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-center py-3.5 rounded-xl text-sm font-bold shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-map-location-dot"></i> 구글 맵스로 한글 전체 경로 (내비게이션) 열기
                     </a>
                 `;
             }
 
             contentContainer.innerHTML = `
-                <div class="bg-cyan-50/40 p-4 rounded-xl border border-cyan-100 space-y-4">
-                    <div class="flex justify-between items-center pb-3 border-b border-cyan-100">
+                <div class="bg-cyan-50/30 p-5 rounded-2xl border border-cyan-100/60 shadow-sm">
+                    <div class="flex justify-between items-center pb-4 border-b border-cyan-100/60 mb-4">
                         <div>
-                            <span class="font-extrabold text-lg text-cyan-900">Day ${currentDayObj.dayNum}</span>
-                            <span class="text-xs text-cyan-700 ml-1 font-medium">(${currentDayObj.date})</span>
+                            <span class="font-extrabold text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span>
+                            <span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span>
                         </div>
-                        <button onclick="openHotelSearchModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5">
-                            <i class="fa-solid fa-plus"></i> 일정 장소 추가
+                        <button onclick="openTimelineAddModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> 일정 추가
                         </button>
                     </div>
 
@@ -505,9 +511,7 @@
                         ${eventsHtml}
                     </div>
 
-                    <div class="mt-4 pt-2">
-                        ${googleMapLinkHtml}
-                    </div>
+                    ${googleMapLinkHtml}
                 </div>
             `;
         }
@@ -517,7 +521,6 @@
             renderPlanner(); 
         }
 
-        // 순서 변경 함수 (위/아래)
         function moveEvent(evtIdx, direction) {
             const events = tripData.days[tripData.activeDay].events;
             const targetIdx = evtIdx + direction;
@@ -551,14 +554,51 @@
         }
 
         function resetPlanner() {
-            if (confirm('모든 일정을 초기화하시겠습니까?')) {
+            if (confirm('모든 일정을 초기화하시겠습니까? (이 작업은 되돌릴 수 없습니다)')) {
                 tripData.days.forEach(d => d.events = []);
                 renderPlanner();
                 saveDataToLocalStorage();
             }
         }
 
-        // 신규 장소 직접 등록 모달
+        /* --- 통합 모달 관리 --- */
+        function openTimelineAddModal() {
+            document.getElementById('timelineAddModal').classList.remove('hidden');
+            
+            // 숙소 탭 초기화
+            document.getElementById('hsQuery').value = '';
+            document.getElementById('manualLat').value = '';
+            document.getElementById('manualLng').value = '';
+            document.getElementById('hsResults').innerHTML = '<p class="text-slate-400 text-center mt-6 text-xs flex flex-col items-center gap-2"><i class="fa-solid fa-hotel text-2xl text-slate-300"></i>장소나 숙소 이름을 검색해주세요.</p>';
+            
+            renderPlaces(); // 브라우저 상태 최신화
+            switchModalTab('browser');
+        }
+
+        function closeTimelineAddModal() {
+            document.getElementById('timelineAddModal').classList.add('hidden');
+        }
+
+        function switchModalTab(tab) {
+            const btnBrowser = document.getElementById('modalTabBrowser');
+            const btnHotel = document.getElementById('modalTabHotel');
+            const secBrowser = document.getElementById('modalSectionBrowser');
+            const secHotel = document.getElementById('modalSectionHotel');
+
+            if (tab === 'browser') {
+                btnBrowser.className = 'flex-1 py-2.5 rounded-lg bg-white text-cyan-700 shadow-sm transition';
+                btnHotel.className = 'flex-1 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                secBrowser.classList.remove('hidden');
+                secHotel.classList.add('hidden');
+            } else {
+                btnHotel.className = 'flex-1 py-2.5 rounded-lg bg-white text-cyan-700 shadow-sm transition';
+                btnBrowser.className = 'flex-1 py-2.5 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                secHotel.classList.remove('hidden');
+                secBrowser.classList.add('hidden');
+            }
+        }
+
+        /* --- 신규 장소 직접 등록 (모달 위 모달) --- */
         function openAddModal() {
             document.getElementById('addPlaceModal').classList.remove('hidden');
             document.getElementById('customPlaceName').value = '';
@@ -574,7 +614,7 @@
             if (!nameInput) { alert('장소 이름을 입력해주세요.'); return; }
 
             const btn = document.getElementById('customAddBtn');
-            btn.innerText = '검색 중...';
+            btn.innerText = '처리 중...';
             btn.disabled = true;
 
             let desc = '사용자가 직접 추가한 맞춤 장소입니다.';
@@ -584,7 +624,7 @@
                     const data = await res.json();
                     if (data.extract) desc = data.extract.length > 70 ? data.extract.substring(0, 70) + '...' : data.extract;
                 }
-            } catch (e) { console.log('검색 실패'); }
+            } catch (e) { console.log('Wiki 검색 실패'); }
 
             const regionCoords = { south: { lat: 26.15, lng: 127.75 }, central: { lat: 26.35, lng: 127.80 }, north: { lat: 26.65, lng: 127.90 } };
             const newPlace = {
@@ -601,98 +641,24 @@
             renderPlaces();
             saveDataToLocalStorage();
 
-            btn.innerText = '검색 및 추가';
+            btn.innerText = '목록에 등록';
             btn.disabled = false;
         }
 
-        // 타임라인 일정 추가 모달 오픈
-        function openHotelSearchModal() {
-            document.getElementById('hotelSearchModal').classList.remove('hidden');
-            document.getElementById('hsQuery').value = '';
-            document.getElementById('manualLat').value = '';
-            document.getElementById('manualLng').value = '';
-            document.getElementById('hsTime').innerHTML = generateTimeOptions("10:00");
-            document.getElementById('modalRegTime').innerHTML = generateTimeOptions("10:00");
-            document.getElementById('hsResults').innerHTML = '<p class="text-slate-400 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2">장소나 호텔 이름을 검색해주세요.</p>';
-            
-            // 등록된 장소 셀렉트박스 옵션 채우기
-            let regSelectHtml = '';
-            ['south', 'central', 'north'].forEach(reg => {
-                let regName = reg === 'south' ? '남부' : reg === 'central' ? '중부' : '북부';
-                (placesData[reg] || []).forEach(p => {
-                    regSelectHtml += `<option value="${p.id}">[${regName} / ${p.group}] ${p.name}</option>`;
-                });
-            });
-            document.getElementById('modalRegPlaceSelect').innerHTML = regSelectHtml || '<option value="">등록된 장소가 없습니다.</option>';
-
-            switchModalTab('registered');
-        }
-
-        function closeHotelSearchModal() {
-            document.getElementById('hotelSearchModal').classList.add('hidden');
-        }
-
-        // 모달 내 탭 전환 (등록된 장소 vs 숙소/기타검색)
-        function switchModalTab(tab) {
-            const btnReg = document.getElementById('modalTabRegistered');
-            const btnHotel = document.getElementById('modalTabHotel');
-            const secReg = document.getElementById('modalSectionRegistered');
-            const secHotel = document.getElementById('modalSectionHotel');
-
-            if (tab === 'registered') {
-                btnReg.className = 'flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition';
-                btnHotel.className = 'flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
-                secReg.classList.remove('hidden');
-                secHotel.classList.add('hidden');
-            } else {
-                btnHotel.className = 'flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition';
-                btnReg.className = 'flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
-                secHotel.classList.remove('hidden');
-                secReg.classList.add('hidden');
-            }
-        }
-
-        // 등록된 명소에서 선택하여 타임라인에 추가
-        function addRegisteredPlaceToTimeline() {
-            const placeId = document.getElementById('modalRegPlaceSelect').value;
-            const timeVal = document.getElementById('modalRegTime').value;
-            if(!placeId) { alert('추가할 장소를 선택해주세요.'); return; }
-
-            let targetPlace = null;
-            Object.values(placesData).forEach(arr => {
-                let found = arr.find(p => p.id === placeId);
-                if(found) targetPlace = found;
-            });
-
-            if(targetPlace) {
-                let eventObj = JSON.parse(JSON.stringify(targetPlace));
-                eventObj.type = 'place';
-                eventObj.time = timeVal;
-                eventObj.transport = '렌터카';
-                tripData.days[tripData.activeDay].events.push(eventObj);
-                
-                // 시간순 정렬 유지
-                tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
-
-                closeHotelSearchModal();
-                renderPlanner();
-                saveDataToLocalStorage();
-            }
-        }
-
+        /* --- OSM 숙소 검색 및 수동 입력 로직 --- */
         async function searchHotelApi() {
             const query = document.getElementById('hsQuery').value.trim();
             if(!query) { alert('검색어를 입력해주세요.'); return; }
             
             const resultsContainer = document.getElementById('hsResults');
-            resultsContainer.innerHTML = '<p class="text-slate-500 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2"><i class="fa-solid fa-spinner fa-spin mr-2"></i>검색 중...</p>';
+            resultsContainer.innerHTML = '<p class="text-slate-500 text-center text-xs mt-6"><i class="fa-solid fa-spinner fa-spin mr-2"></i>검색 중...</p>';
             
             try {
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Okinawa')}&limit=10`);
                 const data = await res.json();
                 
                 if(data.length === 0) {
-                    resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-4 absolute inset-0 flex flex-col items-center justify-start pt-2">검색 결과가 없습니다.<br>하단의 좌표 수동 입력을 이용해주세요.</p>';
+                    resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-6">검색 결과가 없습니다.<br>하단의 좌표 수동 입력을 이용해주세요.</p>';
                     return;
                 }
                 
@@ -702,57 +668,58 @@
                     let address = item.display_name.split(',').slice(1).join(',').trim();
                     
                     html += `
-                        <div class="flex justify-between items-center p-2 border-b border-slate-100 hover:bg-slate-50 transition">
-                            <div class="text-xs truncate flex-1 pr-2" title="${item.display_name}">
-                                <strong class="text-indigo-700 text-[12px]">${name}</strong>
-                                <p class="text-[10px] text-slate-400 truncate">${address}</p>
+                        <div class="flex justify-between items-center p-3 border-b border-slate-100 hover:bg-slate-50 transition">
+                            <div class="text-xs flex-1 pr-3">
+                                <strong class="text-slate-800 text-[13px] block mb-0.5">${name}</strong>
+                                <p class="text-[11px] text-slate-400 truncate" title="${address}">${address}</p>
                             </div>
-                            <button onclick="selectHotelAndAdd('${name.replace(/'/g, "\\'")}', ${item.lat}, ${item.lon})" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2.5 py-1 rounded text-xs font-bold whitespace-nowrap transition shadow-sm">
-                                선택
+                            <button onclick="selectHotelAndAdd('${name.replace(/'/g, "\\'")}', ${item.lat}, ${item.lon})" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded text-xs font-bold whitespace-nowrap transition shadow-sm">
+                                선택 추가
                             </button>
                         </div>
                     `;
                 });
                 resultsContainer.innerHTML = html;
             } catch(e) {
-                resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2">검색 중 오류가 발생했습니다.</p>';
+                resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-6">검색 중 오류가 발생했습니다.</p>';
             }
         }
 
         function selectHotelAndAdd(name, lat, lng) {
-            const timeVal = document.getElementById('hsTime').value;
             const newItem = {
-                id: 'item-' + Date.now(), type: 'hotel', time: timeVal || '18:00',
+                id: 'item-' + Date.now(), type: 'hotel', time: '18:00', // 기본 배정 시간
                 name: name, group: '숙소/기타', lat: parseFloat(lat), lng: parseFloat(lng)
             };
             tripData.days[tripData.activeDay].events.push(newItem);
             tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
 
-            closeHotelSearchModal();
             renderPlanner();
             saveDataToLocalStorage();
+            alert(`[${name}] 이(가) 추가되었습니다! (시간은 타임라인에서 수정하세요)`);
         }
 
         function addManualHotelWithCoords() {
-            const timeVal = document.getElementById('hsTime').value;
             const nameVal = document.getElementById('hsQuery').value.trim();
             const latVal = parseFloat(document.getElementById('manualLat').value);
             const lngVal = parseFloat(document.getElementById('manualLng').value);
 
-            if(!nameVal) { alert('장소명을 입력해주세요.'); return; }
+            if(!nameVal) { alert('장소명을 검색창에 먼저 입력해주세요.'); return; }
             if(isNaN(latVal) || isNaN(lngVal)) { alert('올바른 위도와 경도 좌표를 입력해주세요.'); return; }
 
             const newItem = {
-                id: 'item-' + Date.now(), type: 'hotel', time: timeVal || '18:00',
+                id: 'item-' + Date.now(), type: 'hotel', time: '18:00', // 기본 배정 시간
                 name: nameVal, group: '숙소/기타', lat: latVal, lng: lngVal
             };
 
             tripData.days[tripData.activeDay].events.push(newItem);
             tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
 
-            closeHotelSearchModal();
             renderPlanner();
             saveDataToLocalStorage();
+            alert(`입력하신 좌표로 [${nameVal}] 이(가) 추가되었습니다!`);
+            
+            document.getElementById('manualLat').value = '';
+            document.getElementById('manualLng').value = '';
         }
     </script>
 </body>

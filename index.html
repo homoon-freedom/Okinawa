@@ -14,13 +14,21 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+        /* 스크롤바 숨기기 */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans relative">
 
     <!-- Header -->
     <header class="bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
-        <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold flex items-center gap-2">
                     <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
@@ -42,24 +50,28 @@
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-8">
+    <main class="max-w-4xl mx-auto px-0 py-6 sm:py-8">
         
-        <!-- My Trip Planner (중앙 메인 배치) -->
-        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-100">
-            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <!-- My Trip Planner (중앙 메인 배치 - 좌우 여백 제거) -->
+        <div class="bg-white sm:rounded-2xl py-5 sm:py-6 shadow-sm border-y sm:border border-slate-100">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 px-4 sm:px-6">
                 <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i> 나의 오키나와 방문 순서
                 </h2>
                 <span id="trip-info-badge" class="text-sm bg-cyan-100 text-cyan-800 px-3 py-1.5 rounded-lg font-bold"></span>
             </div>
 
-            <div class="mb-6">
-                <div id="day-tabs" class="flex flex-wrap gap-2"></div>
+            <!-- Day 탭 -->
+            <div class="mb-6 px-4 sm:px-6">
+                <div class="bg-slate-100 rounded-xl flex w-full overflow-x-auto hide-scrollbar p-1">
+                    <div id="day-tabs" class="flex w-full min-w-max"></div>
+                </div>
             </div>
 
+            <!-- 메인 컨텐츠 영역 (좌우 꽉 차게 렌더링됨) -->
             <div id="day-content" class="space-y-4"></div>
 
-            <div class="mt-8 pt-4 border-t border-slate-100 flex gap-3">
+            <div class="mt-6 pt-5 border-t border-slate-100 flex gap-3 px-4 sm:px-6">
                 <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-xl font-bold text-sm transition shadow-sm">
                     <i class="fa-solid fa-floppy-disk mr-1"></i> 현재 일정 전체 저장
                 </button>
@@ -71,7 +83,7 @@
 
     </main>
 
-    <!-- Timeline Add Modal (장소 탐색 및 일정 추가 모달) -->
+    <!-- Timeline Add Modal -->
     <div id="timelineAddModal" class="hidden fixed inset-0 z-[50] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
@@ -115,7 +127,7 @@
         </div>
     </div>
 
-    <!-- Custom Place Modal (신규 장소 및 호텔 직접 등록) -->
+    <!-- Custom Place Modal -->
     <div id="addPlaceModal" class="hidden fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 flex justify-between items-center text-white">
@@ -158,7 +170,6 @@
                     </div>
                 </div>
                 
-                <!-- 구글 맵 바로가기 버튼 -->
                 <div class="pt-1">
                     <a href="https://www.google.com/maps/search/?api=1&query=오키나와" target="_blank" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-map-location-dot"></i> 구글 맵에서 오키나와 위치 찾기 / 좌표 복사하기
@@ -391,7 +402,7 @@
             document.getElementById('trip-info-badge').innerText = `총 ${days.length}일 코스`;
 
             document.getElementById('day-tabs').innerHTML = days.map((d, idx) => `
-                <button onclick="setActiveDay(${idx})" class="px-4 py-2 rounded-xl text-sm font-bold transition ${idx === tripData.activeDay ? 'bg-slate-800 text-white shadow-md' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                <button onclick="setActiveDay(${idx})" class="flex-1 px-4 py-2.5 rounded-lg text-sm font-bold transition whitespace-nowrap ${idx === tripData.activeDay ? 'bg-white text-slate-800 shadow shadow-slate-200' : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'}">
                     Day ${d.dayNum}
                 </button>
             `).join('');
@@ -407,7 +418,7 @@
 
             if (currentDayObj.events.length === 0) {
                 eventsHtml = `
-                    <div class="py-12 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center">
+                    <div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center">
                         <i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i>
                         <p class="text-sm text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p>
                         <button onclick="openTimelineAddModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-lg shadow-sm transition">
@@ -429,10 +440,13 @@
                             '도보': 'walking'
                         };
                         let gmapsMode = travelModeMap[evt.transport || '렌터카'];
-                        let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${gmapsMode}`;
+
+                        let originName = encodeURIComponent(prevValidEvent.name + ' 오키나와');
+                        let destName = encodeURIComponent(evt.name + ' 오키나와');
+                        let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${originName}&destination=${destName}&travelmode=${gmapsMode}`;
 
                         eventsHtml += `
-                            <div class="my-3 flex items-center justify-between bg-slate-100/70 px-3 py-2.5 rounded-xl text-xs text-slate-600 border border-slate-200/60 shadow-sm w-full">
+                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 rounded-none border-y border-x-0 text-xs text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
                                     <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 transition">
                                         <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
@@ -462,7 +476,7 @@
 
                     const isHotel = evt.type === 'hotel' || evt.group === '호텔';
                     const iconColor = isHotel ? 'bg-indigo-500' : 'bg-cyan-600';
-                    const numCircle = displayNum ? `<span class="w-8 h-8 ${iconColor} text-white rounded-full flex items-center justify-center font-extrabold text-sm shadow-md shrink-0">${displayNum}</span>` : `<span class="w-8 h-8 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-xs shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
+                    const numCircle = displayNum ? `<span class="w-7 h-7 ${iconColor} text-white rounded-full flex items-center justify-center font-extrabold text-xs shadow-md shrink-0">${displayNum}</span>` : `<span class="w-7 h-7 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
 
                     const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
 
@@ -474,15 +488,15 @@
                         : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs"></i></span>`;
 
                     eventsHtml += `
-                        <div class="flex items-center bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-3 gap-3">
-                            <div class="flex flex-col justify-center items-center w-8 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">
+                        <div class="flex items-center bg-white rounded-none border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-3 px-4 sm:px-6 gap-3">
+                            <div class="flex flex-col justify-center items-center w-7 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">
                                 ${moveUpBtn}
                                 ${moveDownBtn}
                             </div>
                             
                             <div class="flex items-center gap-3 flex-1 min-w-0">
                                 ${numCircle}
-                                <h4 class="font-bold text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                <h4 class="font-bold text-sm text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
                             </div>
                             
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
@@ -496,11 +510,11 @@
 
             let googleMapLinkHtml = '';
             if (mapMarkers.length >= 2) {
-                const origin = encodeURIComponent(mapMarkers[0].name + ' Okinawa');
-                const destination = encodeURIComponent(mapMarkers[mapMarkers.length - 1].name + ' Okinawa');
+                const origin = encodeURIComponent(mapMarkers[0].name + ' 오키나와');
+                const destination = encodeURIComponent(mapMarkers[mapMarkers.length - 1].name + ' 오키나와');
                 let waypointsStr = '';
                 if (mapMarkers.length > 2) {
-                    let wps = mapMarkers.slice(1, mapMarkers.length - 1).map(m => encodeURIComponent(m.name + ' Okinawa'));
+                    let wps = mapMarkers.slice(1, mapMarkers.length - 1).map(m => encodeURIComponent(m.name + ' 오키나와'));
                     waypointsStr = `&waypoints=${wps.join('|')}`;
                 }
                 const gmUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
@@ -513,8 +527,8 @@
             }
 
             contentContainer.innerHTML = `
-                <div class="bg-cyan-50/30 p-3 sm:p-5 rounded-2xl border border-cyan-100/60 shadow-sm">
-                    <div class="flex justify-between items-center pb-4 border-b border-cyan-100/60 mb-4 px-1">
+                <div class="bg-cyan-50/30 py-4 sm:py-5 border-y sm:border border-cyan-100/60 shadow-sm overflow-hidden">
+                    <div class="flex justify-between items-center pb-4 border-b border-cyan-100/60 mb-4 px-4 sm:px-6">
                         <div>
                             <span class="font-extrabold text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span>
                             <span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span>
@@ -524,11 +538,11 @@
                         </button>
                     </div>
 
-                    <div class="space-y-3 px-1">
+                    <div class="space-y-0 px-0">
                         ${eventsHtml}
                     </div>
 
-                    <div class="px-1">
+                    <div class="px-4 sm:px-6 pb-2">
                         ${googleMapLinkHtml}
                     </div>
                 </div>
@@ -634,13 +648,11 @@
             if(!placesData[region]) placesData[region] = [];
             placesData[region].push(newPlace);
             
-            // 등록 완료 후 창을 닫지 않고 입력창 초기화 및 화면 갱신
             switchRegion(region); 
             switchCategory(group);
             renderPlaces();
             saveDataToLocalStorage();
 
-            // 입력 필드 초기화 및 포커스 유지
             document.getElementById('customPlaceName').value = '';
             document.getElementById('customLat').value = '';
             document.getElementById('customLng').value = '';

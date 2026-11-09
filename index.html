@@ -3,399 +3,757 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>오키나와 여행 플래너</title>
-    <!-- Tailwind CSS -->
+    <title>오키나와 완벽 맞춤형 여행 플래너</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Noto Sans KR -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f0fdfa; /* light teal background */
-        }
-        .hero-pattern {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1549880181-56a44cf463cb?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-        .sticky-sidebar {
-            position: -webkit-sticky;
-            position: sticky;
-            top: 2rem;
-        }
-    </style>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="bg-slate-50 text-slate-800 font-sans relative">
 
-    <!-- Navigation -->
-    <nav class="bg-white shadow-md fixed w-full z-50 top-0">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex-shrink-0 flex items-center">
-                    <i class="fas fa-plane-departure text-teal-600 text-2xl mr-2"></i>
-                    <span class="font-bold text-xl text-teal-800">Okinawa Planner</span>
-                </div>
-                <div class="hidden md:flex space-x-8">
-                    <a href="#transport" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">이동방법</a>
-                    <a href="#accommodation" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">숙소추천</a>
-                    <a href="#spots" class="text-gray-600 hover:text-teal-600 px-3 py-2 font-medium">관광지 & 액티비티</a>
-                </div>
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
+                </h1>
+                <p class="text-cyan-100 mt-1">남부→ 중부→ 북부 순서의 타임라인 일정 및 구글 맵 연동</p>
             </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="hero-pattern h-96 flex items-center justify-center mt-16">
-        <div class="text-center px-4">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">오키나와 힐링 여행 가이드</h1>
-            <p class="text-lg md:text-xl text-gray-200 drop-shadow-md">에메랄드빛 바다와 아름다운 자연이 기다리는 곳</p>
+            <!-- 항공 및 날짜 설정 바 -->
+            <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-center text-sm">
+                <div>
+                    <label class="block text-xs text-cyan-200">출발 날짜</label>
+                    <input type="date" id="startDate" value="2026-12-27" class="bg-white text-slate-800 px-2 py-1 rounded font-medium">
+                </div>
+                <div>
+                    <label class="block text-xs text-cyan-200">귀국 날짜</label>
+                    <input type="date" id="endDate" value="2026-12-31" class="bg-white text-slate-800 px-2 py-1 rounded font-medium">
+                </div>
+                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-3 py-1.5 rounded font-bold transition shadow self-end">설정 저장</button>
+            </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <main class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- Info Sections Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-            
-            <!-- Transportation -->
-            <section id="transport" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 class="text-2xl font-bold text-teal-800 mb-6 flex items-center">
-                    <i class="fas fa-car mr-3 text-teal-500"></i> 이동 방법 알아보기
-                </h2>
-                <div class="space-y-6">
-                    <div class="flex items-start">
-                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-car-side fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">렌터카 (추천)</h3>
-                            <p class="text-gray-600 mt-1 text-sm">오키나와 전역을 자유롭게 여행하기 가장 좋은 방법입니다. 츄라우미 수족관 등 북부 지역 방문 시 필수적입니다. 국제운전면허증을 꼭 준비하세요.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-train fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">유이레일 (모노레일)</h3>
-                            <p class="text-gray-600 mt-1 text-sm">나하 공항에서 나하 시내(국제거리, 슈리성 등)로 이동할 때 매우 편리합니다. 뚜벅이 여행객의 시내 이동 수단입니다.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="bg-teal-100 p-3 rounded-full mr-4 text-teal-600"><i class="fas fa-bus fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">일일 버스 투어</h3>
-                            <p class="text-gray-600 mt-1 text-sm">렌터카 이용이 어렵다면 주요 관광지를 하루 만에 도는 북부/남부 버스 투어를 예약하는 것을 추천합니다.</p>
-                        </div>
-                    </div>
+        <!-- Left Column: Places Browser -->
+        <div class="lg:col-span-7 space-y-8">
+            <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                    <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-cyan-600"></i> 오키나와 명소 탐색
+                    </h2>
+                    
+                    <button onclick="openAddModal()" class="bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 px-3 py-1.5 rounded-lg text-sm font-bold transition shadow-sm flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> 신규 장소 직접 등록
+                    </button>
                 </div>
-            </section>
 
-            <!-- Accommodation -->
-            <section id="accommodation" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                <h2 class="text-2xl font-bold text-teal-800 mb-6 flex items-center">
-                    <i class="fas fa-bed mr-3 text-teal-500"></i> 지역별 숙소 추천
-                </h2>
-                <div class="space-y-6">
-                    <div class="flex items-start">
-                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-city fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">나하 시내 (Naha)</h3>
-                            <p class="text-gray-600 mt-1 text-sm">공항과 가깝고 국제거리가 있어 맛집과 쇼핑을 즐기기 좋습니다. 여행 첫날이나 마지막 날 머물기 좋습니다.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-umbrella-beach fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">온나손 / 중부 (Onna)</h3>
-                            <p class="text-gray-600 mt-1 text-sm">아름다운 바다를 마주한 오션뷰 리조트들이 밀집해 있습니다. 호캉스와 해양 스포츠를 즐기려는 분들께 최적입니다.</p>
-                        </div>
-                    </div>
-                    <div class="flex items-start">
-                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-tree fa-fw"></i></div>
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-900">모토부 / 북부 (Motobu)</h3>
-                            <p class="text-gray-600 mt-1 text-sm">츄라우미 수족관, 코우리 대교 등 굵직한 관광지와 가까우며 자연 속에서 한적한 휴식을 원할 때 추천합니다.</p>
-                        </div>
-                    </div>
+                <!-- 1단계: 지역별 탭 (남부 / 중부 / 북부) -->
+                <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
+                    <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition bg-white text-cyan-700 shadow-sm">📍 남부</button>
+                    <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900">📍 중부</button>
+                    <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900">📍 북부</button>
+                </div>
+
+                <!-- 2단계: 카테고리별 서브 탭 (관광지 / 식당 / 액티비티) -->
+                <div class="flex gap-2 border-b border-slate-100 pb-4 mb-6">
+                    <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-sm">🏞️ 관광지</button>
+                    <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200">🍽️ 식당</button>
+                    <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200">🏄 액티비티</button>
+                </div>
+
+                <!-- 장소 카드 목록 영역 -->
+                <div id="places-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Javascript 동적 렌더링 -->
                 </div>
             </section>
         </div>
 
-        <!-- Interactive Map and Selection Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <!-- Left: Places Grid (2 columns) -->
-            <section id="spots" class="lg:col-span-2">
-                <h2 class="text-3xl font-bold text-gray-900 mb-8">어디로 떠나볼까요?</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="places-grid">
-                    <!-- Places will be injected here via JavaScript -->
+        <!-- Right Column: My Trip Planner -->
+        <div class="lg:col-span-5">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 sticky top-6">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i> 타임라인 & 구글 맵 연동
+                    </h2>
+                    <span id="trip-info-badge" class="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded font-medium"></span>
                 </div>
-            </section>
 
-            <!-- Right: My Course (Sticky Sidebar) -->
-            <aside class="lg:col-span-1">
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-teal-100 sticky-sidebar flex flex-col max-h-[85vh]">
-                    <h3 class="text-xl font-bold text-teal-800 mb-4 flex justify-between items-center border-b pb-3">
-                        <span><i class="fas fa-calendar-alt mr-2 text-teal-600"></i> 일정 플래너</span>
-                        <button onclick="addDay()" class="text-xs bg-teal-100 text-teal-700 hover:bg-teal-200 px-3 py-1.5 rounded-full transition-colors font-bold shadow-sm">+ 일자 추가</button>
-                    </h3>
-                    
-                    <!-- Day Selector Tabs -->
-                    <div class="flex space-x-1 overflow-x-auto pb-2 mb-4 scrollbar-hide border-b border-gray-100" id="day-tabs">
-                        <!-- Tabs injected by JS -->
-                    </div>
-
-                    <!-- Transport Selector -->
-                    <div class="mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-inner">
-                        <label class="block text-xs font-bold text-gray-600 mb-2">이 날의 주요 이동 수단</label>
-                        <select id="transport-selector" onchange="updateTransport(this.value)" class="w-full bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 font-medium">
-                            <option value="car">🚗 렌터카</option>
-                            <option value="bus">🚌 버스 투어 / 대중교통</option>
-                            <option value="monorail">🚝 유이레일 (모노레일)</option>
-                            <option value="walk">🚶 도보 / 택시</option>
-                        </select>
-                    </div>
-
-                    <div id="my-course-list" class="space-y-3 mb-4 flex-grow overflow-y-auto pr-2 custom-scrollbar">
-                        <!-- Places for active day -->
-                    </div>
-                    
-                    <div class="bg-teal-50 p-3 rounded-lg text-xs text-teal-800 mt-auto border border-teal-100 leading-relaxed">
-                        <i class="fas fa-info-circle mr-1"></i> 왼쪽에서 장소를 추가하면 <b>현재 선택된 일자</b>에 코스가 추가됩니다.
-                    </div>
+                <div class="mb-4">
+                    <div id="day-tabs" class="flex flex-wrap gap-1.5"></div>
                 </div>
-            </aside>
 
+                <div id="day-content" class="space-y-4"></div>
+
+                <div class="mt-6 pt-4 border-t border-slate-100 flex gap-2">
+                    <button onclick="manualSaveData()" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-sm">
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> 일정 저장
+                    </button>
+                    <button onclick="resetPlanner()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-xl font-bold text-sm transition">
+                        초기화
+                    </button>
+                </div>
+            </div>
         </div>
+
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-gray-300 py-8 text-center mt-12">
-        <p>© 2026 Okinawa Trip Planner. All rights reserved.</p>
-    </footer>
-
-    <!-- JavaScript Logic -->
-    <script>
-        // Database of Tourist Spots and Activities
-        const placesData = [
-            {
-                id: 'churaumi',
-                name: '오키나와 츄라우미 수족관',
-                category: '관광지',
-                desc: '거대한 고래상어와 만타가오리를 만날 수 있는 세계 최대 규모급 수족관.',
-                img: 'https://images.unsplash.com/photo-1583156340160-7763f038f32e?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Okinawa Churaumi Aquarium'
-            },
-            {
-                id: 'american-village',
-                name: '아메리칸 빌리지',
-                category: '관광지/쇼핑',
-                desc: '미국 서해안 분위기를 물씬 풍기는 테마타운. 야경과 선셋이 특히 아름답습니다.',
-                img: 'https://images.unsplash.com/photo-1590252994462-817887e224e7?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Mihama American Village Okinawa'
-            },
-            {
-                id: 'blue-cave',
-                name: '푸른동굴 스노클링',
-                category: '액티비티',
-                desc: '마에다 곶에 위치한 신비로운 푸른 빛의 수중 동굴. 열대어와 함께하는 스노클링.',
-                img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Cape Maeda Blue Cave Okinawa'
-            },
-            {
-                id: 'kokusai',
-                name: '나하 국제거리',
-                category: '쇼핑/맛집',
-                desc: '오키나와의 중심지. 기념품 샵, 돈키호테, 다양한 로컬 맛집이 모여있는 거리.',
-                img: 'https://images.unsplash.com/photo-1582236319702-8610f135b91b?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Kokusai Dori Okinawa'
-            },
-            {
-                id: 'kouri',
-                name: '코우리 대교 & 해변',
-                category: '관광지/자연',
-                desc: '에메랄드빛 바다 위를 가로지르는 2km 길이의 아름다운 다리와 투명한 해변.',
-                img: 'https://images.unsplash.com/photo-1606556534267-3312e7f4cdd9?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Kouri Bridge Okinawa'
-            },
-            {
-                id: 'manzamo',
-                name: '만좌모',
-                category: '관광지/자연',
-                desc: '코끼리 코 모양의 독특한 기암절벽과 탁 트인 동중국해의 절경을 감상하는 곳.',
-                img: 'https://images.unsplash.com/photo-1662993881472-7472deff627b?auto=format&fit=crop&w=600&q=80',
-                mapQuery: 'Cape Manzamo Okinawa'
-            }
-        ];
-
-        // State Management for Multi-Day Itinerary
-        let itinerary = [
-            { id: 1, transport: 'car', places: [] }
-        ];
-        let activeDayId = 1;
-
-        // Initialize Places
-        function renderPlaces() {
-            const grid = document.getElementById('places-grid');
-            grid.innerHTML = ''; // Clear existing cards
-            
-            const activeDay = itinerary.find(d => d.id === activeDayId);
-
-            placesData.forEach(place => {
-                // Check if the place is already added to the CURRENT active day
-                const isAdded = activeDay.places.some(p => p.id === place.id);
-                const btnClass = isAdded ? 'bg-rose-500 hover:bg-rose-600' : 'bg-teal-600 hover:bg-teal-700';
-                const btnText = isAdded ? '<i class="fas fa-check mr-1"></i> 현재 일정에 추가됨' : '<i class="fas fa-plus mr-1"></i> 코스 추가';
-
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden flex flex-col';
-                
-                card.innerHTML = `
-                    <div class="h-48 overflow-hidden">
-                        <img src="${place.img}" alt="${place.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+    <!-- Custom Place Modal (신규 장소 등록) -->
+    <div id="addPlaceModal" class="hidden fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-500 to-cyan-500 px-6 py-4 flex justify-between items-center text-white">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-magnifying-glass-location mr-2"></i>새로운 장소 검색 및 추가</h3>
+                <button onclick="closeAddModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">장소명</label>
+                    <input type="text" id="customPlaceName" placeholder="예: 국제거리, 슈리성" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">지역</label>
+                        <select id="customPlaceRegion" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <option value="south">남부</option>
+                            <option value="central">중부</option>
+                            <option value="north">북부</option>
+                        </select>
                     </div>
-                    <div class="p-5 flex-grow flex flex-col justify-between">
-                        <div>
-                            <span class="text-xs font-semibold bg-teal-100 text-teal-800 px-2 py-1 rounded-full mb-2 inline-block">${place.category}</span>
-                            <h3 class="text-xl font-bold text-gray-900 mb-2">${place.name}</h3>
-                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">${place.desc}</p>
-                        </div>
-                        <div class="flex justify-between items-center mt-2">
-                            <button onclick="togglePlace('${place.id}')" class="${btnClass} text-white text-sm font-medium py-2 px-4 rounded-lg transition-colors flex items-center">
-                                ${btnText}
-                            </button>
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.mapQuery)}" target="_blank" class="text-gray-500 hover:text-blue-600 transition-colors" title="구글맵에서 보기">
-                                <i class="fas fa-map-marked-alt text-xl"></i>
-                            </a>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">분류</label>
+                        <select id="customPlaceGroup" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                            <option value="관광지">관광지</option>
+                            <option value="식당">식당</option>
+                            <option value="액티비티">액티비티</option>
+                        </select>
                     </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
+                </div>
+                <div class="pt-4 flex gap-2">
+                    <button onclick="searchAndAddPlace()" id="customAddBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-sm transition">
+                        검색 및 추가
+                    </button>
+                    <button onclick="closeAddModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-bold text-sm transition">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Handle Add/Remove logic for the Active Day
-        function togglePlace(id) {
-            const place = placesData.find(p => p.id === id);
-            const activeDay = itinerary.find(d => d.id === activeDayId);
+    <!-- Timeline Item Add / Hotel Search Modal (타임라인 일정추가 모달) -->
+    <div id="hotelSearchModal" class="hidden fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl overflow-hidden flex flex-col">
+            <div class="bg-gradient-to-r from-indigo-500 to-cyan-600 px-6 py-4 flex justify-between items-center text-white shrink-0">
+                <h3 id="modalMainTitle" class="font-bold text-lg"><i class="fa-solid fa-calendar-plus mr-2"></i>타임라인 일정 추가</h3>
+                <button onclick="closeHotelSearchModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
             
-            const existingIndex = activeDay.places.findIndex(p => p.id === id);
+            <!-- 탭 전환 (등록된 장소 선택 / 숙소 검색 및 직접 추가) -->
+            <div class="flex bg-slate-100 p-1 m-4 mb-0 rounded-xl text-xs font-bold">
+                <button onclick="switchModalTab('registered')" id="modalTabRegistered" class="flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition">등록된 명소에서 고르기</button>
+                <button onclick="switchModalTab('hotelOrCustom')" id="modalTabHotel" class="flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition">숙소/기타 장소 검색·추가</button>
+            </div>
 
-            if (existingIndex >= 0) {
-                // Remove if it exists
-                activeDay.places.splice(existingIndex, 1);
-            } else {
-                // Add if it doesn't exist
-                activeDay.places.push(place);
-            }
-            
-            renderPlaces();
-            renderSidebar();
-        }
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <!-- 탭 1: 등록된 장소 선택 영역 -->
+                <div id="modalSectionRegistered" class="space-y-3">
+                    <p class="text-xs text-slate-500">좌측 '오키나와 명소 탐색'에 등록된 장소 중 하나를 선택해 현재 Day 일정에 추가합니다.</p>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">방문 시간</label>
+                        <select id="modalRegTime" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-cyan-500">
+                            <!-- JS 24시간 -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">장소 선택</label>
+                        <select id="modalRegPlaceSelect" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white outline-none focus:border-cyan-500">
+                            <!-- JS 동적 생성 -->
+                        </select>
+                    </div>
+                    <button onclick="addRegisteredPlaceToTimeline()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-sm mt-2">
+                        선택한 장소를 타임라인에 추가
+                    </button>
+                </div>
 
-        // Remove place via Sidebar 'X' button
-        function removePlace(dayId, placeId) {
-            const day = itinerary.find(d => d.id === dayId);
-            day.places = day.places.filter(p => p.id !== placeId);
-            renderPlaces();
-            renderSidebar();
-        }
-
-        // Add a new Day to the itinerary
-        function addDay() {
-            const newId = itinerary.length + 1;
-            itinerary.push({ id: newId, transport: 'car', places: [] });
-            activeDayId = newId; // Switch to the newly created day
-            renderPlaces();
-            renderSidebar();
-        }
-
-        // Switch active tab
-        function setActiveDay(id) {
-            activeDayId = id;
-            renderPlaces();
-            renderSidebar();
-        }
-
-        // Update transport choice
-        function updateTransport(value) {
-            const activeDay = itinerary.find(d => d.id === activeDayId);
-            activeDay.transport = value;
-        }
-
-        // Update the Sidebar UI
-        function renderSidebar() {
-            const tabsContainer = document.getElementById('day-tabs');
-            tabsContainer.innerHTML = '';
-            
-            // 1. Render Day Tabs
-            itinerary.forEach(day => {
-                const isActive = day.id === activeDayId;
-                const tab = document.createElement('button');
-                tab.onclick = () => setActiveDay(day.id);
-                tab.className = `whitespace-nowrap px-4 py-2 rounded-t-lg text-sm font-bold transition-colors border-b-2 ${isActive ? 'border-teal-600 text-teal-800 bg-teal-50' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:text-gray-700'}`;
-                tab.innerText = `Day ${day.id}`;
-                tabsContainer.appendChild(tab);
-            });
-
-            const activeDay = itinerary.find(d => d.id === activeDayId);
-            
-            // 2. Set Transport Value for Active Day
-            document.getElementById('transport-selector').value = activeDay.transport;
-
-            // 3. Render Places for Active Day
-            const listContainer = document.getElementById('my-course-list');
-            listContainer.innerHTML = '';
-            
-            if (activeDay.places.length === 0) {
-                listContainer.innerHTML = '<p class="text-gray-400 text-sm text-center mt-12"><i class="fas fa-map-signs text-2xl mb-2 block opacity-50"></i>장소를 추가해<br>Day '+activeDay.id+' 일정을 만들어보세요!</p>';
-                return;
-            }
-
-            activeDay.places.forEach((place, index) => {
-                const item = document.createElement('div');
-                item.className = 'flex flex-col bg-white p-3 rounded-lg border border-gray-100 shadow-sm animate-[fadeIn_0.3s_ease-in-out] group relative';
-                
-                item.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <div class="flex items-center">
-                            <div class="bg-teal-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs mr-2 font-bold flex-shrink-0">
-                                ${index + 1}
+                <!-- 탭 2: 숙소 및 기타 검색/수동 추가 영역 -->
+                <div id="modalSectionHotel" class="space-y-4 hidden">
+                    <div class="flex gap-3">
+                        <div class="w-1/3">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">방문 시간</label>
+                            <select id="hsTime" class="w-full border border-slate-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:border-indigo-500 bg-white">
+                                <!-- JS로 24시간 옵션 생성 -->
+                            </select>
+                        </div>
+                        <div class="w-2/3">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">장소/호텔명 검색</label>
+                            <div class="flex gap-1">
+                                <input type="text" id="hsQuery" placeholder="예: 몬토레, 숙소명" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500" onkeydown="if(event.key==='Enter') searchHotelApi()">
+                                <button onclick="searchHotelApi()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg transition"><i class="fa-solid fa-magnifying-glass"></i></button>
                             </div>
-                            <span class="font-bold text-gray-800 text-sm leading-tight pr-6">${place.name}</span>
                         </div>
-                        <button onclick="removePlace(${activeDay.id}, '${place.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-rose-500 transition-colors">
-                            <i class="fas fa-times"></i>
+                    </div>
+                    
+                    <div class="border border-slate-200 rounded-lg overflow-hidden flex flex-col h-32">
+                        <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 text-xs font-bold text-slate-600 flex justify-between items-center">
+                            <span>검색 결과</span>
+                            <span class="text-[10px] font-normal text-slate-400">OpenStreetMap 기반</span>
+                        </div>
+                        <div id="hsResults" class="overflow-y-auto p-2 flex-1 text-sm bg-white relative">
+                            <p class="text-slate-400 text-center mt-4 text-xs absolute inset-0 flex items-start justify-center pt-2">장소나 호텔 이름을 검색해주세요.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 space-y-2">
+                        <label class="block text-xs font-bold text-indigo-700"><i class="fa-solid fa-map-pin mr-1"></i>검색이 안 되나요? 구글 맵 좌표로 수동 추가</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" step="any" id="manualLat" placeholder="위도 (예: 26.2120)" class="border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
+                            <input type="number" step="any" id="manualLng" placeholder="경도 (예: 127.6800)" class="border border-slate-300 rounded px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
+                        </div>
+                        <button onclick="addManualHotelWithCoords()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-bold text-xs transition shadow-sm">
+                            입력한 이름과 좌표로 타임라인 추가
                         </button>
                     </div>
-                    <div class="flex justify-between items-center ml-7 mt-1">
-                        <span class="text-xs text-gray-500 bg-gray-50 px-2 py-0.5 rounded">${place.category}</span>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.mapQuery)}" target="_blank" class="text-xs text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-2 py-1 rounded transition-colors flex items-center">
-                            <i class="fas fa-map-marker-alt mr-1"></i>지도
-                        </a>
-                    </div>
-                `;
-                listContainer.appendChild(item);
-            });
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultPlacesData = {
+            south: [
+                { id: 's1', group: '관광지', name: '나하 공항', category: '교통/시작점', desc: '오키나와 남부 여행의 시작점이자 유이레일 출발지.', lat: 26.2056, lng: 127.6472 },
+                { id: 's2', group: '관광지', name: '니라이카나이 다리 전망대', category: '자연경관', desc: '터널을 빠져나오는 순간 펼쳐지는 웅장한 바다 풍경 감상 코스.', lat: 26.1666, lng: 127.8189 },
+                { id: 's3', group: '관광지', name: '치넨미사키 공원', category: '산책/공원', desc: '오키나와 남동부 끝자락, 태평양 바다의 탁 트인 250도 뷰를 볼 수 있는 공원.', lat: 26.1661, lng: 127.8315 },
+                { id: 's4', group: '관광지', name: '오키나와 월드', category: '테마파크', desc: '전통 문화 체험 및 30만 년 된 거대한 교쿠센도 종유동굴 탐험.', lat: 26.1378, lng: 127.7516 },
+                { id: 's5', group: '관광지', name: '세나가지마 우미카지 테라스', category: '복합몰', desc: '아름다운 바다와 노을, 새하얀 건물들이 어우러진 오키나와의 산토리니.', lat: 26.1738, lng: 127.6429 },
+                { id: 's6', group: '식당', name: '야기야 (Yagiya)', category: '로컬맛집', desc: '전통 민가를 개조한 식당에서 맛보는 일품 오키나와 소바 전문점.', lat: 26.1350, lng: 127.7310 },
+                { id: 's7', group: '식당', name: '하마베노차야', category: '오션뷰 카페', desc: '창밖으로 바로 바다가 펼쳐지는 낭만적인 티타임 명소.', lat: 26.1347, lng: 127.7816 },
+                { id: 's8', group: '액티비티', name: '미바루 비치 글라스보트', category: '해양체험', desc: '배 밑바닥의 유리창을 통해 젖지 않고 남부 바다의 산호초와 열대어를 감상.', lat: 26.1332, lng: 127.7845 }
+            ],
+            central: [
+                { id: 'c1', group: '관광지', name: '만좌모', category: '자연경관', desc: '코끼리 모양의 기암괴석과 푸른 동중국해 절경이 만나는 곳.', lat: 26.5028, lng: 127.8464 },
+                { id: 'c2', group: '관광지', name: '아메리칸 빌리지', category: '테마/야경', desc: '미국 서해안 분위기의 이국적인 쇼핑몰, 대관람차(야경) 관람.', lat: 26.3160, lng: 127.7580 },
+                { id: 'c3', group: '관광지', name: '잔파곶', category: '자연경관', desc: '거친 파도와 하얀 등대가 인상적인 웅장한 해안 절벽.', lat: 26.4385, lng: 127.7126 },
+                { id: 'c4', group: '식당', name: '얏빠리 스테이크', category: '스테이크', desc: '용암석에 구워 먹는 가성비 훌륭한 든든한 스테이크 전문점.', lat: 26.2160, lng: 127.6830 },
+                { id: 'c5', group: '식당', name: '단보라멘', category: '라멘', desc: '오키나와를 대표하는 돈코츠 라멘 맛집.', lat: 26.2172, lng: 127.6844 },
+                { id: 'c6', group: '액티비티', name: '마에다 곶 푸른동굴 스노클링', category: '해양체험', desc: '대표 스노클링 명소! 신비로운 푸른 빛이 감도는 동굴 속 탐험.', lat: 26.4447, lng: 127.7719 }
+            ],
+            north: [
+                { id: 'n1', group: '관광지', name: '츄라우미 수족관', category: '수족관', desc: '거대한 고래상어와 만타가 헤엄치는 대형 수조로 유명한 북부 핵심 명소.', lat: 26.6944, lng: 127.8778 },
+                { id: 'n2', group: '관광지', name: '코우리 대교 & 오션타워', category: '자연경관', desc: '에메랄드빛 바다 위를 가로지르는 대교 드라이브 및 타워 조망.', lat: 26.6991, lng: 128.0245 },
+                { id: 'n3', group: '관광지', name: '비세 후쿠기 가로수길', category: '산책코스', desc: '푸른 터널을 이루는 방풍림 사이로 자전거를 타거나 산책하기 좋은 곳.', lat: 26.7082, lng: 127.8756 },
+                { id: 'n4', group: '식당', name: '백년고가 우후야', category: '향토음식', desc: '100년 된 전통 가옥에서 자연을 보며 즐기는 오키나와 아구(흑돼지) 소바.', lat: 26.6346, lng: 127.9620 },
+                { id: 'n5', group: '식당', name: '캡틴 캥거루', category: '수제버거', desc: '압도적인 비주얼과 육즙을 자랑하는 북부 최고의 수제 버거 전문점.', lat: 26.6111, lng: 127.9405 },
+                { id: 'n6', group: '액티비티', name: '세소코 비치 해수욕', category: '해양체험', desc: '고운 모래사장과 에메랄드빛 맑은 바다에서 즐기는 한적한 해수욕.', lat: 26.6534, lng: 127.8543 },
+                { id: 'n7', group: '액티비티', name: '고릴라 촙 다이빙', category: '해양체험', desc: '초보자도 즐기기 좋은 산호와 열대어가 가득한 모토부 지역 다이빙 포인트.', lat: 26.6277, lng: 127.8767 }
+            ]
+        };
+
+        let placesData = JSON.parse(localStorage.getItem('okinawa_placesData')) || defaultPlacesData;
+        let currentRegion = 'south'; 
+        let currentCategory = '관광지';
+
+        let tripData = JSON.parse(localStorage.getItem('okinawa_tripData')) || {
+            startDate: '2026-12-27',
+            endDate: '2026-12-31',
+            days: [], activeDay: 0
+        };
+
+        window.onload = function() {
+            document.getElementById('startDate').value = tripData.startDate || '2026-12-27';
+            document.getElementById('endDate').value = tripData.endDate || '2026-12-31';
+            
+            generateDaysFromDates();
+            renderPlaces();
+            renderPlanner();
+        };
+
+        function saveDataToLocalStorage() {
+            localStorage.setItem('okinawa_placesData', JSON.stringify(placesData));
+            localStorage.setItem('okinawa_tripData', JSON.stringify(tripData));
         }
 
-        // Add some basic custom scrollbar styling
-        const style = document.createElement('style');
-        style.innerHTML = `
-            .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-            .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-            .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        `;
-        document.head.appendChild(style);
+        function manualSaveData() {
+            saveDataToLocalStorage();
+            alert('일정이 브라우저에 안전하게 저장되었습니다!');
+        }
 
-        // Initialize on load
-        window.onload = () => {
+        function generateTimeOptions(selectedTime = "10:00") {
+            let options = '';
+            for(let h = 0; h < 24; h++) {
+                for(let m = 0; m < 60; m += 30) {
+                    let timeStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                    let sel = (timeStr === selectedTime) ? 'selected' : '';
+                    options += `<option value="${timeStr}" ${sel}>${timeStr}</option>`;
+                }
+            }
+            return options;
+        }
+
+        function generateDaysFromDates() {
+            const start = new Date(document.getElementById('startDate').value);
+            const end = new Date(document.getElementById('endDate').value);
+            let timeDiff = end.getTime() - start.getTime();
+            let dayCount = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
+            if (isNaN(dayCount) || dayCount <= 0) dayCount = 1;
+
+            const weekNames = ['일', '월', '화', '수', '목', '금', '토'];
+            let oldDays = tripData.days || [];
+            let newDays = [];
+
+            for (let i = 0; i < dayCount; i++) {
+                let currDate = new Date(start);
+                currDate.setDate(start.getDate() + i);
+                let dateStr = `${currDate.getMonth() + 1}/${currDate.getDate()} (${weekNames[currDate.getDay()]}바이)`;
+                let existing = oldDays[i] || { events: [] };
+                newDays.push({ dayNum: i + 1, date: dateStr, events: existing.events });
+            }
+            tripData.days = newDays;
+            if (tripData.activeDay >= dayCount) tripData.activeDay = 0;
+            saveDataToLocalStorage();
+        }
+
+        function updateTripSettings() {
+            tripData.startDate = document.getElementById('startDate').value;
+            tripData.endDate = document.getElementById('endDate').value;
+            generateDaysFromDates();
+            renderPlanner();
             renderPlaces();
-            renderSidebar();
-        };
+            alert('날짜 설정이 저장되었습니다.');
+        }
+
+        function switchRegion(region) {
+            currentRegion = region;
+            const activeClass = 'flex-1 py-2.5 rounded-xl text-sm font-bold transition bg-white text-cyan-700 shadow-sm';
+            const inactiveClass = 'flex-1 py-2.5 rounded-xl text-sm font-bold transition text-slate-600 hover:text-slate-900';
+            document.getElementById('btn-south').className = region === 'south' ? activeClass : inactiveClass;
+            document.getElementById('btn-central').className = region === 'central' ? activeClass : inactiveClass;
+            document.getElementById('btn-north').className = region === 'north' ? activeClass : inactiveClass;
+            renderPlaces();
+        }
+
+        function switchCategory(category) {
+            currentCategory = category;
+            ['관광지', '식당', '액티비티'].forEach(cat => {
+                const btn = document.getElementById(`cat-${cat}`);
+                if (cat === category) {
+                    btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-cyan-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+                }
+            });
+            renderPlaces();
+        }
+
+        function renderPlaces() {
+            const container = document.getElementById('places-container');
+            const places = placesData[currentRegion] || [];
+            const filteredPlaces = places.filter(p => p.group === currentCategory);
+
+            let html = '';
+            if (filteredPlaces.length === 0) {
+                html = `<div class="col-span-1 md:col-span-2 text-center py-12 text-slate-400 text-xs">해당 카테고리에 등록된 장소가 없습니다.</div>`;
+            } else {
+                filteredPlaces.forEach(p => {
+                    html += `
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4">
+                        <div class="flex justify-between items-start mb-2 gap-2">
+                            <h4 class="font-bold text-base text-slate-900 leading-tight">${p.name}</h4>
+                            <span class="bg-slate-100 text-slate-600 text-[10px] px-2 py-0.5 rounded font-medium whitespace-nowrap">${p.category}</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed mb-4 flex-1">${p.desc}</p>
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-[11px] text-slate-400">
+                            <span>위도/경도 연동됨</span>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' 오키나와')}" target="_blank" class="text-cyan-600 hover:underline font-bold">지도 보기 <i class="fa-solid fa-arrow-up-right-from-square ml-0.5"></i></a>
+                        </div>
+                    </div>
+                    `;
+                });
+            }
+            container.innerHTML = html;
+        }
+
+        function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
+            if (!lat1 || !lon1 || !lat2 || !lon2) return { distance: '알 수 없음', duration: '-' };
+            const R = 6371;
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            let d = R * c;
+            let speed = mode === '택시' ? 35 : mode === '대중교통' ? 25 : mode === '도보' ? 4 : 40;
+            let hours = d / speed;
+            let mins = Math.max(5, Math.round(hours * 60));
+            return { distance: `${d.toFixed(1)} km`, duration: mins >= 60 ? `${Math.floor(mins/60)}시간 ${mins%60}분` : `${mins}분` };
+        }
+
+        function renderPlanner() {
+            const days = tripData.days || [];
+            document.getElementById('trip-info-badge').innerText = `${days.length}일 일정`;
+
+            document.getElementById('day-tabs').innerHTML = days.map((d, idx) => `
+                <button onclick="setActiveDay(${idx})" class="px-3 py-1.5 rounded-xl text-xs font-bold transition ${idx === tripData.activeDay ? 'bg-cyan-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    Day ${d.dayNum}
+                </button>
+            `).join('');
+
+            const contentContainer = document.getElementById('day-content');
+            const currentDayObj = days[tripData.activeDay];
+            if (!currentDayObj) return;
+
+            let eventsHtml = '';
+            let mapMarkers = []; 
+            let coordIndex = 1;  
+            let prevValidEvent = null;
+
+            if (currentDayObj.events.length === 0) {
+                eventsHtml = `<p class="text-xs text-slate-400 text-center py-6 bg-white rounded-xl border border-dashed border-slate-200">등록된 일정이 없습니다. 아래 버튼을 눌러 장소를 추가해주세요.</p>`;
+            } else {
+                currentDayObj.events.forEach((evt, evtIdx) => {
+                    const hasCoords = (evt.lat && evt.lng);
+                    
+                    if (hasCoords && prevValidEvent) {
+                        let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, evt.transport || '렌터카');
+                        eventsHtml += `
+                            <div class="my-1.5 ml-8 pl-4 border-l-2 border-dashed border-cyan-300 flex items-center gap-3 text-[11px] text-slate-500 py-1">
+                                <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded px-1 py-0.5 outline-none">
+                                    <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
+                                    <option value="택시" ${(evt.transport||'')==='택시'?'selected':''}>🚕 택시</option>
+                                    <option value="대중교통" ${(evt.transport||'')==='대중교통'?'selected':''}>🚌 대중교통</option>
+                                </select>
+                                <span>거리: <strong>${route.distance}</strong></span>
+                                <span>시간: <strong class="text-cyan-600">${route.duration}</strong></span>
+                            </div>
+                        `;
+                    }
+
+                    let displayNum = '';
+                    if (hasCoords) {
+                        displayNum = coordIndex++;
+                        mapMarkers.push({ ...evt, num: displayNum });
+                        prevValidEvent = evt;
+                    }
+
+                    const isHotel = evt.type === 'hotel';
+                    const iconColor = isHotel ? 'bg-indigo-500' : 'bg-cyan-600';
+                    const numCircle = displayNum ? `<span class="w-6 h-6 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-[11px] shadow-sm">${displayNum}</span>` : `<span class="w-6 h-6 ${iconColor} text-white rounded-full flex items-center justify-center font-bold text-[11px] shadow-sm"><i class="fa-solid fa-location-dot"></i></span>`;
+
+                    const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
+
+                    // 순서 변경 버튼 조건
+                    let moveUpBtn = evtIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 px-1 py-1" title="위로 이동"><i class="fa-solid fa-arrow-up"></i></button>` : '';
+                    let moveDownBtn = evtIdx < currentDayObj.events.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 px-1 py-1" title="아래로 이동"><i class="fa-solid fa-arrow-down"></i></button>` : '';
+
+                    eventsHtml += `
+                        <div class="flex items-stretch bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div class="bg-slate-50 border-r border-slate-100 px-2 py-2 flex flex-col justify-center items-center w-24 shrink-0">
+                                <select onchange="updateEventTime(${evtIdx}, this.value)" class="text-xs font-bold text-slate-700 bg-white border border-slate-200 rounded px-1 py-1 w-full text-center outline-none focus:border-cyan-500" title="시간 변경">
+                                    ${generateTimeOptions(evt.time)}
+                                </select>
+                            </div>
+                            <div class="flex-1 p-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    ${numCircle}
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 flex items-center gap-1">${evt.name}</h4>
+                                        <span class="text-[10px] text-slate-500">${evt.group || '숙소'}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <div class="flex flex-col border-r border-slate-100 pr-1 mr-1">
+                                        ${moveUpBtn}
+                                        ${moveDownBtn}
+                                    </div>
+                                    <a href="${singleMapUrl}" target="_blank" class="text-cyan-600 hover:text-cyan-800 p-2 text-xs" title="구글 맵에서 보기"><i class="fa-solid fa-map-location-dot"></i></a>
+                                    <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:text-rose-600 p-2" title="일정 삭제"><i class="fa-solid fa-trash-can"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            let googleMapLinkHtml = '';
+            if (mapMarkers.length >= 2) {
+                const origin = encodeURIComponent(mapMarkers[0].name + ' Okinawa');
+                const destination = encodeURIComponent(mapMarkers[mapMarkers.length - 1].name + ' Okinawa');
+                let waypointsStr = '';
+                if (mapMarkers.length > 2) {
+                    let wps = mapMarkers.slice(1, mapMarkers.length - 1).map(m => encodeURIComponent(m.name + ' Okinawa'));
+                    waypointsStr = `&waypoints=${wps.join('|')}`;
+                }
+                const gmUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${waypointsStr}&travelmode=driving`;
+
+                googleMapLinkHtml = `
+                    <a href="${gmUrl}" target="_blank" class="block w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white text-center py-3 rounded-xl text-xs font-bold shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-map-location-dot text-sm"></i> 구글 맵스로 한글 전체 경로 (내비게이션) 열기
+                    </a>
+                `;
+            }
+
+            contentContainer.innerHTML = `
+                <div class="bg-cyan-50/40 p-4 rounded-xl border border-cyan-100 space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b border-cyan-100">
+                        <div>
+                            <span class="font-extrabold text-lg text-cyan-900">Day ${currentDayObj.dayNum}</span>
+                            <span class="text-xs text-cyan-700 ml-1 font-medium">(${currentDayObj.date})</span>
+                        </div>
+                        <button onclick="openHotelSearchModal()" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i> 일정 장소 추가
+                        </button>
+                    </div>
+
+                    <div class="space-y-1">
+                        ${eventsHtml}
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        ${googleMapLinkHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setActiveDay(idx) { 
+            tripData.activeDay = idx; 
+            renderPlanner(); 
+        }
+
+        // 순서 변경 함수 (위/아래)
+        function moveEvent(evtIdx, direction) {
+            const events = tripData.days[tripData.activeDay].events;
+            const targetIdx = evtIdx + direction;
+            if (targetIdx < 0 || targetIdx >= events.length) return;
+
+            let temp = events[evtIdx];
+            events[evtIdx] = events[targetIdx];
+            events[targetIdx] = temp;
+
+            renderPlanner();
+            saveDataToLocalStorage();
+        }
+
+        function updateEventTime(evtIdx, newTime) {
+            if (!newTime) return;
+            tripData.days[tripData.activeDay].events[evtIdx].time = newTime;
+            renderPlanner();
+            saveDataToLocalStorage();
+        }
+
+        function removeEvent(dayIdx, evtIdx) {
+            tripData.days[dayIdx].events.splice(evtIdx, 1);
+            renderPlanner();
+            saveDataToLocalStorage();
+        }
+
+        function updateEventTransport(evtIdx, val) { 
+            tripData.days[tripData.activeDay].events[evtIdx].transport = val; 
+            renderPlanner(); 
+            saveDataToLocalStorage();
+        }
+
+        function resetPlanner() {
+            if (confirm('모든 일정을 초기화하시겠습니까?')) {
+                tripData.days.forEach(d => d.events = []);
+                renderPlanner();
+                saveDataToLocalStorage();
+            }
+        }
+
+        // 신규 장소 직접 등록 모달
+        function openAddModal() {
+            document.getElementById('addPlaceModal').classList.remove('hidden');
+            document.getElementById('customPlaceName').value = '';
+            document.getElementById('customPlaceName').focus();
+        }
+        function closeAddModal() {
+            document.getElementById('addPlaceModal').classList.add('hidden');
+        }
+        async function searchAndAddPlace() {
+            const nameInput = document.getElementById('customPlaceName').value.trim();
+            const region = document.getElementById('customPlaceRegion').value;
+            const group = document.getElementById('customPlaceGroup').value;
+            if (!nameInput) { alert('장소 이름을 입력해주세요.'); return; }
+
+            const btn = document.getElementById('customAddBtn');
+            btn.innerText = '검색 중...';
+            btn.disabled = true;
+
+            let desc = '사용자가 직접 추가한 맞춤 장소입니다.';
+            try {
+                const res = await fetch(`https://ko.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(nameInput)}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.extract) desc = data.extract.length > 70 ? data.extract.substring(0, 70) + '...' : data.extract;
+                }
+            } catch (e) { console.log('검색 실패'); }
+
+            const regionCoords = { south: { lat: 26.15, lng: 127.75 }, central: { lat: 26.35, lng: 127.80 }, north: { lat: 26.65, lng: 127.90 } };
+            const newPlace = {
+                id: 'custom-' + Date.now(), group: group, name: nameInput, category: '사용자 추가', desc: desc,
+                lat: regionCoords[region].lat, lng: regionCoords[region].lng
+            };
+
+            if(!placesData[region]) placesData[region] = [];
+            placesData[region].push(newPlace);
+            
+            closeAddModal();
+            switchRegion(region); 
+            switchCategory(group);
+            renderPlaces();
+            saveDataToLocalStorage();
+
+            btn.innerText = '검색 및 추가';
+            btn.disabled = false;
+        }
+
+        // 타임라인 일정 추가 모달 오픈
+        function openHotelSearchModal() {
+            document.getElementById('hotelSearchModal').classList.remove('hidden');
+            document.getElementById('hsQuery').value = '';
+            document.getElementById('manualLat').value = '';
+            document.getElementById('manualLng').value = '';
+            document.getElementById('hsTime').innerHTML = generateTimeOptions("10:00");
+            document.getElementById('modalRegTime').innerHTML = generateTimeOptions("10:00");
+            document.getElementById('hsResults').innerHTML = '<p class="text-slate-400 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2">장소나 호텔 이름을 검색해주세요.</p>';
+            
+            // 등록된 장소 셀렉트박스 옵션 채우기
+            let regSelectHtml = '';
+            ['south', 'central', 'north'].forEach(reg => {
+                let regName = reg === 'south' ? '남부' : reg === 'central' ? '중부' : '북부';
+                (placesData[reg] || []).forEach(p => {
+                    regSelectHtml += `<option value="${p.id}">[${regName} / ${p.group}] ${p.name}</option>`;
+                });
+            });
+            document.getElementById('modalRegPlaceSelect').innerHTML = regSelectHtml || '<option value="">등록된 장소가 없습니다.</option>';
+
+            switchModalTab('registered');
+        }
+
+        function closeHotelSearchModal() {
+            document.getElementById('hotelSearchModal').classList.add('hidden');
+        }
+
+        // 모달 내 탭 전환 (등록된 장소 vs 숙소/기타검색)
+        function switchModalTab(tab) {
+            const btnReg = document.getElementById('modalTabRegistered');
+            const btnHotel = document.getElementById('modalTabHotel');
+            const secReg = document.getElementById('modalSectionRegistered');
+            const secHotel = document.getElementById('modalSectionHotel');
+
+            if (tab === 'registered') {
+                btnReg.className = 'flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition';
+                btnHotel.className = 'flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                secReg.classList.remove('hidden');
+                secHotel.classList.add('hidden');
+            } else {
+                btnHotel.className = 'flex-1 py-2 rounded-lg bg-white text-cyan-700 shadow-sm transition';
+                btnReg.className = 'flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                secHotel.classList.remove('hidden');
+                secReg.classList.add('hidden');
+            }
+        }
+
+        // 등록된 명소에서 선택하여 타임라인에 추가
+        function addRegisteredPlaceToTimeline() {
+            const placeId = document.getElementById('modalRegPlaceSelect').value;
+            const timeVal = document.getElementById('modalRegTime').value;
+            if(!placeId) { alert('추가할 장소를 선택해주세요.'); return; }
+
+            let targetPlace = null;
+            Object.values(placesData).forEach(arr => {
+                let found = arr.find(p => p.id === placeId);
+                if(found) targetPlace = found;
+            });
+
+            if(targetPlace) {
+                let eventObj = JSON.parse(JSON.stringify(targetPlace));
+                eventObj.type = 'place';
+                eventObj.time = timeVal;
+                eventObj.transport = '렌터카';
+                tripData.days[tripData.activeDay].events.push(eventObj);
+                
+                // 시간순 정렬 유지
+                tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
+
+                closeHotelSearchModal();
+                renderPlanner();
+                saveDataToLocalStorage();
+            }
+        }
+
+        async function searchHotelApi() {
+            const query = document.getElementById('hsQuery').value.trim();
+            if(!query) { alert('검색어를 입력해주세요.'); return; }
+            
+            const resultsContainer = document.getElementById('hsResults');
+            resultsContainer.innerHTML = '<p class="text-slate-500 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2"><i class="fa-solid fa-spinner fa-spin mr-2"></i>검색 중...</p>';
+            
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Okinawa')}&limit=10`);
+                const data = await res.json();
+                
+                if(data.length === 0) {
+                    resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-4 absolute inset-0 flex flex-col items-center justify-start pt-2">검색 결과가 없습니다.<br>하단의 좌표 수동 입력을 이용해주세요.</p>';
+                    return;
+                }
+                
+                let html = '';
+                data.forEach(item => {
+                    let name = item.display_name.split(',')[0];
+                    let address = item.display_name.split(',').slice(1).join(',').trim();
+                    
+                    html += `
+                        <div class="flex justify-between items-center p-2 border-b border-slate-100 hover:bg-slate-50 transition">
+                            <div class="text-xs truncate flex-1 pr-2" title="${item.display_name}">
+                                <strong class="text-indigo-700 text-[12px]">${name}</strong>
+                                <p class="text-[10px] text-slate-400 truncate">${address}</p>
+                            </div>
+                            <button onclick="selectHotelAndAdd('${name.replace(/'/g, "\\'")}', ${item.lat}, ${item.lon})" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2.5 py-1 rounded text-xs font-bold whitespace-nowrap transition shadow-sm">
+                                선택
+                            </button>
+                        </div>
+                    `;
+                });
+                resultsContainer.innerHTML = html;
+            } catch(e) {
+                resultsContainer.innerHTML = '<p class="text-rose-500 text-center text-xs mt-4 absolute inset-0 flex items-start justify-center pt-2">검색 중 오류가 발생했습니다.</p>';
+            }
+        }
+
+        function selectHotelAndAdd(name, lat, lng) {
+            const timeVal = document.getElementById('hsTime').value;
+            const newItem = {
+                id: 'item-' + Date.now(), type: 'hotel', time: timeVal || '18:00',
+                name: name, group: '숙소/기타', lat: parseFloat(lat), lng: parseFloat(lng)
+            };
+            tripData.days[tripData.activeDay].events.push(newItem);
+            tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
+
+            closeHotelSearchModal();
+            renderPlanner();
+            saveDataToLocalStorage();
+        }
+
+        function addManualHotelWithCoords() {
+            const timeVal = document.getElementById('hsTime').value;
+            const nameVal = document.getElementById('hsQuery').value.trim();
+            const latVal = parseFloat(document.getElementById('manualLat').value);
+            const lngVal = parseFloat(document.getElementById('manualLng').value);
+
+            if(!nameVal) { alert('장소명을 입력해주세요.'); return; }
+            if(isNaN(latVal) || isNaN(lngVal)) { alert('올바른 위도와 경도 좌표를 입력해주세요.'); return; }
+
+            const newItem = {
+                id: 'item-' + Date.now(), type: 'hotel', time: timeVal || '18:00',
+                name: nameVal, group: '숙소/기타', lat: latVal, lng: lngVal
+            };
+
+            tripData.days[tripData.activeDay].events.push(newItem);
+            tripData.days[tripData.activeDay].events.sort((a, b) => a.time.localeCompare(b.time));
+
+            closeHotelSearchModal();
+            renderPlanner();
+            saveDataToLocalStorage();
+        }
     </script>
 </body>
 </html>

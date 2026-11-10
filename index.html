@@ -6,9 +6,8 @@
     <title>오키나와 완벽 맞춤형 여행 플래너</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Leaflet.js (오픈소스 무료 지도) CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- 이미지 캡처(공유)를 위한 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         .line-clamp-2 {
             display: -webkit-box;
@@ -18,10 +17,6 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Leaflet 지도 팝업 커스텀 스타일 */
-        .leaflet-popup-content-wrapper { border-radius: 8px; }
-        .leaflet-popup-content { margin: 10px; font-family: inherit; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans relative">
@@ -33,7 +28,7 @@
                 <h1 class="text-3xl font-bold flex items-center gap-2">
                     <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
                 </h1>
-                <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 오픈소스 맵 연동</p>
+                <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
             <!-- 항공 및 날짜 설정 바 -->
             <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-center text-sm">
@@ -45,7 +40,7 @@
                     <label class="block text-xs text-cyan-200">귀국 날짜</label>
                     <input type="date" id="endDate" value="2026-12-31" class="bg-white text-slate-800 px-2 py-1 rounded font-medium">
                 </div>
-                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-3 py-1.5 rounded font-bold transition shadow self-end">설정 저장</button>
+                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-3.5 py-1.5 rounded text-base font-bold transition shadow self-end">설정 저장</button>
             </div>
         </div>
     </header>
@@ -57,10 +52,19 @@
                 <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i>오키나와 일정
                 </h2>
-                <span id="trip-info-badge" class="text-sm bg-cyan-100 text-cyan-800 px-3 py-1.5 rounded-lg font-bold"></span>
+                <!-- 우측 상단 백업/복구 버튼 (폰트 크기 확대: text-xs sm:text-sm) -->
+                <div class="flex gap-2">
+                    <button onclick="exportBackupData()" class="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center gap-1 whitespace-nowrap">
+                        <i class="fa-solid fa-download"></i> 백업
+                    </button>
+                    <label class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center gap-1 cursor-pointer m-0 whitespace-nowrap">
+                        <i class="fa-solid fa-upload"></i> 복구
+                        <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
+                    </label>
+                </div>
             </div>
 
-            <!-- Day 탭 -->
+            <!-- Day 탭 (폰트 크기 확대: text-sm sm:text-base) -->
             <div class="mb-6 px-4 sm:px-6">
                 <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 shadow-inner w-full">
                     <div id="day-tabs" class="grid grid-cols-4 gap-1.5 w-full"></div>
@@ -71,20 +75,6 @@
             <div id="day-content" class="space-y-4"></div>
         </div>
     </main>
-
-    <!-- 내장 지도 모달 -->
-    <div id="integratedMapModal" class="hidden fixed inset-0 z-[80] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-4xl h-[85vh] shadow-2xl flex flex-col overflow-hidden">
-            <div class="bg-gradient-to-r from-slate-700 to-slate-900 px-5 py-3 flex justify-between items-center text-white shrink-0">
-                <h3 id="integratedMapTitle" class="font-bold text-base"><i class="fa-solid fa-map mr-2"></i>지도에서 한눈에 보기</h3>
-                <button onclick="closeIntegratedMap()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
-            </div>
-            <div class="flex-1 w-full relative">
-                <!-- Leaflet 지도가 렌더링될 영역 -->
-                <div id="leafletMapContainer" class="absolute inset-0 z-0"></div>
-            </div>
-        </div>
-    </div>
 
     <!-- Timeline Add Modal -->
     <div id="timelineAddModal" class="hidden fixed inset-0 z-[50] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -97,34 +87,26 @@
             <div class="p-6 overflow-y-auto bg-slate-50 flex-1 space-y-5 hide-scrollbar">
                 <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
                     <span class="text-sm font-bold text-slate-700">원하는 장소를 직접 등록하기</span>
-                    <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                    <button onclick="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-plus"></i> 직접 등록
                     </button>
                 </div>
 
-                <!-- 지역 탭 -->
+                <!-- 지역 탭 (폰트 크기 확대: text-xs sm:text-sm) -->
                 <div class="flex bg-slate-200/70 p-1 rounded-xl">
-                    <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
-                    <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800">중부</button>
-                    <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800">북부</button>
+                    <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
+                    <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">중부</button>
+                    <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">북부</button>
                 </div>
 
-                <!-- 카테고리 탭 -->
+                <!-- 카테고리 탭 (폰트 크기 확대: text-xs sm:text-sm) -->
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
-                    <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
-                    <button onclick="switchCategory('카페')" id="cat-카페" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
-                    <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
-                    <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
-                    <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
-                </div>
-
-                <!-- 현재 목록 지도 뷰 버튼 -->
-                <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-                    <span class="text-xs font-bold text-slate-500">아래 목록을 지도에서 확인해보세요.</span>
-                    <button onclick="openIntegratedMap('list')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                        <i class="fa-solid fa-map-location-dot"></i> 목록 지도 뷰
-                    </button>
+                    <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
+                    <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
+                    <button onclick="switchCategory('카페')" id="cat-카페" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
+                    <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
+                    <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
+                    <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
                 </div>
 
                 <!-- 장소 카드 목록 -->
@@ -184,32 +166,22 @@
                 </div>
                 
                 <div class="pt-1">
-                    <a href="https://www.google.com/maps/search/?api=1&query=오키나와" target="_blank" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 py-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                    <a href="https://www.google.com/maps/search/?api=1&query=오키나와" target="_blank" class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-map-location-dot"></i> 구글 맵에서 위치 찾기 / 좌표 복사
                     </a>
                 </div>
 
                 <div class="pt-3 flex gap-2">
-                    <button onclick="registerCustomPlace()" id="customAddBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-bold text-sm transition shadow-sm">
+                    <button onclick="registerCustomPlace()" id="customAddBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-bold text-sm sm:text-base transition shadow-sm">
                         등록하기
                     </button>
-                    <button onclick="closeAddModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-lg font-bold text-sm transition">닫기</button>
+                    <button onclick="closeAddModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2.5 rounded-lg font-bold text-sm sm:text-base transition">닫기</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Leaflet.js 아이콘 초기화 (오류 안전 체크 추가)
-        if (typeof L !== 'undefined') {
-            delete L.Icon.Default.prototype._getIconUrl;
-            L.Icon.Default.mergeOptions({
-                iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-            });
-        }
-
         const defaultPlacesData = {
             south: [
                 { id: 's_att1', group: '관광지', name: '나하 공항', category: '교통/시작점', desc: '오키나와 남부 여행의 시작점이 되는 관문 공항.', lat: 26.2056, lng: 127.6472 },
@@ -230,7 +202,6 @@
             ]
         };
 
-        // 로컬스토리지 JSON 파싱 시 발생할 수 있는 오류를 안전하게 방지
         let placesData = defaultPlacesData;
         try {
             const savedPlaces = localStorage.getItem('okinawa_placesData');
@@ -246,9 +217,6 @@
         let currentRegion = 'south'; 
         let currentCategory = '관광지';
         let addMode = 'place'; 
-
-        let theMap = null; 
-        let markerGroup = null; 
 
         window.onload = function() {
             document.getElementById('startDate').value = tripData.startDate || '2026-12-27';
@@ -335,8 +303,8 @@
 
         function switchRegion(region) {
             currentRegion = region;
-            const activeClass = 'flex-1 py-2 rounded-lg text-xs font-bold transition bg-white text-cyan-700 shadow-sm';
-            const inactiveClass = 'flex-1 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800';
+            const activeClass = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm';
+            const inactiveClass = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800';
             document.getElementById('btn-south').className = region === 'south' ? activeClass : inactiveClass;
             document.getElementById('btn-central').className = region === 'central' ? activeClass : inactiveClass;
             document.getElementById('btn-north').className = region === 'north' ? activeClass : inactiveClass;
@@ -347,7 +315,7 @@
             currentCategory = category;
             ['관광지', '식당', '카페', '쇼핑', '액티비티', '호텔'].forEach(cat => {
                 const btn = document.getElementById(`cat-${cat}`);
-                if (btn) btn.className = (cat === category) ? 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm' : 'px-4 py-1.5 rounded-lg text-xs font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
+                if (btn) btn.className = (cat === category) ? 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm' : 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
             });
             renderPlaces();
         }
@@ -367,7 +335,7 @@
                     <div class="min-w-0 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4 hover:border-cyan-300 transition relative w-full h-full overflow-hidden">
                         <div class="flex justify-between items-start mb-2 gap-2 w-full min-w-0">
                             <div class="flex items-start gap-2 flex-1 min-w-0">
-                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-[10px] font-bold py-1 px-1.5 rounded transition shadow-sm mt-0.5 whitespace-nowrap" title="선택">
+                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-2 rounded transition shadow-sm mt-0.5 whitespace-nowrap" title="선택">
                                     <i class="fa-solid fa-plus"></i> 추가
                                 </button>
                                 <h4 class="font-bold text-sm text-slate-900 leading-tight pt-0.5 line-clamp-2 break-words flex-1 min-w-0">${p.name}</h4>
@@ -429,10 +397,9 @@
 
         function renderPlanner() {
             const days = tripData.days || [];
-            document.getElementById('trip-info-badge').innerText = `총 ${days.length}일 코스`;
 
             document.getElementById('day-tabs').innerHTML = days.map((d, idx) => `
-                <button onclick="setActiveDay(${idx})" class="w-full px-2 py-2 rounded-lg text-xs sm:text-sm font-bold transition whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
+                <button onclick="setActiveDay(${idx})" class="w-full px-2 py-2.5 rounded-lg text-sm sm:text-base font-bold transition whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
                     Day ${d.dayNum}
                 </button>
             `).join('');
@@ -462,17 +429,17 @@
                         </div>
                         <div class="flex items-center gap-2 flex-1 min-w-0">
                             <span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>
-                            <h4 class="font-bold text-sm text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
+                            <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
-                            <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-xs"></i></a>
-                            <button onclick="removeEvent(${tripData.activeDay}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
+                            <button onclick="removeEvent(${tripData.activeDay}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>
                         </div>
                     </div>
                 `;
             } else {
                 eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-slate-200 py-2 px-4 sm:px-6">
-                    <button onclick="openTimelineAddModal('hotel')" class="w-full bg-slate-50 text-indigo-600 py-1.5 px-1 rounded-lg font-bold text-xs transition border border-dashed border-indigo-200 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> 숙소 추가</button>
+                    <button onclick="openTimelineAddModal('hotel')" class="w-full bg-slate-50 text-indigo-600 py-2 px-1 rounded-lg font-bold text-xs sm:text-sm transition border border-dashed border-indigo-200 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> 숙소 추가</button>
                 </div>`;
             }
 
@@ -480,7 +447,7 @@
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place')" class="bg-cyan-600 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-sm">명소 탐색 및 순서 추가</button></div>`;
+                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place')" class="bg-cyan-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg shadow-sm">명소 탐색 및 순서 추가</button></div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
                     const evtIdx = startIndex + subIdx;
@@ -492,9 +459,9 @@
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(prevValidEvent.name+' 오키나와')}&destination=${encodeURIComponent(evt.name+' 오키나와')}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
 
                         eventsHtml += `
-                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-xs text-slate-600 border-slate-200/60 shadow-sm w-full">
+                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-xs sm:text-sm text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400">
+                                    <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-xs sm:text-sm">
                                         <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
                                         <option value="택시" ${(evt.transport||'')==='택시'?'selected':''}>🚕 택시</option>
                                         <option value="버스" ${(evt.transport||'')==='버스'?'selected':''}>🚌 버스</option>
@@ -505,7 +472,7 @@
                                 <div class="flex items-center gap-2 sm:gap-3">
                                     <span>거리: <strong class="text-slate-800">${route.distance}</strong></span>
                                     <span>시간: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded shadow-sm flex items-center gap-1.5 font-bold"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">경로</span></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">경로</span></a>
                                 </div>
                             </div>
                         `;
@@ -513,115 +480,195 @@
 
                     let displayNum = '';
                     if (hasCoords) { displayNum = coordIndex++; mapMarkers.push({ ...evt, num: displayNum }); prevValidEvent = evt; }
-                    const numCircle = displayNum ? `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-extrabold text-xs shadow-md shrink-0">${displayNum}</span>` : `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
+                    const numCircle = displayNum ? `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md shrink-0">${displayNum}</span>` : `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
                     const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
-                    let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-up text-xs"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up text-xs"></i></span>`;
-                    let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-down text-xs"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs"></i></span>`;
+                    let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></span>`;
+                    let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></span>`;
 
                     eventsHtml += `
                         <div class="flex items-center bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-3 px-4 sm:px-6 gap-3">
                             <div class="flex flex-col justify-center items-center w-7 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">${moveUpBtn}${moveDownBtn}</div>
-                            <div class="flex items-center gap-3 flex-1 min-w-0">${numCircle}<h4 class="font-bold text-sm text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4></div>
+                            <div class="flex items-center gap-3 flex-1 min-w-0">${numCircle}<h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4></div>
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
-                                <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm"></i></a>
-                                <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-sm"></i></button>
+                                <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
+                                <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>
                             </div>
                         </div>
                     `;
                 });
 
                 eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-x-0 border-slate-200 py-2.5 px-4 sm:px-6">
-                    <button onclick="openTimelineAddModal('place')" class="w-full bg-slate-50 text-slate-600 py-2 px-1 rounded-lg font-bold text-[11px] sm:text-xs transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
+                    <button onclick="openTimelineAddModal('place')" class="w-full bg-slate-50 text-slate-600 py-2.5 px-1 rounded-lg font-bold text-xs sm:text-sm transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
                 </div>`;
             }
 
-            // 하단 기능 버튼 레이아웃 2줄로 분리 및 카카오톡 텍스트 공유 추가
-            let bottomButtonsHtml = `<div class="mt-4 flex flex-col gap-2 w-full">`;
-            
-            // 첫 번째 줄: 관리 버튼
-            bottomButtonsHtml += `<div class="flex gap-1.5 sm:gap-2 w-full">
-                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-2 px-1 rounded-lg font-bold text-[11px] sm:text-xs transition shadow-sm flex items-center justify-center gap-1 whitespace-nowrap">
-                    <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">저장</span>
+            // 하단 3개 주요 버튼 (일정저장 / 전체경로 / 공유하기) (폰트 크기 확대: text-xs sm:text-sm)
+            let bottomButtonsHtml = `<div class="mt-4 flex gap-1.5 sm:gap-2 w-full">
+                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-1 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">일정저장</span>
                 </button>
-                <button onclick="exportBackupData()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2 px-1 rounded-lg font-bold text-[11px] sm:text-xs transition shadow-sm flex items-center justify-center gap-1 whitespace-nowrap">
-                    <i class="fa-solid fa-download"></i><span class="tracking-tight">백업</span>
+                <button onclick="openGoogleMapsDayRoute(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold shadow-md transition whitespace-nowrap">
+                    <i class="fa-solid fa-route"></i><span class="tracking-tight">전체경로</span>
                 </button>
-                <label class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-lg font-bold text-[11px] sm:text-xs transition shadow-sm flex items-center justify-center gap-1 cursor-pointer m-0 whitespace-nowrap">
-                    <i class="fa-solid fa-upload"></i><span class="tracking-tight">복구</span>
-                    <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
-                </label>
+                <button onclick="shareAllDaysAsImages()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold shadow-md transition whitespace-nowrap">
+                    <i class="fa-solid fa-share-nodes"></i><span class="tracking-tight">공유하기</span>
+                </button>
             </div>`;
-
-            // 두 번째 줄: 뷰어 및 공유 버튼
-            bottomButtonsHtml += `<div class="flex gap-1.5 sm:gap-2 w-full">`;
-            if (mapMarkers.length > 0) {
-                bottomButtonsHtml += `
-                    <button onclick="openIntegratedMap('day')" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[11px] sm:text-xs font-bold shadow-md transition whitespace-nowrap">
-                        <i class="fa-solid fa-map-location-dot"></i><span class="tracking-tight">지도 뷰</span>
-                    </button>
-                `;
-            }
-            // 카카오톡 텍스트 공유용 클립보드 복사 버튼
-            bottomButtonsHtml += `
-                <button onclick="copyScheduleToClipboard()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1 py-2 px-1 rounded-lg text-[11px] sm:text-xs font-bold shadow-md transition whitespace-nowrap">
-                    <i class="fa-solid fa-comment"></i><span class="tracking-tight">일정 복사 (공유용)</span>
-                </button>
-            </div></div>`;
 
             contentContainer.innerHTML = `
                 <div class="bg-cyan-50/30 py-4 sm:py-5 border-y sm:border border-cyan-100/60 shadow-sm overflow-hidden">
                     <div class="flex justify-between items-center pb-4 border-b border-cyan-100/60 mb-4 px-4 sm:px-6">
                         <div><span class="font-extrabold text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span><span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span></div>
-                        <button onclick="openTimelineAddModal('place')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> 장소 추가</button>
+                        <button onclick="openTimelineAddModal('place')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> 장소 추가</button>
                     </div>
                     <div class="space-y-0 px-0">${eventsHtml}</div>
                     <div class="px-4 sm:px-6 pb-2">${bottomButtonsHtml}</div>
                 </div>
             `;
         }
-
-        // 전체 일정을 텍스트로 요약해서 클립보드에 복사하는 함수
-        function copyScheduleToClipboard() {
-            let text = `✈️ 오키나와 여행 일정 (${tripData.startDate} ~ ${tripData.endDate})\n\n`;
+        
+        // --- 구글 맵 전체경로 보기 완벽 수정본 ---
+        function openGoogleMapsDayRoute(dayIdx) {
+            const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
-            tripData.days.forEach(d => {
-                text += `[ Day ${d.dayNum} : ${d.date} ]\n`;
-                if (!d.events || d.events.length === 0) {
-                    text += `  - 등록된 일정이 없습니다.\n`;
-                } else {
-                    d.events.forEach((evt, i) => {
-                        let icon = (evt.type === 'hotel' || evt.group === '호텔') ? '🏨' : '📍';
-                        let trans = evt.transport ? `[${evt.transport}]` : '';
-                        text += `  ${i+1}. ${icon} ${evt.name} ${trans}\n`;
-                    });
-                }
-                text += `\n`;
-            });
-            text += `* 맞춤형 플래너에서 생성됨`;
-
-            // 모바일 및 웹뷰 호환성을 위한 클립보드 처리
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('전체 일정이 클립보드에 복사되었습니다!\n카카오톡 등에 붙여넣기 하세요.');
-                }).catch(() => fallbackCopyTextToClipboard(text));
-            } else {
-                fallbackCopyTextToClipboard(text);
+            if (!dayEvents || dayEvents.length === 0) {
+                alert('지도에 표시할 일정이 없습니다. 장소를 먼저 추가해주세요.');
+                return;
             }
+
+            // 구글 맵 다중 지점 호환 형식을 위해 각 이벤트 지점의 좌표 또는 이름을 파이프라인으로 생성
+            const points = dayEvents.map(e => {
+                if (e.lat && e.lng) {
+                    return `${e.lat},${e.lng}`;
+                }
+                return encodeURIComponent(e.name + ' 오키나와');
+            });
+
+            if (points.length === 1) {
+                // 장소가 1개인 경우 바로 해당 위치를 보여줍니다.
+                const url = `https://www.google.com/maps/search/?api=1&query=${points[0]}`;
+                window.open(url, '_blank');
+                return;
+            }
+
+            // 구글 맵 멀티포인트 서치/길찾기 전용 범용 경로 URL 템플릿
+            // https://www.google.com/maps/dir/지점1/지점2/지점3/... 
+            // 이 포맷은 PC, iOS, Android 브라우저 및 앱 연동 시 오류 없이 모든 장소를 순서대로 경로로 이어줍니다.
+            const url = `https://www.google.com/maps/dir/${points.join('/')}`;
+            window.open(url, '_blank');
         }
 
-        function fallbackCopyTextToClipboard(text) {
-            let textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+        // --- 공유 렌더링용 Day HTML 생성 ---
+        function generateDayHtmlForCapture(day) {
+            let eventsHtml = '';
+            if (!day.events || day.events.length === 0) {
+                eventsHtml = `<div style="text-align: center; color: #94a3b8; padding: 40px 0;">등록된 일정이 없습니다.</div>`;
+            } else {
+                day.events.forEach((evt, i) => {
+                    let isHotel = (evt.type === 'hotel' || evt.group === '호텔');
+                    let icon = isHotel ? '🏨 숙소' : '📍 ' + (evt.category || '명소');
+                    let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 13px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
+                    
+                    eventsHtml += `
+                    <div style="display: flex; align-items: center; background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <div style="background: ${isHotel ? '#4f46e5' : '#0891b2'}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 14px; flex-shrink: 0;">
+                            ${isHotel ? 'H' : i+1}
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 12px; color: ${isHotel ? '#4f46e5' : '#64748b'}; font-weight: bold; margin-bottom: 4px;">${icon}${trans}</div>
+                            <div style="font-size: 16px; color: #0f172a; font-weight: bold; line-height: 1.4;">${evt.name}</div>
+                        </div>
+                    </div>
+                    `;
+                });
+            }
+
+            return `
+            <div style="background: #f8fafc; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <div style="background: linear-gradient(to right, #0891b2, #1d4ed8); border-radius: 16px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">Day ${day.dayNum}</div>
+                    <div style="font-size: 16px; font-weight: 500; opacity: 0.9;">${day.date}</div>
+                </div>
+                <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+                    ${eventsHtml}
+                </div>
+                <div style="text-align: center; margin-top: 16px; color: #94a3b8; font-size: 12px; font-weight: bold;">오키나와 완벽 맞춤형 여행 플래너</div>
+            </div>
+            `;
+        }
+
+        // --- 전체 Day를 이미지로 변환 후 다중 공유 / 다운로드 ---
+        async function shareAllDaysAsImages() {
+            if (tripData.days.length === 0) {
+                alert('공유할 일정이 없습니다.');
+                return;
+            }
+
+            let loader = document.createElement('div');
+            loader.id = 'share-loader';
+            loader.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-spinner fa-spin text-4xl text-white mb-3"></i><p class="text-white font-bold text-sm mt-2">일정 이미지를 생성 중입니다...</p><p class="text-white/70 text-[11px] mt-1">잠시만 기다려주세요 (약 3~5초 소요)</p></div>';
+            loader.className = 'fixed inset-0 z-[100] bg-slate-900/80 flex items-center justify-center';
+            document.body.appendChild(loader);
+
             try {
-                let successful = document.execCommand('copy');
-                if (successful) alert('전체 일정이 클립보드에 복사되었습니다!\n카카오톡 등에 붙여넣기 하세요.');
-                else alert('복사 실패. 브라우저가 클립보드 복사를 지원하지 않습니다.');
-            } catch (err) { alert('복사 실패. 브라우저가 클립보드 복사를 지원하지 않습니다.'); }
-            document.body.removeChild(textArea);
+                let captureArea = document.createElement('div');
+                captureArea.style.position = 'absolute';
+                captureArea.style.top = '-9999px';
+                captureArea.style.left = '0';
+                captureArea.style.width = '400px'; 
+                document.body.appendChild(captureArea);
+
+                let imageFiles = [];
+                
+                for (let i = 0; i < tripData.days.length; i++) {
+                    let day = tripData.days[i];
+                    let dayContainer = document.createElement('div');
+                    dayContainer.innerHTML = generateDayHtmlForCapture(day);
+                    captureArea.appendChild(dayContainer);
+                    
+                    await new Promise(r => setTimeout(r, 200)); 
+                    
+                    let canvas = await html2canvas(dayContainer, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#f8fafc'
+                    });
+                    
+                    let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    let file = new File([blob], `Okinawa_Day${day.dayNum}.png`, { type: 'image/png' });
+                    imageFiles.push(file);
+                    
+                    captureArea.innerHTML = '';
+                }
+                
+                document.body.removeChild(captureArea);
+
+                if (navigator.canShare && navigator.canShare({ files: imageFiles })) {
+                    await navigator.share({
+                        title: '오키나와 여행 일정',
+                        files: imageFiles
+                    });
+                } else {
+                    alert('현재 브라우저에서는 여러 장 동시 공유를 지원하지 않아, 각 일정 이미지를 기기에 다운로드합니다.');
+                    for (let file of imageFiles) {
+                        let url = URL.createObjectURL(file);
+                        let a = document.createElement('a');
+                        a.href = url;
+                        a.download = file.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        await new Promise(r => setTimeout(r, 400));
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+                alert('이미지 생성 또는 공유 중 오류가 발생했습니다.');
+            } finally {
+                let loaderEl = document.getElementById('share-loader');
+                if (loaderEl) document.body.removeChild(loaderEl);
+            }
         }
 
         function setActiveDay(idx) { tripData.activeDay = idx; renderPlanner(); }
@@ -653,12 +700,12 @@
             const name = document.getElementById('customPlaceName').value.trim(); const region = document.getElementById('customPlaceRegion').value;
             const group = document.getElementById('customPlaceGroup').value; const descVal = document.getElementById('customPlaceDesc').value.trim();
             let latVal = document.getElementById('customLat').value.trim(); let lngVal = document.getElementById('customLng').value.trim();
+            
             if (!name) { alert('장소명을 입력해주세요.'); return; }
 
             let desc = descVal || '직접 등록한 맞춤형 장소입니다.';
             const regionCoords = { south: { lat: 26.21, lng: 127.68 }, central: { lat: 26.35, lng: 127.78 }, north: { lat: 26.65, lng: 127.90 } };
             
-            // 좌표를 숫자로 확실하게 변환
             let latNum = parseFloat(latVal);
             let lngNum = parseFloat(lngVal);
             latNum = isNaN(latNum) ? regionCoords[region].lat : latNum;
@@ -667,82 +714,14 @@
             const newPlace = { id: 'custom-' + Date.now(), group: group, name: name, category: group === '호텔' ? '호텔/숙소' : '구글 맵 명소', desc: desc, lat: latNum, lng: lngNum };
 
             if(!placesData[region]) placesData[region] = []; placesData[region].push(newPlace);
-            switchRegion(region); switchCategory(group); renderPlaces(); saveDataToLocalStorage();
-
-            let eventObj = JSON.parse(JSON.stringify(newPlace)); eventObj.type = (addMode === 'hotel' || group === '호텔') ? 'hotel' : 'place'; eventObj.transport = '렌터카';
-            if (addMode === 'hotel' || group === '호텔') {
-                if (tripData.days[tripData.activeDay].events.length > 0 && (tripData.days[tripData.activeDay].events[0].type === 'hotel' || tripData.days[tripData.activeDay].events[0].group === '호텔')) tripData.days[tripData.activeDay].events[0] = eventObj;
-                else tripData.days[tripData.activeDay].events.unshift(eventObj);
-            } else tripData.days[tripData.activeDay].events.push(eventObj);
-
-            renderPlanner(); saveDataToLocalStorage(); closeAddModal(); closeTimelineAddModal();
-        }
-
-        // --- 내장 맵(Leaflet) 렌더링 함수 ---
-        function openIntegratedMap(source) {
-            if (typeof L === 'undefined') {
-                alert('지도 라이브러리를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.');
-                return;
-            }
-
-            document.getElementById('integratedMapModal').classList.remove('hidden');
             
-            // 모달이 완전히 뜬 후 맵 초기화 (크기 계산 오류 방지)
-            setTimeout(() => {
-                if (!theMap) {
-                    theMap = L.map('leafletMapContainer').setView([26.4, 127.8], 10);
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(theMap);
-                    markerGroup = L.layerGroup().addTo(theMap);
-                } else {
-                    theMap.invalidateSize(); 
-                }
-                
-                markerGroup.clearLayers();
-                let placesToShow = [];
-
-                if (source === 'list') {
-                    document.getElementById('integratedMapTitle').innerHTML = '<i class="fa-solid fa-map-location-dot mr-2"></i>목록 장소 한눈에 보기';
-                    // 빈 배열 폴백 처리
-                    placesToShow = (placesData[currentRegion] || []).filter(p => p.group === currentCategory);
-                } else if (source === 'day') {
-                    document.getElementById('integratedMapTitle').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>Day ${tripData.days[tripData.activeDay].dayNum} 일정 한눈에 보기`;
-                    placesToShow = tripData.days[tripData.activeDay].events.filter(e => e.lat && e.lng);
-                }
-
-                if (placesToShow.length === 0) {
-                    alert('현재 지도에 표시할 좌표 정보가 없습니다.');
-                    closeIntegratedMap();
-                    return;
-                }
-
-                let bounds = L.latLngBounds();
-                
-                placesToShow.forEach((p, idx) => {
-                    let lat = parseFloat(p.lat);
-                    let lng = parseFloat(p.lng);
-                    
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        let marker = L.marker([lat, lng]).addTo(markerGroup);
-                        let popupHtml = `
-                            <div style="min-width: 120px;">
-                                <strong style="color:#0f172a; font-size:13px;">${source === 'day' ? (idx + 1) + '. ' : ''}${p.name}</strong><br>
-                                <span style="font-size:11px; color:#64748b;">${p.category || '장소'}</span>
-                            </div>
-                        `;
-                        marker.bindPopup(popupHtml);
-                        bounds.extend([lat, lng]);
-                    }
-                });
-
-                // 마커가 한눈에 들어오도록 줌 레벨과 위치 자동 조정
-                theMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-            }, 100);
-        }
-
-        function closeIntegratedMap() {
-            document.getElementById('integratedMapModal').classList.add('hidden');
+            switchRegion(region); 
+            switchCategory(group); 
+            renderPlaces(); 
+            saveDataToLocalStorage();
+            closeAddModal();
+            
+            alert(`[${name}] 장소가 목록에 등록되었습니다.\n일정표에 반영하려면 목록에서 '추가' 버튼을 눌러주세요.`);
         }
     </script>
 </body>

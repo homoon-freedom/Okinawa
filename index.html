@@ -30,7 +30,7 @@
                 </h1>
                 <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
-            <!-- 항공 및 날짜 설정 바 (날짜 폭 넓게, 버튼 폭 좁게 비율 조정) -->
+            <!-- 항공 및 날짜 설정 바 -->
             <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-2 items-end text-sm w-full md:w-auto">
                 <div class="flex-[3] sm:flex-none sm:w-[136px]">
                     <label class="block text-[11px] text-cyan-200 mb-1">출발 날짜</label>
@@ -488,14 +488,16 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    // 탑 위치에 고정된 숙소와 첫 번째 추가된 일정 사이에서만 경로를 숨김.
-                    // (일정 중간 1, 2, 3...에 포함된 호텔 앞뒤로는 경로가 정상 표시됨)
                     let skipRouteBlock = (hasHotel && subIdx === 0);
                     
                     if (hasCoords && prevValidEvent && !skipRouteBlock) {
                         let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, evt.transport || '렌터카');
                         let travelModeMap = { '렌터카': 'driving', '택시': 'driving', '버스': 'transit', '모노레일': 'transit', '도보': 'walking' };
-                        let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(prevValidEvent.name+' 오키나와')}&destination=${encodeURIComponent(evt.name+' 오키나와')}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
+                        
+                        // 아이폰 구글맵 버그 방지: 이름 텍스트 검색을 제거하고 정확한 좌표(위도,경도)를 우선적으로 URL에 삽입
+                        let originQ = prevValidEvent.lat && prevValidEvent.lng ? `${prevValidEvent.lat},${prevValidEvent.lng}` : encodeURIComponent(prevValidEvent.name+' 오키나와');
+                        let destQ = evt.lat && evt.lng ? `${evt.lat},${evt.lng}` : encodeURIComponent(evt.name+' 오키나와');
+                        let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${originQ}&destination=${destQ}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
 
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
@@ -521,7 +523,6 @@
                     let isMidHotel = (evt.type === 'hotel' || evt.group === '호텔');
                     if (hasCoords) { displayNum = coordIndex++; mapMarkers.push({ ...evt, num: displayNum }); prevValidEvent = evt; }
                     
-                    // 중간에 등록된 호텔이면 H 마크와 남색 테마 적용, 아니면 일반 청록색 숫자 마크 적용
                     let iconTheme = isMidHotel ? 'bg-indigo-600' : 'bg-cyan-600';
                     let displayIcon = isMidHotel ? '<i class="fa-solid fa-bed"></i>' : displayNum;
                     
@@ -575,6 +576,7 @@
             `;
         }
         
+        // 구글 맵스 모바일 앱 친화적인 다중 경로 포맷 (api=1 파라미터 제외하고 슬래시 형태로 재구성)
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -596,18 +598,8 @@
                 return;
             }
 
-            const origin = points[0];
-            const destination = points[points.length - 1];
-            
-            if (points.length === 2) {
-                const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-                window.open(url, '_blank');
-                return;
-            }
-            
-            const waypoints = points.slice(1, -1).join('|');
-            const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}`;
-            
+            // 아이폰 구글맵이 경유지를 누락하지 않도록 가장 안정적인 원시 포맷 사용
+            const url = `https://www.google.com/maps/dir/${points.join('/')}/`;
             window.open(url, '_blank');
         }
 
@@ -777,3 +769,4 @@
     </script>
 </body>
 </html>
+```<FollowUp label="체류 및 일정 종료 시간 표시 기능 추가" query="이 웹 플래너에 각 장소별로 예상 체류 시간을 추가로 선택할 수 있게 하고, 전체 이동 시간과 체류 시간을 합산하여 당일 일정이 대략 몇 시에 끝날지 예상 종료 시간을 하단에 표시해 주는 기능을 추가해 줘."/>

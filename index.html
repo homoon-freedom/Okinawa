@@ -6,8 +6,11 @@
     <title>오키나와 완벽 맞춤형 여행 플래너</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 이미지 캡처(공유)를 위한 라이브러리 추가 -->
+    <!-- 이미지 캡처(공유)를 위한 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- 오픈스트리트맵 지도(Leaflet) 라이브러리 추가 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         .line-clamp-2 {
             display: -webkit-box;
@@ -17,6 +20,21 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Leaflet 지도 마커 번호 스타일 커스텀 */
+        .custom-map-marker {
+            background: #0891b2;
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans relative">
@@ -75,6 +93,23 @@
             <div id="day-content" class="space-y-4"></div>
         </div>
     </main>
+
+    <!-- 전체위치 지도 모달 -->
+    <div id="mapModal" class="hidden fixed inset-0 z-[70] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh]">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
+                <h3 id="map-modal-title" class="font-bold text-base"><i class="fa-solid fa-map-location-dot mr-2"></i>Day별 전체위치 지도</h3>
+                <button onclick="closeMapModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-4 flex-1 bg-slate-100 flex flex-col">
+                <div id="dayMapContainer" class="w-full flex-1 rounded-xl shadow-inner border border-slate-300 z-10"></div>
+                <p class="text-xs text-slate-500 mt-2 text-center">※ 마커 번호는 일정 순서(숙소 제외)를 나타내며, 클릭 시 상세 정보를 볼 수 있습니다.</p>
+            </div>
+            <div class="p-3 bg-white border-t border-slate-200 flex justify-end">
+                <button onclick="closeMapModal()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition">닫기</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Timeline Add Modal -->
     <div id="timelineAddModal" class="hidden fixed inset-0 z-[50] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -223,6 +258,7 @@
         let currentRegion = 'south'; 
         let currentCategory = '관광지';
         let addMode = 'place'; 
+        let leafletMap = null; // 지도 객체 전역 변수
 
         window.onload = function() {
             document.getElementById('startDate').value = tripData.startDate || '2026-12-27';
@@ -518,7 +554,6 @@
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
 
             if (hasHotel) {
-                // 숙소가 있어도 화면에만 띄우고 전체경로 계산용 prevValidEvent에는 반영하지 않음 (제외 효과)
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
                 eventsHtml += `
@@ -632,8 +667,8 @@
                 <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">일정저장</span>
                 </button>
-                <button onclick="openGoogleMapsDayRoute(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
-                    <i class="fa-solid fa-route"></i><span class="tracking-tight">전체경로</span>
+                <button onclick="openDayMapModal(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
+                    <i class="fa-solid fa-map-location-dot"></i><span class="tracking-tight">전체위치</span>
                 </button>
                 <button onclick="shareAllDaysAsImages()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
                     <i class="fa-solid fa-share-nodes"></i><span class="tracking-tight">공유하기</span>
@@ -657,40 +692,79 @@
             saveDataToLocalStorage();
         }
 
-        // 전체경로 시 맨 위 숙소를 제외하고 관광지/장소들만 엮어서 구글 맵 열기
-        function openGoogleMapsDayRoute(dayIdx) {
-            const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
-            
-            if (!dayEvents || dayEvents.length === 0) {
+        // 전체위치 버튼: Leaflet 기반 인터랙티브 지도를 모달에 열고 마커 번호 표시 (숙소 제외)
+        function openDayMapModal(dayIdx) {
+            const dayObj = tripData.days[dayIdx];
+            if (!dayObj || !dayObj.events || dayObj.events.length === 0) {
                 alert('지도에 표시할 일정이 없습니다. 장소를 먼저 추가해주세요.');
                 return;
             }
 
-            // 첫 번째 항목이 숙소인 경우 전체경로 목록에서 제외
-            const firstEvt = dayEvents[0];
+            const firstEvt = dayObj.events[0];
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
-            const routeEvents = hasHotel ? dayEvents.slice(1) : dayEvents;
+            const routeEvents = hasHotel ? dayObj.events.slice(1) : dayObj.events;
 
-            if (routeEvents.length === 0) {
-                alert('경로를 안내할 장소가 없습니다. (숙소 제외)');
+            let validEvents = routeEvents.filter(e => e.lat && e.lng);
+            if (validEvents.length === 0) {
+                alert('지도에 표시할 위치(위도/경도)가 등록된 장소가 없습니다.');
                 return;
             }
 
-            const points = routeEvents.map(e => {
-                if (e.lat && e.lng) {
-                    return `${e.lat},${e.lng}`;
+            document.getElementById('map-modal-title.innerHTML') = `<i class="fa-solid fa-map-location-dot mr-2"></i>Day ${dayObj.dayNum} 전체위치 (${validEvents.length개소})`;
+            document.getElementById('mapModal').classList.remove('hidden');
+
+            setTimeout(() => {
+                if (leafletMap) {
+                    leafletMap.remove();
+                    leafletMap = null;
                 }
-                return encodeURIComponent(e.name + ' 오키나와');
-            });
 
-            if (points.length === 1) {
-                const url = `https://www.google.com/maps/search/?api=1&query=${points[0]}`;
-                window.open(url, '_blank');
-                return;
+                // 지도 초기화 (오키나와 중심 기준)
+                leafletMap = L.map('dayMapContainer').setView([26.3, 127.8], 10);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(leafletMap);
+
+                let bounds = [];
+
+                validEvents.forEach((evt, idx) => {
+                    let lat = parseFloat(evt.lat);
+                    let lng = parseFloat(evt.lng);
+                    bounds.push([lat, lng]);
+
+                    let numberIcon = L.divIcon({
+                        className: 'custom-marker-container',
+                        html: `<div class="custom-map-marker">${idx + 1}</div>`,
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                    });
+
+                    let popupContent = `
+                        <div style="font-family: sans-serif; padding: 4px; min-width: 150px;">
+                            <span style="background: #0891b2; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소</span>
+                            <h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4>
+                            <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p>
+                            <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a>
+                        </div>
+                    `;
+
+                    L.marker([lat, lng], { icon: numberIcon }).addTo(leafletMap).bindPopup(popupContent);
+                });
+
+                if (bounds.length > 0) {
+                    leafletMap.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }, 100);
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').classList.add('hidden');
+            if (leafletMap) {
+                leafletMap.remove();
+                leafletMap = null;
             }
-
-            const url = `https://www.google.com/maps/dir/${points.join('/')}/`;
-            window.open(url, '_blank');
         }
 
         function generateDayHtmlForCapture(day) {

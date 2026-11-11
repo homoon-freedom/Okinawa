@@ -449,7 +449,6 @@
             if (!currentDayObj) return;
 
             let eventsHtml = '';
-            let mapMarkers = []; 
             let coordIndex = 1;  
             let prevValidEvent = null;
 
@@ -459,9 +458,9 @@
             if (hasHotel) {
                 if (firstEvt.lat && firstEvt.lng) {
                     prevValidEvent = firstEvt;
-                    mapMarkers.push({ ...firstEvt, num: 'H' });
                 }
-                const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(firstEvt.name + ' 오키나와')}`;
+                let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
+                const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
                 eventsHtml += `
                     <div class="flex flex-col bg-indigo-50/50 border-b border-slate-200 shadow-sm py-2.5 px-4 sm:px-6 gap-2">
                         <div class="flex items-center gap-3">
@@ -506,8 +505,10 @@
                         
                         let travelModeMap = { '운전': 'driving', '대중교통': 'transit', '도보': 'walking', '자전거': 'bicycling' };
                         
-                        let originQ = prevValidEvent.lat && prevValidEvent.lng ? `${prevValidEvent.lat},${prevValidEvent.lng}` : encodeURIComponent(prevValidEvent.name+' 오키나와');
-                        let destQ = evt.lat && evt.lng ? `${evt.lat},${evt.lng}` : encodeURIComponent(evt.name+' 오키나와');
+                        let originQ = `${prevValidEvent.lat},${prevValidEvent.lng}`;
+                        let destQ = `${evt.lat},${evt.lng}`;
+                        
+                        // 아이폰/사파리 및 크롬 호환 최적화 URL (api=1 파라미터 표준 준수)
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${originQ}&destination=${destQ}&travelmode=${travelModeMap[currentTransport]}`;
 
                         eventsHtml += `
@@ -531,13 +532,16 @@
 
                     let displayNum = '';
                     let isMidHotel = (evt.type === 'hotel' || evt.group === '호텔');
-                    if (hasCoords) { displayNum = coordIndex++; mapMarkers.push({ ...evt, num: displayNum }); prevValidEvent = evt; }
+                    if (hasCoords) { displayNum = coordIndex++; prevValidEvent = evt; }
                     
                     let iconTheme = isMidHotel ? 'bg-indigo-600' : 'bg-cyan-600';
                     let displayIcon = isMidHotel ? '<i class="fa-solid fa-bed"></i>' : displayNum;
                     
                     const numCircle = displayNum ? `<span class="w-7 h-7 ${iconTheme} text-white rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md shrink-0">${displayIcon}</span>` : `<span class="w-7 h-7 ${iconTheme} text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
-                    const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
+                    
+                    let singleMapQ = (evt.lat && evt.lng) ? `${evt.lat},${evt.lng}` : encodeURIComponent(evt.name + ' 오키나와');
+                    const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${singleMapQ}`;
+                    
                     let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></span>`;
                     let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></span>`;
 
@@ -596,6 +600,7 @@
             saveDataToLocalStorage();
         }
 
+        // 아이폰/사파리/구글맵 앱에서 확실하게 작동하는 현재 Day 전체경로 포맷
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -617,6 +622,7 @@
                 return;
             }
 
+            // iOS 기기에서 경유지 씹힘 현상을 방지하는 네이티브 슬래시 경로 포맷
             const url = `https://www.google.com/maps/dir/${points.join('/')}/`;
             window.open(url, '_blank');
         }

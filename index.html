@@ -30,7 +30,7 @@
                 </h1>
                 <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
-            <!-- 항공 및 날짜 설정 바 (아이폰 높이 정렬 완벽 대응) -->
+            <!-- 항공 및 날짜 설정 바 -->
             <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-2 items-end text-sm w-full md:w-auto">
                 <div class="flex-1 sm:flex-none">
                     <label class="block text-[11px] text-cyan-200 mb-1">출발 날짜</label>
@@ -488,14 +488,15 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    let skipRouteBlock = prevValidEvent && (prevValidEvent.type === 'hotel' || prevValidEvent.group === '호텔');
+                    // 핵심 수정: 탑 위치에 고정된 숙소와 첫 번째 추가된 일정 사이에서만 경로를 숨김.
+                    // (일정 중간 1, 2, 3...에 포함된 호텔 앞뒤로는 경로가 정상 표시됨)
+                    let skipRouteBlock = (hasHotel && subIdx === 0);
                     
                     if (hasCoords && prevValidEvent && !skipRouteBlock) {
                         let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, evt.transport || '렌터카');
                         let travelModeMap = { '렌터카': 'driving', '택시': 'driving', '버스': 'transit', '모노레일': 'transit', '도보': 'walking' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(prevValidEvent.name+' 오키나와')}&destination=${encodeURIComponent(evt.name+' 오키나와')}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
 
-                        // 글씨 크기 한 단계 상향 조정 (text-sm sm:text-base)
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
@@ -766,4 +767,3 @@
     </script>
 </body>
 </html>
-```<FollowUp label="체류 및 일정 종료 시간 표시 기능 추가" query="이 웹 플래너에 각 장소별로 예상 체류 시간을 추가로 선택할 수 있게 하고, 전체 이동 시간과 체류 시간을 합산하여 당일 일정이 대략 몇 시에 끝날지 예상 종료 시간을 하단에 표시해 주는 기능을 추가해 줘."/>

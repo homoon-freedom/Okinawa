@@ -30,17 +30,17 @@
                 </h1>
                 <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
-            <!-- 항공 및 날짜 설정 바 (버튼 높이 정렬 수정) -->
-            <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-end text-sm">
-                <div>
-                    <label class="block text-xs text-cyan-200 mb-1">출발 날짜</label>
-                    <input type="date" id="startDate" value="2026-12-27" class="bg-white text-slate-800 px-2 py-1.5 rounded font-medium h-[36px] box-border outline-none focus:ring-2 focus:ring-cyan-300">
+            <!-- 항공 및 날짜 설정 바 (아이폰 높이 정렬 완벽 대응) -->
+            <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-2 items-end text-sm w-full md:w-auto">
+                <div class="flex-1 sm:flex-none">
+                    <label class="block text-[11px] text-cyan-200 mb-1">출발 날짜</label>
+                    <input type="date" id="startDate" value="2026-12-27" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300">
                 </div>
-                <div>
-                    <label class="block text-xs text-cyan-200 mb-1">귀국 날짜</label>
-                    <input type="date" id="endDate" value="2026-12-31" class="bg-white text-slate-800 px-2 py-1.5 rounded font-medium h-[36px] box-border outline-none focus:ring-2 focus:ring-cyan-300">
+                <div class="flex-1 sm:flex-none">
+                    <label class="block text-[11px] text-cyan-200 mb-1">귀국 날짜</label>
+                    <input type="date" id="endDate" value="2026-12-31" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300">
                 </div>
-                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded text-sm font-bold transition shadow h-[36px] flex items-center justify-center">설정 저장</button>
+                <button onclick="updateTripSettings()" class="flex-1 sm:flex-none bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded text-sm font-bold transition shadow h-[38px] flex items-center justify-center whitespace-nowrap">설정 저장</button>
             </div>
         </div>
     </header>
@@ -52,7 +52,7 @@
                 <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i>오키나와 일정
                 </h2>
-                <!-- 우측 상단 백업/복구 버튼 (크기 한단계 확대) -->
+                <!-- 우측 상단 백업/복구 버튼 -->
                 <div class="flex gap-2.5">
                     <button onclick="exportBackupData()" class="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center gap-1.5 whitespace-nowrap">
                         <i class="fa-solid fa-download"></i> 백업
@@ -236,14 +236,22 @@
             alert('일정이 브라우저에 안전하게 저장되었습니다!');
         }
 
+        // 아이폰 다운로드 최적화를 위해 Blob 방식으로 백업 기능 교정
         function exportBackupData() {
             const backupPayload = { version: "1.0", exportedAt: new Date().toLocaleString(), tripData: tripData, placesData: placesData };
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+            const jsonStr = JSON.stringify(backupPayload, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
             const downloadAnchor = document.createElement('a');
             const today = new Date().toISOString().slice(0, 10);
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `okinawa_trip_backup_${today}.json`);
-            document.body.appendChild(downloadAnchor); downloadAnchor.click(); downloadAnchor.remove();
+            downloadAnchor.href = url;
+            downloadAnchor.download = `okinawa_trip_backup_${today}.json`;
+            document.body.appendChild(downloadAnchor); 
+            downloadAnchor.click(); 
+            document.body.removeChild(downloadAnchor);
+            
+            setTimeout(() => URL.revokeObjectURL(url), 100);
         }
 
         function importBackupData(event) {
@@ -385,7 +393,7 @@
             }
         }
 
-        // 실제 도로 주행 거리에 근접하게 보정된 거리 및 시간 로직
+        // 이동수단(모드)에 따라 구글 맵스의 예상 소요 시간을 자체 계산식으로 반영
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
             if (!lat1 || !lon1 || !lat2 || !lon2) return { distance: '알 수 없음', duration: '-' };
             const R = 6371; 
@@ -393,18 +401,34 @@
             const dLon = (lon2 - lon1) * (Math.PI / 180);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
-            let d = R * c; // 지도상 직선 거리
+            let d = R * c; 
 
-            // 실제 도로 형태를 감안하여 우회 계수(약 1.35배) 적용
-            let roadDistance = d * 1.35;
-            if (roadDistance < 1) roadDistance = Math.max(0.1, roadDistance);
+            // 이동 경로 우회 계수 보정
+            let roadDistance = mode === '도보' ? d * 1.2 : d * 1.35; 
+            if (roadDistance < 0.1) roadDistance = 0.1;
 
-            // 이동 수단별 대략적인 속도 (km/h) 설정
-            let speed = mode === '택시' || mode === '렌터카' ? 40 : (mode === '버스' || mode === '모노레일') ? 25 : mode === '도보' ? 4 : 40;
-            let hours = roadDistance / speed;
+            let speed = 40;
+            let extraTime = 5;
+
+            // 구글맵스 기반 오키나와 현지 이동수단별 보정 로직
+            switch(mode) {
+                case '택시':
+                case '렌터카':
+                    speed = 35; // 시내/국도 혼합 평균
+                    extraTime = 5; // 신호대기 등 기본 추가시간
+                    break;
+                case '버스':
+                case '모노레일':
+                    speed = 20; // 정류장 정차 및 서행
+                    extraTime = 15; // 탑승 대기, 도보 접근 등 포함
+                    break;
+                case '도보':
+                    speed = 4;
+                    extraTime = 0;
+                    break;
+            }
             
-            // 탑승 대기, 신호 대기 등을 고려하여 기본 시간 추가 (도보 제외)
-            let extraTime = mode === '도보' ? 0 : 5;
+            let hours = roadDistance / speed;
             let mins = Math.max(1, Math.round(hours * 60) + extraTime);
             
             return { distance: `${roadDistance.toFixed(1)} km`, duration: mins >= 60 ? `${Math.floor(mins/60)}시간 ${mins%60}분` : `${mins}분` };
@@ -468,7 +492,10 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    if (hasCoords && prevValidEvent) {
+                    // 핵심수정: 이전 이벤트가 '숙소(호텔)'인 경우 경로(이동수단/거리/시간) 블록을 출력하지 않음
+                    let skipRouteBlock = prevValidEvent && (prevValidEvent.type === 'hotel' || prevValidEvent.group === '호텔');
+                    
+                    if (hasCoords && prevValidEvent && !skipRouteBlock) {
                         let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, evt.transport || '렌터카');
                         let travelModeMap = { '렌터카': 'driving', '택시': 'driving', '버스': 'transit', '모노레일': 'transit', '도보': 'walking' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(prevValidEvent.name+' 오키나와')}&destination=${encodeURIComponent(evt.name+' 오키나와')}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
@@ -517,7 +544,6 @@
                 </div>`;
             }
 
-            // 하단 주요 버튼 크기 한단계 확대 (text-sm sm:text-base, py-3)
             let bottomButtonsHtml = `<div class="mt-5 flex gap-2 sm:gap-3 w-full">
                 <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">일정저장</span>
@@ -542,7 +568,6 @@
             `;
         }
         
-        // --- 구글 맵 전체경로 보기 오류 수정 및 정식 API 규격 적용 ---
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -551,7 +576,6 @@
                 return;
             }
 
-            // 각 이벤트 지점의 좌표(우선) 또는 텍스트 주소 추출
             const points = dayEvents.map(e => {
                 if (e.lat && e.lng) {
                     return `${e.lat},${e.lng}`;
@@ -560,13 +584,11 @@
             });
 
             if (points.length === 1) {
-                // 장소가 1개인 경우 단일 장소 검색
                 const url = `https://www.google.com/maps/search/?api=1&query=${points[0]}`;
                 window.open(url, '_blank');
                 return;
             }
 
-            // 구글 맵 API 정식 waypoints 규격 적용 (오류 방지)
             const origin = points[0];
             const destination = points[points.length - 1];
             
@@ -576,14 +598,12 @@
                 return;
             }
             
-            // 중간 경유지들을 파이프(|) 기호로 연결
             const waypoints = points.slice(1, -1).join('|');
             const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}`;
             
             window.open(url, '_blank');
         }
 
-        // --- 공유 렌더링용 Day HTML 생성 ---
         function generateDayHtmlForCapture(day) {
             let eventsHtml = '';
             if (!day.events || day.events.length === 0) {
@@ -622,7 +642,6 @@
             `;
         }
 
-        // --- 전체 Day를 이미지로 변환 후 다중 공유 / 다운로드 ---
         async function shareAllDaysAsImages() {
             if (tripData.days.length === 0) {
                 alert('공유할 일정이 없습니다.');
@@ -751,3 +770,4 @@
     </script>
 </body>
 </html>
+```<FollowUp label="HTML 기능 추가하기" query="이 웹 플래너에 각 장소별로 예상 체류 시간을 추가 입력하고, 당일 일정이 끝나는 총 예상 시간을 하단에 표시해 주는 기능을 추가해줘."/>

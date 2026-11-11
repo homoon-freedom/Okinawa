@@ -30,17 +30,17 @@
                 </h1>
                 <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
-            <!-- 항공 및 날짜 설정 바 -->
+            <!-- 항공 및 날짜 설정 바 (날짜 폭 넓게, 버튼 폭 좁게 비율 조정) -->
             <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-2 items-end text-sm w-full md:w-auto">
-                <div class="flex-1 sm:flex-none">
+                <div class="flex-[3] sm:flex-none sm:w-[136px]">
                     <label class="block text-[11px] text-cyan-200 mb-1">출발 날짜</label>
-                    <input type="date" id="startDate" value="2026-12-27" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300">
+                    <input type="date" id="startDate" value="2026-12-27" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300 tracking-tighter">
                 </div>
-                <div class="flex-1 sm:flex-none">
+                <div class="flex-[3] sm:flex-none sm:w-[136px]">
                     <label class="block text-[11px] text-cyan-200 mb-1">귀국 날짜</label>
-                    <input type="date" id="endDate" value="2026-12-31" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300">
+                    <input type="date" id="endDate" value="2026-12-31" class="w-full bg-white text-slate-800 px-2.5 py-0 rounded font-medium h-[38px] appearance-none m-0 outline-none focus:ring-2 focus:ring-cyan-300 tracking-tighter">
                 </div>
-                <button onclick="updateTripSettings()" class="flex-1 sm:flex-none bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded text-sm font-bold transition shadow h-[38px] flex items-center justify-center whitespace-nowrap">설정 저장</button>
+                <button onclick="updateTripSettings()" class="flex-[2] sm:flex-none bg-cyan-500 hover:bg-cyan-400 text-white px-3 rounded text-sm font-bold transition shadow h-[38px] flex items-center justify-center whitespace-nowrap">설정 저장</button>
             </div>
         </div>
     </header>
@@ -488,7 +488,7 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    // 핵심 수정: 탑 위치에 고정된 숙소와 첫 번째 추가된 일정 사이에서만 경로를 숨김.
+                    // 탑 위치에 고정된 숙소와 첫 번째 추가된 일정 사이에서만 경로를 숨김.
                     // (일정 중간 1, 2, 3...에 포함된 호텔 앞뒤로는 경로가 정상 표시됨)
                     let skipRouteBlock = (hasHotel && subIdx === 0);
                     
@@ -518,8 +518,14 @@
                     }
 
                     let displayNum = '';
+                    let isMidHotel = (evt.type === 'hotel' || evt.group === '호텔');
                     if (hasCoords) { displayNum = coordIndex++; mapMarkers.push({ ...evt, num: displayNum }); prevValidEvent = evt; }
-                    const numCircle = displayNum ? `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md shrink-0">${displayNum}</span>` : `<span class="w-7 h-7 bg-cyan-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
+                    
+                    // 중간에 등록된 호텔이면 H 마크와 남색 테마 적용, 아니면 일반 청록색 숫자 마크 적용
+                    let iconTheme = isMidHotel ? 'bg-indigo-600' : 'bg-cyan-600';
+                    let displayIcon = isMidHotel ? '<i class="fa-solid fa-bed"></i>' : displayNum;
+                    
+                    const numCircle = displayNum ? `<span class="w-7 h-7 ${iconTheme} text-white rounded-full flex items-center justify-center font-extrabold text-xs sm:text-sm shadow-md shrink-0">${displayIcon}</span>` : `<span class="w-7 h-7 ${iconTheme} text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-md shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
                     const singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(evt.name + ' 오키나와')}`;
                     let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up text-xs sm:text-sm"></i></span>`;
                     let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></span>`;
@@ -527,7 +533,11 @@
                     eventsHtml += `
                         <div class="flex items-center bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-3 px-4 sm:px-6 gap-3">
                             <div class="flex flex-col justify-center items-center w-7 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">${moveUpBtn}${moveDownBtn}</div>
-                            <div class="flex items-center gap-3 flex-1 min-w-0">${numCircle}<h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4></div>
+                            <div class="flex items-center gap-3 flex-1 min-w-0">
+                                ${numCircle}
+                                ${isMidHotel ? `<span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>` : ''}
+                                <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                            </div>
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
                                 <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
                                 <button onclick="removeEvent(${tripData.activeDay}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>

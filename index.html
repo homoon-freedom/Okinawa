@@ -445,7 +445,6 @@
             }
         }
 
-        // 사파리(iOS) 브라우저 호환성 및 부동소수점 오차를 잡은 거리/시간 계산 로직
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
             let nLat1 = parseFloat(lat1);
             let nLon1 = parseFloat(lon1);
@@ -519,9 +518,7 @@
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
 
             if (hasHotel) {
-                if (firstEvt.lat && firstEvt.lng) {
-                    prevValidEvent = firstEvt;
-                }
+                // 숙소가 있어도 화면에만 띄우고 전체경로 계산용 prevValidEvent에는 반영하지 않음 (제외 효과)
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
                 eventsHtml += `
@@ -560,9 +557,7 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    let skipRouteBlock = (hasHotel && subIdx === 0);
-                    
-                    if (hasCoords && prevValidEvent && !skipRouteBlock) {
+                    if (hasCoords && prevValidEvent) {
                         let currentTransport = evt.transport || '운전';
                         let route = calculateRouteInfo(prevValidEvent.lat, prevValidEvent.lng, evt.lat, evt.lng, currentTransport);
                         
@@ -662,6 +657,7 @@
             saveDataToLocalStorage();
         }
 
+        // 전체경로 시 맨 위 숙소를 제외하고 관광지/장소들만 엮어서 구글 맵 열기
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -670,7 +666,17 @@
                 return;
             }
 
-            const points = dayEvents.map(e => {
+            // 첫 번째 항목이 숙소인 경우 전체경로 목록에서 제외
+            const firstEvt = dayEvents[0];
+            const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
+            const routeEvents = hasHotel ? dayEvents.slice(1) : dayEvents;
+
+            if (routeEvents.length === 0) {
+                alert('경로를 안내할 장소가 없습니다. (숙소 제외)');
+                return;
+            }
+
+            const points = routeEvents.map(e => {
                 if (e.lat && e.lng) {
                     return `${e.lat},${e.lng}`;
                 }

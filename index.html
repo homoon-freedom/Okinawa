@@ -42,27 +42,27 @@
             <h1 class="text-2xl sm:text-3xl font-bold flex items-center justify-center md:justify-start gap-2">
                 <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
             </h1>
-            <p class="text-cyan-100 mt-1 text-sm sm:text-base">순서 기반 일정 관리 및 맞춤 경로 안내</p>
+            <!-- 여행 날짜 및 설정 버튼 영역 -->
+            <div class="flex items-center justify-center md:justify-start gap-2 mt-3">
+                <div class="bg-white/15 px-3 py-1.5 rounded-full backdrop-blur-sm text-sm sm:text-base font-medium text-cyan-50 flex items-center shadow-inner">
+                    <i class="fa-regular fa-calendar-check mr-2 text-cyan-200"></i>
+                    <span id="header-date-display">2026. 12. 27. - 2027. 01. 03.</span>
+                </div>
+                <!-- 설정(톱니바퀴) 버튼 -->
+                <button onclick="openSettingsModal()" class="bg-white/20 hover:bg-white text-white hover:text-cyan-700 w-9 h-9 rounded-full transition shadow-sm flex items-center justify-center border border-white/30" title="일정 및 관리 설정">
+                    <i class="fa-solid fa-gear text-lg"></i>
+                </button>
+            </div>
         </div>
     </header>
 
     <main class="max-w-4xl mx-auto px-0 py-4 sm:py-6">
         <!-- My Trip Planner -->
         <div class="bg-white sm:rounded-2xl py-4 sm:py-6 shadow-sm border-y sm:border border-slate-100">
-            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 px-4 sm:px-6">
-                <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i>오키나와 일정
-                </h2>
-                <!-- 설정(톱니바퀴) 버튼 -->
-                <button onclick="openSettingsModal()" class="text-slate-400 hover:text-slate-700 p-2 rounded-full transition bg-slate-50 hover:bg-slate-100 shadow-sm border border-slate-200">
-                    <i class="fa-solid fa-gear text-lg"></i>
-                </button>
-            </div>
-
-            <!-- 작아진 한 줄 Day 탭 -->
-            <div class="mb-5 px-4 sm:px-6">
-                <div class="bg-slate-50 rounded-xl border border-slate-200 p-1.5 shadow-inner w-full">
-                    <div id="day-tabs" class="flex flex-nowrap overflow-x-auto gap-1 w-full hide-scrollbar"></div>
+            <!-- Day 탭 (오키나와 일정 헤더 삭제, 한 줄 유지 및 버튼 크기 확대) -->
+            <div class="mb-5 px-4 sm:px-6 mt-1">
+                <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 shadow-inner w-full">
+                    <div id="day-tabs" class="flex flex-nowrap overflow-x-auto gap-1.5 w-full hide-scrollbar"></div>
                 </div>
             </div>
 
@@ -272,7 +272,6 @@
             if (savedPlaces) placesData = JSON.parse(savedPlaces);
         } catch(e) { console.error('기존 장소 데이터 로드 실패'); }
 
-        // Day8까지 보이도록 기본 일정을 12.27~1.3으로 세팅
         let tripData = { startDate: '2026-12-27', endDate: '2027-01-03', days: [], activeDay: 0 };
         try {
             const savedTrip = localStorage.getItem('okinawa_tripData');
@@ -288,9 +287,18 @@
             document.getElementById('startDate').value = tripData.startDate || '2026-12-27';
             document.getElementById('endDate').value = tripData.endDate || '2027-01-03';
             generateDaysFromDates();
+            updateHeaderDateDisplay();
             renderPlaces();
             renderPlanner();
         };
+
+        // 상단 헤더 날짜 업데이트 함수
+        function updateHeaderDateDisplay() {
+            const startVal = tripData.startDate || '2026-12-27';
+            const endVal = tripData.endDate || '2027-01-03';
+            const format = (dateStr) => dateStr.replace(/-/g, '. ') + '.';
+            document.getElementById('header-date-display').innerText = `${format(startVal)} - ${format(endVal)}`;
+        }
 
         // 모달 제어 함수
         function openSettingsModal() { 
@@ -340,7 +348,7 @@
                     saveDataToLocalStorage();
                     if (tripData.startDate) document.getElementById('startDate').value = tripData.startDate;
                     if (tripData.endDate) document.getElementById('endDate').value = tripData.endDate;
-                    generateDaysFromDates(); renderPlaces(); renderPlanner();
+                    generateDaysFromDates(); updateHeaderDateDisplay(); renderPlaces(); renderPlanner();
                     alert('백업 데이터가 성공적으로 복구되었습니다!');
                     closeSettingsModal();
                 } catch (err) { alert('파일을 읽는 중 오류가 발생했습니다.'); }
@@ -377,7 +385,9 @@
         function updateTripSettings() {
             tripData.startDate = document.getElementById('startDate').value;
             tripData.endDate = document.getElementById('endDate').value;
-            generateDaysFromDates(); renderPlanner(); 
+            generateDaysFromDates(); 
+            updateHeaderDateDisplay();
+            renderPlanner(); 
             alert('날짜 설정이 저장되었습니다.');
             closeSettingsModal();
         }
@@ -560,9 +570,9 @@
         function renderPlanner() {
             const days = tripData.days || [];
 
-            // 크기를 줄여 한 줄로 배치하는 Day 탭 (Flex + 가로스크롤)
+            // 글씨 크기를 키운 Day 버튼 (한 줄 유지)
             document.getElementById('day-tabs').innerHTML = days.map((d, idx) => `
-                <button onclick="setActiveDay(${idx})" class="flex-1 min-w-[50px] px-1 py-1.5 rounded text-[11px] sm:text-xs font-bold transition whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
+                <button onclick="setActiveDay(${idx})" class="flex-1 min-w-[64px] px-2 py-2 rounded-lg text-sm sm:text-base font-bold transition whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
                     Day ${d.dayNum}
                 </button>
             `).join('');

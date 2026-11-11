@@ -30,17 +30,17 @@
                 </h1>
                 <p class="text-cyan-100 mt-1">순서 기반 일정 관리 및 맞춤 경로 안내</p>
             </div>
-            <!-- 항공 및 날짜 설정 바 -->
-            <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-center text-sm">
+            <!-- 항공 및 날짜 설정 바 (버튼 높이 정렬 수정) -->
+            <div class="bg-white/10 p-3 rounded-xl backdrop-blur-sm flex flex-wrap gap-3 items-end text-sm">
                 <div>
-                    <label class="block text-xs text-cyan-200">출발 날짜</label>
-                    <input type="date" id="startDate" value="2026-12-27" class="bg-white text-slate-800 px-2 py-1 rounded font-medium">
+                    <label class="block text-xs text-cyan-200 mb-1">출발 날짜</label>
+                    <input type="date" id="startDate" value="2026-12-27" class="bg-white text-slate-800 px-2 py-1.5 rounded font-medium h-[36px] box-border outline-none focus:ring-2 focus:ring-cyan-300">
                 </div>
                 <div>
-                    <label class="block text-xs text-cyan-200">귀국 날짜</label>
-                    <input type="date" id="endDate" value="2026-12-31" class="bg-white text-slate-800 px-2 py-1 rounded font-medium">
+                    <label class="block text-xs text-cyan-200 mb-1">귀국 날짜</label>
+                    <input type="date" id="endDate" value="2026-12-31" class="bg-white text-slate-800 px-2 py-1.5 rounded font-medium h-[36px] box-border outline-none focus:ring-2 focus:ring-cyan-300">
                 </div>
-                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-3.5 py-1.5 rounded text-base font-bold transition shadow self-end">설정 저장</button>
+                <button onclick="updateTripSettings()" class="bg-cyan-500 hover:bg-cyan-400 text-white px-4 rounded text-sm font-bold transition shadow h-[36px] flex items-center justify-center">설정 저장</button>
             </div>
         </div>
     </header>
@@ -52,19 +52,19 @@
                 <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <i class="fa-solid fa-suitcase-rolling text-cyan-600"></i>오키나와 일정
                 </h2>
-                <!-- 우측 상단 백업/복구 버튼 (폰트 크기 확대: text-xs sm:text-sm) -->
-                <div class="flex gap-2">
-                    <button onclick="exportBackupData()" class="bg-sky-500 hover:bg-sky-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center gap-1 whitespace-nowrap">
+                <!-- 우측 상단 백업/복구 버튼 (크기 한단계 확대) -->
+                <div class="flex gap-2.5">
+                    <button onclick="exportBackupData()" class="bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center gap-1.5 whitespace-nowrap">
                         <i class="fa-solid fa-download"></i> 백업
                     </button>
-                    <label class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center gap-1 cursor-pointer m-0 whitespace-nowrap">
+                    <label class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center gap-1.5 cursor-pointer m-0 whitespace-nowrap">
                         <i class="fa-solid fa-upload"></i> 복구
                         <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
                     </label>
                 </div>
             </div>
 
-            <!-- Day 탭 (폰트 크기 확대: text-sm sm:text-base) -->
+            <!-- Day 탭 -->
             <div class="mb-6 px-4 sm:px-6">
                 <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 shadow-inner w-full">
                     <div id="day-tabs" class="grid grid-cols-4 gap-1.5 w-full"></div>
@@ -92,14 +92,14 @@
                     </button>
                 </div>
 
-                <!-- 지역 탭 (폰트 크기 확대: text-xs sm:text-sm) -->
+                <!-- 지역 탭 -->
                 <div class="flex bg-slate-200/70 p-1 rounded-xl">
                     <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
                     <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">중부</button>
                     <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">북부</button>
                 </div>
 
-                <!-- 카테고리 탭 (폰트 크기 확대: text-xs sm:text-sm) -->
+                <!-- 카테고리 탭 -->
                 <div class="flex flex-wrap gap-2">
                     <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
                     <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
@@ -385,14 +385,29 @@
             }
         }
 
+        // 실제 도로 주행 거리에 근접하게 보정된 거리 및 시간 로직
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
             if (!lat1 || !lon1 || !lat2 || !lon2) return { distance: '알 수 없음', duration: '-' };
-            const R = 6371; const dLat = (lat2 - lat1) * (Math.PI / 180); const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * (Math.PI / 180); 
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); let d = R * c;
-            let speed = mode === '택시' ? 35 : (mode === '버스' || mode === '모노레일') ? 25 : mode === '도보' ? 4 : 40;
-            let hours = d / speed; let mins = Math.max(5, Math.round(hours * 60));
-            return { distance: `${d.toFixed(1)} km`, duration: mins >= 60 ? `${Math.floor(mins/60)}시간 ${mins%60}분` : `${mins}분` };
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+            let d = R * c; // 지도상 직선 거리
+
+            // 실제 도로 형태를 감안하여 우회 계수(약 1.35배) 적용
+            let roadDistance = d * 1.35;
+            if (roadDistance < 1) roadDistance = Math.max(0.1, roadDistance);
+
+            // 이동 수단별 대략적인 속도 (km/h) 설정
+            let speed = mode === '택시' || mode === '렌터카' ? 40 : (mode === '버스' || mode === '모노레일') ? 25 : mode === '도보' ? 4 : 40;
+            let hours = roadDistance / speed;
+            
+            // 탑승 대기, 신호 대기 등을 고려하여 기본 시간 추가 (도보 제외)
+            let extraTime = mode === '도보' ? 0 : 5;
+            let mins = Math.max(1, Math.round(hours * 60) + extraTime);
+            
+            return { distance: `${roadDistance.toFixed(1)} km`, duration: mins >= 60 ? `${Math.floor(mins/60)}시간 ${mins%60}분` : `${mins}분` };
         }
 
         function renderPlanner() {
@@ -447,7 +462,7 @@
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place')" class="bg-cyan-600 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-lg shadow-sm">명소 탐색 및 순서 추가</button></div>`;
+                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place')" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">명소 탐색 및 순서 추가</button></div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
                     const evtIdx = startIndex + subIdx;
@@ -471,8 +486,8 @@
                                 </div>
                                 <div class="flex items-center gap-2 sm:gap-3">
                                     <span>거리: <strong class="text-slate-800">${route.distance}</strong></span>
-                                    <span>시간: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">경로</span></a>
+                                    <span>소요: <strong class="text-cyan-600">${route.duration}</strong></span>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
                                 </div>
                             </div>
                         `;
@@ -498,19 +513,19 @@
                 });
 
                 eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-x-0 border-slate-200 py-2.5 px-4 sm:px-6">
-                    <button onclick="openTimelineAddModal('place')" class="w-full bg-slate-50 text-slate-600 py-2.5 px-1 rounded-lg font-bold text-xs sm:text-sm transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
+                    <button onclick="openTimelineAddModal('place')" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
                 </div>`;
             }
 
-            // 하단 3개 주요 버튼 (일정저장 / 전체경로 / 공유하기) (폰트 크기 확대: text-xs sm:text-sm)
-            let bottomButtonsHtml = `<div class="mt-4 flex gap-1.5 sm:gap-2 w-full">
-                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-1 rounded-lg font-bold text-xs sm:text-sm transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
+            // 하단 주요 버튼 크기 한단계 확대 (text-sm sm:text-base, py-3)
+            let bottomButtonsHtml = `<div class="mt-5 flex gap-2 sm:gap-3 w-full">
+                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">일정저장</span>
                 </button>
-                <button onclick="openGoogleMapsDayRoute(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold shadow-md transition whitespace-nowrap">
+                <button onclick="openGoogleMapsDayRoute(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
                     <i class="fa-solid fa-route"></i><span class="tracking-tight">전체경로</span>
                 </button>
-                <button onclick="shareAllDaysAsImages()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1.5 py-2.5 px-1 rounded-lg text-xs sm:text-sm font-bold shadow-md transition whitespace-nowrap">
+                <button onclick="shareAllDaysAsImages()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
                     <i class="fa-solid fa-share-nodes"></i><span class="tracking-tight">공유하기</span>
                 </button>
             </div>`;
@@ -519,7 +534,7 @@
                 <div class="bg-cyan-50/30 py-4 sm:py-5 border-y sm:border border-cyan-100/60 shadow-sm overflow-hidden">
                     <div class="flex justify-between items-center pb-4 border-b border-cyan-100/60 mb-4 px-4 sm:px-6">
                         <div><span class="font-extrabold text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span><span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span></div>
-                        <button onclick="openTimelineAddModal('place')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm font-bold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> 장소 추가</button>
+                        <button onclick="openTimelineAddModal('place')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i> 장소 추가</button>
                     </div>
                     <div class="space-y-0 px-0">${eventsHtml}</div>
                     <div class="px-4 sm:px-6 pb-2">${bottomButtonsHtml}</div>
@@ -527,7 +542,7 @@
             `;
         }
         
-        // --- 구글 맵 전체경로 보기 완벽 수정본 ---
+        // --- 구글 맵 전체경로 보기 오류 수정 및 정식 API 규격 적용 ---
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -536,7 +551,7 @@
                 return;
             }
 
-            // 구글 맵 다중 지점 호환 형식을 위해 각 이벤트 지점의 좌표 또는 이름을 파이프라인으로 생성
+            // 각 이벤트 지점의 좌표(우선) 또는 텍스트 주소 추출
             const points = dayEvents.map(e => {
                 if (e.lat && e.lng) {
                     return `${e.lat},${e.lng}`;
@@ -545,16 +560,26 @@
             });
 
             if (points.length === 1) {
-                // 장소가 1개인 경우 바로 해당 위치를 보여줍니다.
+                // 장소가 1개인 경우 단일 장소 검색
                 const url = `https://www.google.com/maps/search/?api=1&query=${points[0]}`;
                 window.open(url, '_blank');
                 return;
             }
 
-            // 구글 맵 멀티포인트 서치/길찾기 전용 범용 경로 URL 템플릿
-            // https://www.google.com/maps/dir/지점1/지점2/지점3/... 
-            // 이 포맷은 PC, iOS, Android 브라우저 및 앱 연동 시 오류 없이 모든 장소를 순서대로 경로로 이어줍니다.
-            const url = `https://www.google.com/maps/dir/${points.join('/')}`;
+            // 구글 맵 API 정식 waypoints 규격 적용 (오류 방지)
+            const origin = points[0];
+            const destination = points[points.length - 1];
+            
+            if (points.length === 2) {
+                const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+                window.open(url, '_blank');
+                return;
+            }
+            
+            // 중간 경유지들을 파이프(|) 기호로 연결
+            const waypoints = points.slice(1, -1).join('|');
+            const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}&waypoints=${waypoints}`;
+            
             window.open(url, '_blank');
         }
 

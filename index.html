@@ -518,6 +518,7 @@
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
 
             if (hasHotel) {
+                // 숙소가 있어도 화면에만 띄우고 전체경로 계산용 prevValidEvent에는 반영하지 않음 (제외 효과)
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
                 eventsHtml += `
@@ -632,7 +633,7 @@
                     <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">일정저장</span>
                 </button>
                 <button onclick="openGoogleMapsDayRoute(${tripData.activeDay})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
-                    <i class="fa-solid fa-route"></i><span class="tracking-tight">전체위치</span>
+                    <i class="fa-solid fa-route"></i><span class="tracking-tight">전체경로</span>
                 </button>
                 <button onclick="shareAllDaysAsImages()" class="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
                     <i class="fa-solid fa-share-nodes"></i><span class="tracking-tight">공유하기</span>
@@ -656,7 +657,7 @@
             saveDataToLocalStorage();
         }
 
-        // 전체위치 버튼: 등록된 장소들을 구글 맵 지도 위에 마커/핀 형태로 표시 (숙소 제외)
+        // 전체경로 시 맨 위 숙소를 제외하고 관광지/장소들만 엮어서 구글 맵 열기
         function openGoogleMapsDayRoute(dayIdx) {
             const dayEvents = tripData.days[dayIdx] ? tripData.days[dayIdx].events : [];
             
@@ -665,23 +666,30 @@
                 return;
             }
 
+            // 첫 번째 항목이 숙소인 경우 전체경로 목록에서 제외
             const firstEvt = dayEvents[0];
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
             const routeEvents = hasHotel ? dayEvents.slice(1) : dayEvents;
 
             if (routeEvents.length === 0) {
-                alert('지도에 표시할 장소가 없습니다. (숙소 제외)');
+                alert('경로를 안내할 장소가 없습니다. (숙소 제외)');
                 return;
             }
 
-            // 첫 번째 장소를 중심 좌표(q)로 잡고, 나머지 장소들을 주변 검색(near) 형태로 구성하여 지도에 다중 핀 표시
-            const centerEvt = routeEvents[0];
-            let centerQ = (centerEvt.lat && centerEvt.lng) ? `${centerEvt.lat},${centerEvt.lng}` : encodeURIComponent(centerEvt.name + ' 오키나와');
-            
-            // 구글맵 검색 쿼리에 여러 장소 이름을 조합하여 핀들이 표시되도록 함
-            const queryNames = routeEvents.map(e => e.name).join(' ');
-            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryNames + ' 오키나와')}`;
-            
+            const points = routeEvents.map(e => {
+                if (e.lat && e.lng) {
+                    return `${e.lat},${e.lng}`;
+                }
+                return encodeURIComponent(e.name + ' 오키나와');
+            });
+
+            if (points.length === 1) {
+                const url = `https://www.google.com/maps/search/?api=1&query=${points[0]}`;
+                window.open(url, '_blank');
+                return;
+            }
+
+            const url = `https://www.google.com/maps/dir/${points.join('/')}/`;
             window.open(url, '_blank');
         }
 

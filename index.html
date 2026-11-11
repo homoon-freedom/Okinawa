@@ -236,7 +236,6 @@
             alert('일정이 브라우저에 안전하게 저장되었습니다!');
         }
 
-        // 아이폰 다운로드 최적화를 위해 Blob 방식으로 백업 기능 교정
         function exportBackupData() {
             const backupPayload = { version: "1.0", exportedAt: new Date().toLocaleString(), tripData: tripData, placesData: placesData };
             const jsonStr = JSON.stringify(backupPayload, null, 2);
@@ -393,7 +392,6 @@
             }
         }
 
-        // 이동수단(모드)에 따라 구글 맵스의 예상 소요 시간을 자체 계산식으로 반영
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
             if (!lat1 || !lon1 || !lat2 || !lon2) return { distance: '알 수 없음', duration: '-' };
             const R = 6371; 
@@ -403,24 +401,22 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
             let d = R * c; 
 
-            // 이동 경로 우회 계수 보정
             let roadDistance = mode === '도보' ? d * 1.2 : d * 1.35; 
             if (roadDistance < 0.1) roadDistance = 0.1;
 
             let speed = 40;
             let extraTime = 5;
 
-            // 구글맵스 기반 오키나와 현지 이동수단별 보정 로직
             switch(mode) {
                 case '택시':
                 case '렌터카':
-                    speed = 35; // 시내/국도 혼합 평균
-                    extraTime = 5; // 신호대기 등 기본 추가시간
+                    speed = 35;
+                    extraTime = 5;
                     break;
                 case '버스':
                 case '모노레일':
-                    speed = 20; // 정류장 정차 및 서행
-                    extraTime = 15; // 탑승 대기, 도보 접근 등 포함
+                    speed = 20;
+                    extraTime = 15;
                     break;
                 case '도보':
                     speed = 4;
@@ -492,7 +488,6 @@
                     const evtIdx = startIndex + subIdx;
                     const hasCoords = (evt.lat && evt.lng);
                     
-                    // 핵심수정: 이전 이벤트가 '숙소(호텔)'인 경우 경로(이동수단/거리/시간) 블록을 출력하지 않음
                     let skipRouteBlock = prevValidEvent && (prevValidEvent.type === 'hotel' || prevValidEvent.group === '호텔');
                     
                     if (hasCoords && prevValidEvent && !skipRouteBlock) {
@@ -500,10 +495,11 @@
                         let travelModeMap = { '렌터카': 'driving', '택시': 'driving', '버스': 'transit', '모노레일': 'transit', '도보': 'walking' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(prevValidEvent.name+' 오키나와')}&destination=${encodeURIComponent(evt.name+' 오키나와')}&travelmode=${travelModeMap[evt.transport||'렌터카']}`;
 
+                        // 글씨 크기 한 단계 상향 조정 (text-sm sm:text-base)
                         eventsHtml += `
-                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-xs sm:text-sm text-slate-600 border-slate-200/60 shadow-sm w-full">
+                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-xs sm:text-sm">
+                                    <select onchange="updateEventTransport(${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-sm sm:text-base">
                                         <option value="렌터카" ${(evt.transport||'렌터카')==='렌터카'?'selected':''}>🚗 렌터카</option>
                                         <option value="택시" ${(evt.transport||'')==='택시'?'selected':''}>🚕 택시</option>
                                         <option value="버스" ${(evt.transport||'')==='버스'?'selected':''}>🚌 버스</option>
@@ -511,10 +507,10 @@
                                         <option value="도보" ${(evt.transport||'')==='도보'?'selected':''}>🚶 도보</option>
                                     </select>
                                 </div>
-                                <div class="flex items-center gap-2 sm:gap-3">
-                                    <span>거리: <strong class="text-slate-800">${route.distance}</strong></span>
-                                    <span>소요: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
+                                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                                    <span class="whitespace-nowrap">거리: <strong class="text-slate-800">${route.distance}</strong></span>
+                                    <span class="whitespace-nowrap">소요: <strong class="text-cyan-600">${route.duration}</strong></span>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-sm sm:text-base"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
                                 </div>
                             </div>
                         `;
@@ -770,4 +766,4 @@
     </script>
 </body>
 </html>
-```<FollowUp label="HTML 기능 추가하기" query="이 웹 플래너에 각 장소별로 예상 체류 시간을 추가 입력하고, 당일 일정이 끝나는 총 예상 시간을 하단에 표시해 주는 기능을 추가해줘."/>
+```<FollowUp label="체류 및 일정 종료 시간 표시 기능 추가" query="이 웹 플래너에 각 장소별로 예상 체류 시간을 추가로 선택할 수 있게 하고, 전체 이동 시간과 체류 시간을 합산하여 당일 일정이 대략 몇 시에 끝날지 예상 종료 시간을 하단에 표시해 주는 기능을 추가해 줘."/>

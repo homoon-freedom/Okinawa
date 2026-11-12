@@ -320,7 +320,7 @@ const defaultPlacesData = {
         { id: 's_act1', group: '액티비티', name: '세나가지마 온천', category: '액티비티', desc: '바다를 바라보며 즐기는 온천', lat: 26.1760, lng: 127.6530 },
         { id: 's_act2', group: '액티비티', name: '오키나와 월드 전통공연', category: '액티비티', desc: '에이사 전통춤과 류큐 문화 공연', lat: 26.1360, lng: 127.7505 },
         { id: 's_act3', group: '액티비티', name: '교쿠센도 동굴 탐험', category: '액티비티', desc: '석회암 동굴 내부 탐방', lat: 26.1365, lng: 127.7510 },
-        { id: 's_act4', group: '액티비티', name: '하마히가섬 드라이브', category: '액티비티', desc: '전통마을과 해안도로 드라이브', lat: 26.3400, lng: 127.9600 },
+        { id: 's_act4', group: '액티비티', name: '하마히가섬 드라이브', category: '액티비티', desc: '전통마월과 해안도로 드라이브', lat: 26.3400, lng: 127.9600 },
         { id: 's_act5', group: '액티비티', name: '치넨미사키 일출 감상', category: '액티비티', desc: '태평양의 아름다운 일출 감상', lat: 26.1585, lng: 127.8290 },
         { id: 's_act6', group: '액티비티', name: '오지마 해산물 체험', category: '액티비티', desc: '현지 해산물과 튀김 먹거리 체험', lat: 26.1385, lng: 127.7735 },
         { id: 's_act7', group: '액티비티', name: '국제거리 먹거리 투어', category: '액티비티', desc: '현지 음식과 길거리 음식 탐방', lat: 26.2166, lng: 127.6846 },
@@ -800,7 +800,7 @@ const defaultPlacesData = {
                             </div>
                         </div>
                         <div class="pl-10 pr-1">
-                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-[10px] text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
+                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-sm sm:text-base text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
                         </div>
                     </div>
                 `;
@@ -829,7 +829,7 @@ const defaultPlacesData = {
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[10px] sm:text-[11px]">
+                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-sm sm:text-base">
                                         <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                         <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                         <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -868,7 +868,7 @@ const defaultPlacesData = {
                                 </div>
                             </div>
                             <div class="pl-10 pr-1">
-                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-[11px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
+                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-sm sm:text-base text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
                             </div>
                         </div>
                     `;
@@ -970,7 +970,7 @@ const defaultPlacesData = {
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
             const routeEvents = hasHotel ? dayObj.events.slice(1) : dayObj.events;
             let validEvents = routeEvents.filter(e => e.lat && e.lng);
-            if (validEvents.length === 0) { alert('지도에 표시할 위치(위도/경도)가 등록된 장소가 없습니다.'); return; }
+            if (validEvents.length === 0) { alert('지도에 표시할 위치(위도/경도)가 등록된 장소를 없습니다.'); return; }
 
             document.getElementById('map-modal-title').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>Day ${dayObj.dayNum} 전체위치 (${validEvents.length}개소)`;
             document.getElementById('mapModal').classList.remove('hidden');
@@ -1046,8 +1046,8 @@ const defaultPlacesData = {
                 day.events.forEach((evt, i) => {
                     let isHotel = (evt.type === 'hotel' || evt.group === '호텔');
                     let icon = isHotel ? '🏨 숙소' : '📍 ' + (evt.category || '명소');
-                    let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 13px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
-                    let memoHtml = evt.memo ? `<div style="font-size: 14px; color: #475569; margin-top: 6px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">📝 ${evt.memo}</div>` : '';
+                    let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 16px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
+                    let memoHtml = evt.memo ? `<div style="font-size: 16px; color: #475569; margin-top: 6px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">📝 ${evt.memo}</div>` : '';
 
                     eventsHtml += `
                     <div style="display: flex; flex-direction: column; background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">

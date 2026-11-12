@@ -53,7 +53,6 @@
                 <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
             </h1>
             <div class="flex items-center justify-center gap-2 mt-3">
-                <!-- 상단 날짜 클릭 영역 (커서 포인터 추가) -->
                 <div id="header-date-trigger" class="cursor-pointer hover:bg-white/25 transition bg-white/15 px-3 py-1.5 rounded-full backdrop-blur-sm text-sm sm:text-base font-medium text-cyan-50 flex items-center shadow-inner tracking-tight" title="클릭하여 날짜 변경하기">
                     <i class="fa-regular fa-calendar-check mr-2 text-cyan-200"></i>
                     <span id="header-date-display">2026. 12. 27. - 2027. 01. 03.</span>
@@ -89,7 +88,6 @@
             
             <div class="p-5 space-y-5 overflow-y-auto hide-scrollbar w-full box-border">
                 
-                <!-- 날짜 설정 (하나의 입력창으로 통합) -->
                 <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-regular fa-calendar mr-1"></i>여행 기간 설정</h4>
                     <div class="flex mb-3 w-full">
@@ -99,7 +97,6 @@
                     </div>
                 </div>
                 
-                <!-- 커스텀 장소 관리 -->
                 <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-map-pin mr-1"></i>나만의 장소 직접 추가 및 관리</h4>
                     <div class="flex gap-2 mb-2 w-full">
@@ -115,24 +112,19 @@
 
                 <hr class="border-slate-100">
 
-                <!-- 동행자 설정 -->
                 <div class="w-full">
                     <div class="flex justify-between items-center mb-1.5">
                         <h4 class="text-xs font-bold text-slate-500"><i class="fa-solid fa-users mr-1"></i>Day별 함께하는 친구들</h4>
                         <button onclick="toggleCompanions()" id="companionsToggleBtn" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded font-bold transition border border-slate-200 shadow-sm">보이기</button>
                     </div>
                     <p class="text-[10px] text-slate-400 mb-2">각 일자별로 동행하는 친구들의 이름을 입력하세요.</p>
-                    <div id="day-companions-container" class="space-y-1.5 hidden w-full">
-                        <!-- JS 렌더링 -->
-                    </div>
+                    <div id="day-companions-container" class="space-y-1.5 hidden w-full"></div>
                 </div>
 
-                <!-- 설정 내역 저장 버튼 -->
                 <button onclick="updateTripSettings()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">설정 내역 저장</button>
                 
                 <hr class="border-slate-100">
 
-                <!-- 데이터 관리 및 공유 -->
                 <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-database mr-1"></i>데이터 및 공유 관리</h4>
                     <div class="flex gap-1.5 w-full">
@@ -196,9 +188,7 @@
                 </div>
 
                 <!-- 장소 카드 목록 -->
-                <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <!-- JS 렌더링 -->
-                </div>
+                <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
         </div>
     </div>
@@ -274,30 +264,58 @@
     </div>
 
     <script>
+        // 요청하신 21개 필수 스팟 정보 총정리
         const defaultPlacesData = {
             south: [
-                { id: 's_att1', group: '관광지', name: '나하 공항', category: '교통/시작점', desc: '오키나와 남부 여행의 시작점이 되는 관문 공항.', lat: 26.2056, lng: 127.6472 },
-                { id: 's_att2', group: '관광지', name: '슈리성', category: '역사유적', desc: '류큐 왕국의 화려한 궁전 유적으로 붉은 성곽과 전통 건축미를 자랑하는 명소입니다.', lat: 26.2253, lng: 127.7197 },
-                { id: 's_att3', group: '관광지', name: '국제거리', category: '번화가', desc: '나하 최대의 번화가로 기념품 샵, 맛집, 돈키호테 등이 밀집해 있는 쇼핑의 거리입니다.', lat: 26.2150, lng: 127.6882 },
-                { id: 's_att4', group: '카페', name: 'ZHYVAGO COFFEE ROASTERY', category: '카페', desc: '오키나와 감성 가득한 해안가 로스터리 카페입니다.', lat: 26.3200, lng: 127.7500 },
-                { id: 's_att5', group: '카페', name: '포트 리버 카페', category: '디저트카페', desc: '맛있는 타르트와 커피를 즐길 수 있는 아기자기한 카페입니다.', lat: 26.2300, lng: 127.6900 }
+                { id: 's_att1', group: '관광지', name: '슈리성', category: '역사유적', desc: '오키나와의 역사를 담은 류큐 왕국의 궁전 유적입니다.', lat: 26.2170, lng: 127.7195 },
+                { id: 's_att2', group: '관광지', name: '국제거리', category: '번화가', desc: '나하 최대의 번화가로 쇼핑과 식사의 메카입니다.', lat: 26.2154, lng: 127.6846 },
+                { id: 's_eat1', group: '식당', name: '잭스 스테이크 하우스', category: '식당', desc: '1953년 개업하여 오랫동안 사랑받는 오키나와 정통 스테이크 하우스.', lat: 26.2144, lng: 127.6749 },
+                { id: 's_caf1', group: '카페', name: '하마노차야', category: '카페', desc: '창밖으로 푸른 바다를 마주하고 앉아 커피를 즐기는 남부 최고의 오션뷰 카페.', lat: 26.1368, lng: 127.7816 },
+                { id: 's_shp1', group: '쇼핑', name: '국제거리 (쇼핑)', category: '쇼핑', desc: '돈키호테, 기념품 샵, 특산물 상점이 끝없이 이어지는 거리.', lat: 26.2154, lng: 127.6846 },
+                { id: 's_shp2', group: '쇼핑', name: '아시비나 아울렛', category: '쇼핑', desc: '다양한 글로벌 브랜드가 모여 있는 오키나와 유일의 프리미엄 아울렛 몰.', lat: 26.1583, lng: 127.6565 },
+                { id: 's_act1', group: '액티비티', name: '동굴 탐험 (오키나와 월드)', category: '액티비티', desc: '신비로운 대형 종유석 동굴(교쿠센도) 탐험과 류큐 전통 문화를 체험할 수 있습니다.', lat: 26.1396, lng: 127.7503 },
+                { id: 's_act2', group: '액티비티', name: '류진 온천 (세나가지마)', category: '액티비티', desc: '탁 트인 바다와 일몰을 바라보며 즐기는 힐링 노천 온천.', lat: 26.1740, lng: 127.6433 }
             ],
             central: [
-                { id: 'c_att1', group: '관광지', name: '만좌모', category: '자연경관', desc: '코끼리 바위 모양의 기암괴석과 끝없이 펼쳐진 푸른 바다를 조망할 수 있는 절경입니다.', lat: 26.5028, lng: 127.8464 },
-                { id: 'c_att2', group: '관광지', name: '아메리칸 빌리지', category: '테마타운', desc: '미국 서해안 분위기를 재현한 이국적인 타운으로 대관람차와 석양이 유명합니다.', lat: 26.3160, lng: 127.7580 },
-                { id: 'c_att3', group: '카페', name: 'Hاماتا 카페', category: '오션뷰카페', desc: '바다가 한눈에 내려다보이는 여유로운 분위기의 오션뷰 카페입니다.', lat: 26.4300, lng: 127.7800 }
+                { id: 'c_att1', group: '관광지', name: '아메리칸 빌리지', category: '테마타운', desc: '이국적인 미국 서해안 풍경과 화려한 야경, 포토스팟이 가득한 복합 문화 공간.', lat: 26.3164, lng: 127.7578 },
+                { id: 'c_att2', group: '관광지', name: '만자모', category: '자연경관', desc: '코끼리 코 모양의 독특한 바위와 끝없이 펼쳐진 푸른 바다가 어우러진 절경.', lat: 26.5049, lng: 127.8502 },
+                { id: 'c_eat1', group: '식당', name: '킹 타코스', category: '식당', desc: '풍성한 양을 자랑하는 오키나와 소울푸드 \'타코라이스\'의 원조 맛집.', lat: 26.4526, lng: 127.9250 },
+                { id: 'c_eat2', group: '식당', name: '스테이크하우스 88', category: '식당', desc: '오키나와 전역에서 사랑받는 가성비 좋은 스테이크 전문점.', lat: 26.3150, lng: 127.7565 },
+                { id: 'c_caf1', group: '카페', name: 'BANTA CAFE (호시노 리조트)', category: '카페', desc: '해안선 지형을 살려 만든 압도적인 스케일의 절벽 위 오션뷰 카페.', lat: 26.4172, lng: 127.7144 },
+                { id: 'c_shp1', group: '쇼핑', name: '아메리칸 빌리지 (쇼핑)', category: '쇼핑', desc: '개성 넘치는 의류, 빈티지 샵, 수비니어 상점들이 모여있는 구역.', lat: 26.3164, lng: 127.7578 },
+                { id: 'c_shp2', group: '쇼핑', name: '이온몰 오키나와 라이컴', category: '쇼핑', desc: '수많은 브랜드와 거대 수조가 있는 오키나와 최대 규모의 메가 쇼핑몰.', lat: 26.3142, lng: 127.7958 },
+                { id: 'c_act1', group: '액티비티', name: '푸른 동굴 스노클링', category: '액티비티', desc: '마에다 곶에 위치한 신비로운 푸른빛 동굴에서의 다이빙 및 스노클링 체험.', lat: 26.4447, lng: 127.7719 }
             ],
             north: [
-                { id: 'n_att1', group: '관광지', name: '츄라우미 수족관', category: '수족관', desc: '거대한 고래상어와 만타가 헤엄치는 대형 수조로 유명한 북부 필수 코스입니다.', lat: 26.6944, lng: 127.8778 },
-                { id: 'n_att2', group: '관광지', name: '코우리 대교 & 오션타워', category: '자연경관', desc: '에메랄드빛 바다 위를 시원하게 가로지르는 길게 뻗은 대교입니다.', lat: 26.6991, lng: 128.0245 },
-                { id: 'n_att3', group: '카페', name: '츄라우테라스', category: '카페', desc: '코우리섬의 바다를 바라보며 커피를 즐길 수 있는 카페입니다.', lat: 26.6950, lng: 128.0200 }
+                { id: 'n_att1', group: '관광지', name: '츄라우미 수족관', category: '수족관', desc: '거대한 수조 속 고래상어와 만타가 압도적인 오키나와 필수 방문지.', lat: 26.6943, lng: 127.8780 },
+                { id: 'n_att2', group: '관광지', name: '코우리섬 & 코우리 대교', category: '자연경관', desc: '에메랄드빛 투명한 바다 위를 시원하게 가로지르는 대교와 아름다운 섬.', lat: 26.6967, lng: 128.0200 },
+                { id: 'n_eat1', group: '식당', name: '레스토랑 플리퍼', category: '식당', desc: '나고 지역에서 현지인과 관광객 모두에게 오랫동안 사랑받는 로컬 수제 스테이크하우스.', lat: 26.6111, lng: 127.9622 },
+                { id: 'n_caf1', group: '카페', name: '코우리섬 카페 (오션타워)', category: '카페', desc: '코우리 대교와 투명한 바다가 한눈에 내려다보이는 완벽한 뷰 맛집.', lat: 26.7032, lng: 128.0238 },
+                { id: 'n_shp1', group: '쇼핑', name: '나고 쇼핑몰 (이온 등)', category: '쇼핑', desc: '식료품부터 필수품까지 북부 여행의 거점이 되는 핵심 쇼핑 및 마트 시설.', lat: 26.5866, lng: 127.9866 },
+                { id: 'n_act1', group: '액티비티', name: '카약 (맹그로브 탐험)', category: '액티비티', desc: '얀바루 대자연 속 맹그로브 숲에서 즐기는 힐링 카약 탐험.', lat: 26.6045, lng: 128.1477 },
+                { id: 'n_act2', group: '액티비티', name: '해양 스포츠', category: '액티비티', desc: '북부 투명한 바다와 민나섬 등에서 즐기는 패러세일링, 다이빙 등 다양한 액티비티.', lat: 26.6586, lng: 127.8887 }
             ]
         };
 
-        let placesData = defaultPlacesData;
+        // 기본 장소를 복사하여 초기화
+        let placesData = JSON.parse(JSON.stringify(defaultPlacesData));
+
+        // 기존 브라우저에 저장된 [직접 추가한 장소]가 있다면 병합(Merge)하여 데이터 보존
         try {
             const savedPlaces = localStorage.getItem('okinawa_placesData');
-            if (savedPlaces) placesData = JSON.parse(savedPlaces);
+            if (savedPlaces) {
+                const parsed = JSON.parse(savedPlaces);
+                ['south', 'central', 'north'].forEach(region => {
+                    if (parsed[region]) {
+                        parsed[region].forEach(customPlace => {
+                            // 'custom-'으로 시작하는 직접 등록 장소만 추려내서 새 리스트에 추가
+                            if (customPlace.id && customPlace.id.startsWith('custom-')) {
+                                placesData[region].push(customPlace);
+                            }
+                        });
+                    }
+                });
+            }
         } catch(e) { console.error('기존 장소 데이터 로드 실패'); }
 
         let tripData = { startDate: '2026-12-27', endDate: '2027-01-03', days: [], activeDay: -1 };
@@ -317,17 +335,13 @@
         let settingsFp = null;
 
         window.onload = function() {
-            // Flatpickr 공통 설정
             const fpOptions = {
-                mode: "range",
-                locale: "ko",
-                dateFormat: "Y-m-d",
+                mode: "range", locale: "ko", dateFormat: "Y-m-d",
                 defaultDate: [tripData.startDate, tripData.endDate],
-                showMonths: window.innerWidth > 640 ? 2 : 1, // PC는 두 달, 모바일은 한 달 표시
-                disableMobile: true // 모바일에서도 플랫피커 UI 강제 적용
+                showMonths: window.innerWidth > 640 ? 2 : 1, 
+                disableMobile: true
             };
 
-            // 상단 헤더 달력 초기화
             headerFp = flatpickr("#header-date-trigger", {
                 ...fpOptions,
                 onClose: function(selectedDates) {
@@ -335,20 +349,14 @@
                         const format = flatpickr.formatDate;
                         tripData.startDate = format(selectedDates[0], "Y-m-d");
                         tripData.endDate = format(selectedDates[1], "Y-m-d");
-                        
-                        if (settingsFp) settingsFp.setDate(selectedDates); // 설정 모달 동기화
-                        generateDaysFromDates();
-                        updateHeaderDateDisplay();
-                        renderPlanner();
-                        saveDataToLocalStorage();
+                        if (settingsFp) settingsFp.setDate(selectedDates); 
+                        generateDaysFromDates(); updateHeaderDateDisplay(); renderPlanner(); saveDataToLocalStorage();
                     } else {
-                        // 두 날짜를 다 안 고르고 닫았을 경우 원래 설정으로 복원
                         headerFp.setDate([tripData.startDate, tripData.endDate]);
                     }
                 }
             });
 
-            // 설정 모달 안의 달력 초기화
             settingsFp = flatpickr("#settingsDateRange", fpOptions);
 
             generateDaysFromDates();
@@ -364,71 +372,45 @@
             document.getElementById('header-date-display').innerText = `${format(startVal)} - ${format(endVal)}`;
         }
 
-        // 동행자 토글 기능
         function toggleCompanions() {
             const container = document.getElementById('day-companions-container');
             const btn = document.getElementById('companionsToggleBtn');
             if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden');
-                btn.innerText = '숨기기';
+                container.classList.remove('hidden'); btn.innerText = '숨기기';
             } else {
-                container.classList.add('hidden');
-                btn.innerText = '보이기';
+                container.classList.add('hidden'); btn.innerText = '보이기';
             }
         }
 
         function openSettingsModal() { 
-            // 설정 모달 열 때 달력 날짜 동기화
             if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
-            
             let compHtml = '';
             tripData.days.forEach((d, i) => {
-                compHtml += `
-                <div class="flex items-center gap-2 w-full">
-                    <label class="w-11 text-xs font-bold text-slate-600 whitespace-nowrap">Day ${d.dayNum}</label>
-                    <input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-[13px] outline-none focus:border-cyan-400">
-                </div>`;
+                compHtml += `<div class="flex items-center gap-2 w-full"><label class="w-11 text-xs font-bold text-slate-600 whitespace-nowrap">Day ${d.dayNum}</label><input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-[13px] outline-none focus:border-cyan-400"></div>`;
             });
             document.getElementById('day-companions-container').innerHTML = compHtml;
-            
             document.getElementById('day-companions-container').classList.add('hidden');
             document.getElementById('companionsToggleBtn').innerText = '보이기';
-
             document.getElementById('settingsModal').classList.remove('hidden'); 
         }
         
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
-        function shareFromSettings() {
-            closeSettingsModal();
-            shareAllDaysAsImages();
-        }
-
-        function openSettingsTimelineAdd() {
-            closeSettingsModal();
-            let targetDay = tripData.activeDay === -1 ? 0 : tripData.activeDay;
-            openTimelineAddModal('place', targetDay);
-        }
+        function shareFromSettings() { closeSettingsModal(); shareAllDaysAsImages(); }
+        function openSettingsTimelineAdd() { closeSettingsModal(); let targetDay = tripData.activeDay === -1 ? 0 : tripData.activeDay; openTimelineAddModal('place', targetDay); }
 
         function saveDataToLocalStorage() {
             localStorage.setItem('okinawa_placesData', JSON.stringify(placesData));
             localStorage.setItem('okinawa_tripData', JSON.stringify(tripData));
         }
 
-        function manualSaveData() {
-            saveDataToLocalStorage();
-            alert('일정이 브라우저에 안전하게 저장되었습니다!');
-        }
+        function manualSaveData() { saveDataToLocalStorage(); alert('일정이 브라우저에 안전하게 저장되었습니다!'); }
 
         function exportBackupData() {
             const backupPayload = { version: "1.0", exportedAt: new Date().toLocaleString(), tripData: tripData, placesData: placesData };
-            const jsonStr = JSON.stringify(backupPayload, null, 2);
-            const blob = new Blob([jsonStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            
-            const downloadAnchor = document.createElement('a');
-            const today = new Date().toISOString().slice(0, 10);
-            downloadAnchor.href = url; downloadAnchor.download = `okinawa_trip_backup_${today}.json`;
+            const jsonStr = JSON.stringify(backupPayload, null, 2); const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob); const downloadAnchor = document.createElement('a');
+            downloadAnchor.href = url; downloadAnchor.download = `okinawa_trip_backup_${new Date().toISOString().slice(0, 10)}.json`;
             document.body.appendChild(downloadAnchor); downloadAnchor.click(); document.body.removeChild(downloadAnchor);
             setTimeout(() => URL.revokeObjectURL(url), 100); closeSettingsModal();
         }
@@ -440,16 +422,12 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    if (imported.tripData && imported.placesData) { tripData = imported.tripData; placesData = imported.placesData; }
-                    else { tripData = imported; }
+                    if (imported.tripData && imported.placesData) { tripData = imported.tripData; placesData = imported.placesData; } else { tripData = imported; }
                     saveDataToLocalStorage();
-                    
-                    // 불러온 날짜를 달력에 반영
                     if (tripData.startDate && tripData.endDate) {
                         if (headerFp) headerFp.setDate([tripData.startDate, tripData.endDate]);
                         if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
                     }
-
                     generateDaysFromDates(); updateHeaderDateDisplay(); renderPlaces(); renderPlanner();
                     alert('백업 데이터가 성공적으로 복구되었습니다!'); closeSettingsModal();
                 } catch (err) { alert('파일을 읽는 중 오류가 발생했습니다.'); }
@@ -459,17 +437,13 @@
         }
 
         function generateDaysFromDates() {
-            const startVal = tripData.startDate || '2026-12-27';
-            const endVal = tripData.endDate || '2027-01-03';
+            const startVal = tripData.startDate || '2026-12-27'; const endVal = tripData.endDate || '2027-01-03';
             const start = new Date(startVal.replace(/-/g, '/')); const end = new Date(endVal.replace(/-/g, '/'));
-            
-            let timeDiff = end.getTime() - start.getTime();
-            let dayCount = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
+            let timeDiff = end.getTime() - start.getTime(); let dayCount = Math.floor(timeDiff / (1000 * 3600 * 24)) + 1;
             if (isNaN(dayCount) || dayCount <= 0) dayCount = 1;
             
             const weekNames = ['일', '월', '화', '수', '목', '금', '토'];
-            let oldDays = tripData.days || [];
-            let newDays = [];
+            let oldDays = tripData.days || []; let newDays = [];
             for (let i = 0; i < dayCount; i++) {
                 let currDate = new Date(start); currDate.setDate(start.getDate() + i);
                 let dateStr = `${currDate.getMonth() + 1}/${currDate.getDate()} (${weekNames[currDate.getDay()]})`;
@@ -477,44 +451,29 @@
                 newDays.push({ dayNum: i + 1, date: dateStr, events: existing.events, companions: existing.companions });
             }
             tripData.days = newDays;
-            
             if (tripData.activeDay !== -1 && tripData.activeDay >= dayCount) tripData.activeDay = -1;
             saveDataToLocalStorage();
         }
 
         function updateTripSettings() {
-            // 설정 모달에서 선택한 달력 날짜 추출
             if (settingsFp && settingsFp.selectedDates.length === 2) {
                 const format = flatpickr.formatDate;
-                tripData.startDate = format(settingsFp.selectedDates[0], "Y-m-d");
-                tripData.endDate = format(settingsFp.selectedDates[1], "Y-m-d");
-                
-                if (headerFp) headerFp.setDate(settingsFp.selectedDates); // 상단 헤더 동기화
-            } else {
-                alert("여행 기간(출발일과 귀국일)을 달력에서 모두 선택해주세요.");
-                return;
-            }
+                tripData.startDate = format(settingsFp.selectedDates[0], "Y-m-d"); tripData.endDate = format(settingsFp.selectedDates[1], "Y-m-d");
+                if (headerFp) headerFp.setDate(settingsFp.selectedDates);
+            } else { alert("여행 기간(출발일과 귀국일)을 달력에서 모두 선택해주세요."); return; }
             
             tripData.days.forEach((d, i) => {
-                let input = document.getElementById(`comp-day-${i}`);
-                if(input) d.companions = input.value.trim();
+                let input = document.getElementById(`comp-day-${i}`); if(input) d.companions = input.value.trim();
             });
-            
-            generateDaysFromDates(); 
-            updateHeaderDateDisplay();
-            renderPlanner(); 
-            alert('설정 내역이 저장되었습니다.');
-            closeSettingsModal();
+            generateDaysFromDates(); updateHeaderDateDisplay(); renderPlanner(); 
+            alert('설정 내역이 저장되었습니다.'); closeSettingsModal();
         }
 
         function handleCustomCoordPaste(event) {
             const val = event.target.value;
             if (val.includes(',')) {
                 let parts = val.split(',').map(s => s.trim());
-                if (parts.length >= 2) { 
-                    document.getElementById('customLat').value = parts[0]; 
-                    document.getElementById('customLng').value = parts[1]; 
-                }
+                if (parts.length >= 2) { document.getElementById('customLat').value = parts[0]; document.getElementById('customLng').value = parts[1]; }
             }
         }
 
@@ -536,9 +495,8 @@
                         window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`, '_blank');
                     }
                 }
-            } catch (err) {
-                console.error(err); alert('위치 정보를 불러오는 중 오류가 발생했습니다.');
-            } finally { btn.innerHTML = originalText; btn.disabled = false; }
+            } catch (err) { console.error(err); alert('위치 정보를 불러오는 중 오류가 발생했습니다.'); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
         function switchRegion(region) {
@@ -616,9 +574,7 @@
                 if (addMode === 'hotel') {
                     if (targetDay.events.length > 0 && (targetDay.events[0].type === 'hotel' || targetDay.events[0].group === '호텔')) {
                         targetDay.events[0] = eventObj;
-                    } else {
-                        targetDay.events.unshift(eventObj);
-                    }
+                    } else { targetDay.events.unshift(eventObj); }
                     alert(`[${targetPlace.name}] 숙소가 Day ${targetDay.dayNum} 일정에 등록되었습니다!`);
                 } else {
                     targetDay.events.push(eventObj);
@@ -630,8 +586,7 @@
         }
 
         function calculateRouteInfo(lat1, lon1, lat2, lon2, mode) {
-            let nLat1 = parseFloat(lat1); let nLon1 = parseFloat(lon1);
-            let nLat2 = parseFloat(lat2); let nLon2 = parseFloat(lon2);
+            let nLat1 = parseFloat(lat1); let nLon1 = parseFloat(lon1); let nLat2 = parseFloat(lat2); let nLon2 = parseFloat(lon2);
             if (isNaN(nLat1) || isNaN(nLon1) || isNaN(nLat2) || isNaN(nLon2)) return { distance: '알 수 없음', duration: '-' };
             const R = 6371; const dLat = (nLat2 - nLat1) * (Math.PI / 180); const dLon = (nLon2 - nLon1) * (Math.PI / 180);
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(nLat1 * (Math.PI / 180)) * Math.cos(nLat2 * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
@@ -653,9 +608,7 @@
         function renderDayContent(dayIdx, isAllView) {
             const currentDayObj = tripData.days[dayIdx];
             if (!currentDayObj) return '';
-            let eventsHtml = '';
-            let coordIndex = 1;  
-            let prevValidEvent = null;
+            let eventsHtml = ''; let coordIndex = 1; let prevValidEvent = null;
 
             const firstEvt = currentDayObj.events[0];
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
@@ -788,7 +741,6 @@
 
         function renderPlanner() {
             const days = tripData.days || [];
-
             let tabsHtml = `<button onclick="setActiveDay(-1)" class="flex-1 min-w-[72px] px-2 py-2.5 rounded-lg text-sm sm:text-base font-bold transition whitespace-nowrap border ${tripData.activeDay === -1 ? 'bg-cyan-600 border-cyan-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">전체일정</button>`;
             
             tabsHtml += days.map((d, idx) => `
@@ -845,10 +797,7 @@
             }, 100);
         }
 
-        function closeMapModal() {
-            document.getElementById('mapModal').classList.add('hidden');
-            if (leafletMap) { leafletMap.remove(); leafletMap = null; }
-        }
+        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); if (leafletMap) { leafletMap.remove(); leafletMap = null; } }
 
         function generateDayHtmlForCapture(day) {
             let eventsHtml = '';
@@ -999,7 +948,6 @@
             lngNum = isNaN(lngNum) ? regionCoords[region].lng : lngNum;
 
             if (editingId) {
-                let found = false;
                 for (let reg in placesData) {
                     let idx = placesData[reg].findIndex(p => p.id === editingId);
                     if (idx !== -1) { placesData[reg].splice(idx, 1); break; }

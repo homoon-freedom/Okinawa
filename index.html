@@ -65,16 +65,16 @@
     </header>
 
     <main class="max-w-4xl mx-auto px-0 py-4 sm:py-6">
-        <div class="bg-white sm:rounded-2xl py-4 sm:py-6 shadow-sm border-y sm:border border-slate-100">
-            <!-- Day 탭 -->
-            <div class="mb-5 px-4 sm:px-6 mt-1">
+        <div class="bg-white sm:rounded-2xl pb-4 sm:pb-6 shadow-sm border-y sm:border border-slate-100 relative">
+            <!-- Day 탭 (Sticky 고정) -->
+            <div id="day-tabs-wrapper" class="sticky z-[35] bg-white/95 backdrop-blur px-4 sm:px-6 py-3 border-b border-slate-200 rounded-t-2xl transition-all">
                 <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 shadow-inner w-full">
                     <div id="day-tabs" class="flex flex-nowrap overflow-x-auto gap-1.5 w-full hide-scrollbar"></div>
                 </div>
             </div>
 
             <!-- 메인 컨텐츠 영역 -->
-            <div id="day-content" class="space-y-4"></div>
+            <div id="day-content" class="space-y-4 pt-2 relative"></div>
         </div>
     </main>
 
@@ -144,16 +144,16 @@
         </div>
     </div>
 
-    <!-- 전체위치 지도 모달 -->
-    <div id="mapModal" class="hidden fixed inset-0 z-[70] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- 전체/카테고리 위치 지도 모달 -->
+    <div id="mapModal" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col h-[85vh]">
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
-                <h3 id="map-modal-title" class="font-bold text-base"><i class="fa-solid fa-map-location-dot mr-2"></i>Day별 전체위치 지도</h3>
+                <h3 id="map-modal-title" class="font-bold text-base"><i class="fa-solid fa-map-location-dot mr-2"></i>지도보기</h3>
                 <button onclick="closeMapModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="p-4 flex-1 bg-slate-100 flex flex-col">
                 <div id="dayMapContainer" class="w-full flex-1 rounded-xl shadow-inner border border-slate-300 z-10"></div>
-                <p class="text-xs text-slate-500 mt-2 text-center">※ 마커 번호는 일정 순서(숙소 제외)를 나타내며, 클릭 시 상세 정보를 볼 수 있습니다.</p>
+                <p class="text-xs text-slate-500 mt-2 text-center">※ 마커 번호는 순서를 나타내며, 클릭 시 상세 정보를 볼 수 있습니다.</p>
             </div>
             <div class="p-3 bg-white border-t border-slate-200 flex justify-end">
                 <button onclick="closeMapModal()" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-sm transition">닫기</button>
@@ -169,26 +169,31 @@
                 <button onclick="closeTimelineAddModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
 
-            <div class="p-6 overflow-y-auto bg-slate-50 flex-1 space-y-5 hide-scrollbar">
-                <!-- 지역 탭 -->
-                <div class="flex bg-slate-200/70 p-1 rounded-xl">
-                    <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
-                    <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">중부</button>
-                    <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">북부</button>
-                </div>
+            <div class="overflow-y-auto bg-slate-50 flex-1 hide-scrollbar relative flex flex-col">
+                <!-- 지역 탭 & 카테고리 탭 (상단 고정 영역) -->
+                <div class="sticky top-0 z-20 bg-slate-50 px-5 sm:px-6 py-4 border-b border-slate-200 shadow-sm space-y-3">
+                    <div class="flex bg-slate-200/70 p-1 rounded-xl">
+                        <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
+                        <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">중부</button>
+                        <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">북부</button>
+                    </div>
 
-                <!-- 카테고리 탭 -->
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
-                    <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
-                    <button onclick="switchCategory('카페')" id="cat-카페" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
-                    <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
-                    <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
-                    <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
+                        <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
+                        <button onclick="switchCategory('카페')" id="cat-카페" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
+                        <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
+                        <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
+                        <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
+                    </div>
+
+                    <button onclick="openCategoryMapModal()" id="categoryMapBtn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-[13px] sm:text-sm font-bold shadow-sm flex items-center justify-center gap-2 transition">
+                        <i class="fa-solid fa-map-location-dot"></i> 현재 분류 장소 지도보기
+                    </button>
                 </div>
 
                 <!-- 장소 카드 목록 -->
-                <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+                <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-5 sm:px-6 py-5 relative z-10"></div>
             </div>
         </div>
     </div>
@@ -278,7 +283,6 @@ const defaultPlacesData = {
         { id: 's_att8', group: '관광지', name: '세나가지마 우미카지테라스', category: '관광지', desc: '바다 전망의 흰색 건물과 상점 거리', lat: 26.1760, lng: 127.6530 },
         { id: 's_att9', group: '관광지', name: '치넨미사키 공원', category: '관광지', desc: '태평양을 바라보는 전망 명소', lat: 26.1585, lng: 127.8290 },
         { id: 's_att10', group: '관광지', name: '오지마섬', category: '관광지', desc: '해산물과 튀김으로 유명한 작은 어촌섬', lat: 26.1385, lng: 127.7735 },
-
         // --- [식당] ---
         { id: 's_eat1', group: '식당', name: '잭스 스테이크 하우스', category: '식당', desc: '나하의 유명한 미국식 스테이크 전문점', lat: 26.2130, lng: 127.6785 },
         { id: 's_eat2', group: '식당', name: '얏빠리 스테이크', category: '식당', desc: '합리적인 가격의 일본식 스테이크', lat: 26.2155, lng: 127.6870 },
@@ -290,7 +294,6 @@ const defaultPlacesData = {
         { id: 's_eat8', group: '식당', name: '포크 타마고 오니기리', category: '식당', desc: '스팸과 계란을 넣은 오키나와 주먹밥', lat: 26.2135, lng: 127.6800 },
         { id: 's_eat9', group: '식당', name: '오지마 튀김 전문점', category: '식당', desc: '해산물과 야채 튀김 전문점', lat: 26.1385, lng: 127.7735 },
         { id: 's_eat10', group: '식당', name: '류큐 요리 우라시마', category: '식당', desc: '전통 류큐 요리를 맛볼 수 있는 식당', lat: 26.2170, lng: 127.6810 },
-
         // --- [카페] ---
         { id: 's_caf1', group: '카페', name: '하마노차야 (Hamabe no Chaya)', category: '카페', desc: '바다 바로 앞에서 커피를 즐기는 카페', lat: 26.1310, lng: 127.7750 },
         { id: 's_caf2', group: '카페', name: '카페 쿠루쿠마', category: '카페', desc: '태국 음식과 아름다운 바다 전망', lat: 26.1530, lng: 127.8230 },
@@ -302,7 +305,6 @@ const defaultPlacesData = {
         { id: 's_caf8', group: '카페', name: '씨사이드 가든 나미노우에', category: '카페', desc: '바다 전망과 하와이풍 메뉴', lat: 26.2200, lng: 127.6680 },
         { id: 's_caf9', group: '카페', name: '야치문 카페 차타로', category: '카페', desc: '전통 도자기 마을 분위기의 카페', lat: 26.2070, lng: 127.7180 },
         { id: 's_caf10', group: '카페', name: '류보 백화점 카페 거리', category: '카페', desc: '쇼핑과 함께 즐기는 도심 카페 공간', lat: 26.2140, lng: 127.6790 },
-
         // --- [쇼핑] ---
         { id: 's_shp1', group: '쇼핑', name: '국제거리', category: '쇼핑', desc: '오키나와 기념품과 특산품 쇼핑 거리', lat: 26.2166, lng: 127.6846 },
         { id: 's_shp2', group: '쇼핑', name: '마키시 공설시장', category: '쇼핑', desc: '해산물, 식품, 지역 특산품 시장', lat: 26.2165, lng: 127.6900 },
@@ -314,7 +316,6 @@ const defaultPlacesData = {
         { id: 's_shp8', group: '쇼핑', name: '츠보야 야치문 거리', category: '쇼핑', desc: '오키나와 전통 도자기 쇼핑 거리', lat: 26.2140, lng: 127.6890 },
         { id: 's_shp9', group: '쇼핑', name: '산에이 나하 메인 플레이스', category: '쇼핑', desc: '패션, 식품, 생활용품 쇼핑몰', lat: 26.2240, lng: 127.6950 },
         { id: 's_shp10', group: '쇼핑', name: '파르코시티', category: '쇼핑', desc: '다양한 브랜드가 입점한 복합 쇼핑몰', lat: 26.2580, lng: 127.6990 },
-
         // --- [액티비티] ---
         { id: 's_act1', group: '액티비티', name: '세나가지마 온천', category: '액티비티', desc: '바다를 바라보며 즐기는 온천', lat: 26.1760, lng: 127.6530 },
         { id: 's_act2', group: '액티비티', name: '오키나와 월드 전통공연', category: '액티비티', desc: '에이사 전통춤과 류큐 문화 공연', lat: 26.1360, lng: 127.7505 },
@@ -340,7 +341,6 @@ const defaultPlacesData = {
         { id: 'c_att8', group: '관광지', name: '류큐무라', category: '관광지', desc: '전통 가옥과 류큐 문화 체험 공간', lat: 26.4350, lng: 127.8060 },
         { id: 'c_att9', group: '관광지', name: '도구치 해변', category: '관광지', desc: '잔잔한 바다와 해변 산책 명소', lat: 26.3400, lng: 127.7500 },
         { id: 'c_att10', group: '관광지', name: '도카시키 해변 전망대', category: '관광지', desc: '해안 풍경을 감상하는 전망 장소', lat: 26.3300, lng: 127.7500 },
-
         // --- [식당] ---
         { id: 'c_eat1', group: '식당', name: '스테이크하우스 88 차탄점', category: '식당', desc: '오키나와 대표 스테이크 전문점', lat: 26.3150, lng: 127.7560 },
         { id: 'c_eat2', group: '식당', name: '블루씰 아이스크림', category: '식당', desc: '오키나와 대표 아이스크림 브랜드', lat: 26.3170, lng: 127.7570 },
@@ -352,7 +352,6 @@ const defaultPlacesData = {
         { id: 'c_eat8', group: '식당', name: '고자 시내 이자카야', category: '식당', desc: '오키나와 전통 안주와 현지 분위기', lat: 26.3350, lng: 127.8010 },
         { id: 'c_eat9', group: '식당', name: '킹 타코스', category: '식당', desc: '오키나와 대표 타코라이스 전문점', lat: 26.3540, lng: 127.8000 },
         { id: 'c_eat10', group: '식당', name: '차탄 데포아일랜드 레스토랑', category: '식당', desc: '해산물, 스테이크, 양식 레스토랑', lat: 26.3160, lng: 127.7580 },
-
         // --- [카페] ---
         { id: 'c_caf1', group: '카페', name: 'BANTA CAFE', category: '카페', desc: '절벽 위에서 바다를 바라보는 대형 카페', lat: 26.4070, lng: 127.7240 },
         { id: 'c_caf2', group: '카페', name: '지바고 커피 웍스', category: '카페', desc: '미국 서부 스타일의 스페셜티 커피', lat: 26.3170, lng: 127.7570 },
@@ -364,7 +363,6 @@ const defaultPlacesData = {
         { id: 'c_caf8', group: '카페', name: '온나 블루 카페', category: '카페', desc: '리조트 분위기의 바다 전망 카페', lat: 26.4400, lng: 127.8100 },
         { id: 'c_caf9', group: '카페', name: '스타벅스 차탄점', category: '카페', desc: '해안 드라이브 중 들르기 좋은 카페', lat: 26.3160, lng: 127.7560 },
         { id: 'c_caf10', group: '카페', name: '카페 난조', category: '카페', desc: '자연과 해안 풍경을 즐기는 휴식 공간', lat: 26.3500, lng: 127.8000 },
-
         // --- [쇼핑] ---
         { id: 'c_shp1', group: '쇼핑', name: '데포아일랜드', category: '쇼핑', desc: '아메리칸 빌리지의 대표 쇼핑 공간', lat: 26.3160, lng: 127.7580 },
         { id: 'c_shp2', group: '쇼핑', name: '이온몰 오키나와 라이컴', category: '쇼핑', desc: '대형 복합 쇼핑몰', lat: 26.3150, lng: 127.7970 },
@@ -376,7 +374,6 @@ const defaultPlacesData = {
         { id: 'c_shp8', group: '쇼핑', name: '우루마 이온몰', category: '쇼핑', desc: '쇼핑과 식사를 함께 즐기는 공간', lat: 26.3650, lng: 127.8270 },
         { id: 'c_shp9', group: '쇼핑', name: '요미탄 도자기 마을', category: '쇼핑', desc: '오키나와 전통 도자기 구매', lat: 26.3960, lng: 127.7450 },
         { id: 'c_shp10', group: '쇼핑', name: '미하마 쇼핑 스트리트', category: '쇼핑', desc: '패션과 액세서리, 기념품 쇼핑', lat: 26.3170, lng: 127.7580 },
-
         // --- [액티비티] ---
         { id: 'c_act1', group: '액티비티', name: '푸른 동굴 스노클링', category: '액티비티', desc: '푸른빛 바닷속에서 해양생물 감상', lat: 26.4460, lng: 127.7790 },
         { id: 'c_act2', group: '액티비티', name: '푸른 동굴 스쿠버다이빙', category: '액티비티', desc: '전문 강사와 함께하는 다이빙', lat: 26.4460, lng: 127.7790 },
@@ -402,7 +399,6 @@ const defaultPlacesData = {
         { id: 'n_att8', group: '관광지', name: '해양박람회 기념공원', category: '관광지', desc: '수족관, 식물원, 해변을 갖춘 공원', lat: 26.6940, lng: 127.8770 },
         { id: 'n_att9', group: '관광지', name: '헤도곶', category: '관광지', desc: '오키나와 최북단의 해안 절벽', lat: 26.8700, lng: 128.2630 },
         { id: 'n_att10', group: '관광지', name: '다이세키린잔', category: '관광지', desc: '독특한 석회암 바위와 아열대 숲', lat: 26.8500, lng: 128.2550 },
-
         // --- [식당] ---
         { id: 'n_eat1', group: '식당', name: '플리퍼 스테이크 하우스', category: '식당', desc: '나고 지역의 유명 스테이크 전문점', lat: 26.5970, lng: 127.9790 },
         { id: 'n_eat2', group: '식당', name: '키시모토 식당', category: '식당', desc: '전통 오키나와 소바 전문점', lat: 26.6600, lng: 127.8910 },
@@ -414,7 +410,6 @@ const defaultPlacesData = {
         { id: 'n_eat8', group: '식당', name: '하나사키 마르쉐 식당가', category: '식당', desc: '해산물과 지역 먹거리', lat: 26.6760, lng: 127.8820 },
         { id: 'n_eat9', group: '식당', name: '나고 사쿠라 식당', category: '식당', desc: '현지 일본식 식당', lat: 26.5900, lng: 127.9780 },
         { id: 'n_eat10', group: '식당', name: '코우리섬 해산물 식당가', category: '식당', desc: '신선한 해산물과 오션뷰 식사', lat: 26.6960, lng: 128.0170 },
-
         // --- [카페] ---
         { id: 'n_caf1', group: '카페', name: '코우리 오션 브리즈', category: '카페', desc: '바다를 바라보며 커피를 즐기는 카페', lat: 26.6960, lng: 128.0170 },
         { id: 'n_caf2', group: '카페', name: '카페 차하야부', category: '카페', desc: '자연 속에서 여유롭게 즐기는 카페', lat: 26.6800, lng: 127.9000 },
@@ -426,7 +421,6 @@ const defaultPlacesData = {
         { id: 'n_caf8', group: '카페', name: '카페 하나사키', category: '카페', desc: '해안 전망과 디저트', lat: 26.6750, lng: 127.8830 },
         { id: 'n_caf9', group: '카페', name: '나고 파인애플 파크 카페', category: '카페', desc: '파인애플 디저트와 음료', lat: 26.6110, lng: 127.9580 },
         { id: 'n_caf10', group: '카페', name: '코우리섬 해변 카페', category: '카페', desc: '바다를 보며 쉬기 좋은 카페', lat: 26.6950, lng: 128.0150 },
-
         // --- [쇼핑] ---
         { id: 'n_shp1', group: '쇼핑', name: '나고 이온몰', category: '쇼핑', desc: '북부지역의 대표 쇼핑몰', lat: 26.5880, lng: 127.9800 },
         { id: 'n_shp2', group: '쇼핑', name: '나고 파인애플 파크 기념품점', category: '쇼핑', desc: '파인애플 과자와 지역 특산품', lat: 26.6110, lng: 127.9580 },
@@ -438,7 +432,6 @@ const defaultPlacesData = {
         { id: 'n_shp8', group: '쇼핑', name: '얀바루 휴게소', category: '쇼핑', desc: '지역 특산물과 농산품 판매', lat: 26.7450, lng: 128.1770 },
         { id: 'n_shp9', group: '쇼핑', name: '오기미 휴게소', category: '쇼핑', desc: '시콰사 등 지역 특산품 판매', lat: 26.7000, lng: 128.1190 },
         { id: 'n_shp10', group: '쇼핑', name: '코우리섬 기념품 상점', category: '쇼핑', desc: '섬의 특산품과 기념품', lat: 26.6970, lng: 128.0170 },
-
         // --- [액티비티] ---
         { id: 'n_act1', group: '액티비티', name: '츄라우미 수족관 관람', category: '액티비티', desc: '고래상어와 다양한 해양생물 관람', lat: 26.6940, lng: 127.8770 },
         { id: 'n_act2', group: '액티비티', name: '코우리섬 드라이브', category: '액티비티', desc: '코우리 대교를 건너는 드라이브', lat: 26.6970, lng: 128.0170 },
@@ -484,6 +477,22 @@ const defaultPlacesData = {
 
         let headerFp = null;
         let settingsFp = null;
+
+        // Sticky Layout 최적화 - Day 탭 밑에 Day Header 고정
+        function updateStickyPositions() {
+            const header = document.querySelector('header');
+            const tabsWrapper = document.getElementById('day-tabs-wrapper');
+            if(header && tabsWrapper) {
+                const hHeight = header.offsetHeight;
+                tabsWrapper.style.top = hHeight + 'px';
+                
+                const dayHeaders = document.querySelectorAll('.day-header-sticky');
+                dayHeaders.forEach(el => {
+                    el.style.top = (hHeight + tabsWrapper.offsetHeight - 1) + 'px';
+                });
+            }
+        }
+        window.addEventListener('resize', updateStickyPositions);
 
         window.onload = function() {
             const fpOptions = {
@@ -674,22 +683,30 @@ const defaultPlacesData = {
             const places = placesData[currentRegion] || [];
             const filteredPlaces = places.filter(p => p.group === currentCategory);
             
+            const catMapBtn = document.getElementById('categoryMapBtn');
+            if(catMapBtn) catMapBtn.innerHTML = `<i class="fa-solid fa-map-location-dot"></i> 현재 분류(${currentCategory}) 장소 지도보기`;
+
             let html = '';
             if (filteredPlaces.length === 0) {
                 html = `<div class="col-span-1 sm:col-span-2 text-center py-12 text-slate-400 text-sm">해당 카테고리에 등록된 장소가 없습니다.</div>`;
             } else {
-                filteredPlaces.forEach(p => {
+                filteredPlaces.forEach((p, idx) => {
                     let singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' 오키나와')}`;
+                    let numBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded font-extrabold mr-1.5 shrink-0 mt-[3px]">${idx + 1}</span>`;
+                    
                     html += `
                     <div class="min-w-0 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4 hover:border-cyan-300 transition relative w-full h-full overflow-hidden">
                         <div class="flex justify-between items-start mb-2 gap-2 w-full min-w-0">
-                            <div class="flex items-start gap-2 flex-1 min-w-0">
-                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-2 rounded transition shadow-sm mt-0.5 whitespace-nowrap" title="선택">
+                            <div class="flex items-start flex-1 min-w-0">
+                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-2 rounded transition shadow-sm mr-2 whitespace-nowrap" title="선택">
                                     <i class="fa-solid fa-plus"></i> 추가
                                 </button>
-                                <h4 class="font-bold text-sm text-slate-900 leading-tight pt-0.5 line-clamp-2 break-words flex-1 min-w-0">${p.name}</h4>
+                                <h4 class="font-bold text-sm text-slate-900 leading-tight pt-0.5 break-words flex-1 min-w-0 flex items-start">
+                                    ${numBadge}
+                                    <span class="line-clamp-2">${p.name}</span>
+                                </h4>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
+                            <div class="flex items-center gap-1 shrink-0 ml-1">
                                 <button onclick="openEditPlaceModal('${currentRegion}', '${p.id}')" class="text-amber-500 hover:bg-amber-50 p-1.5 rounded transition" title="장소 정보 수정"><i class="fa-solid fa-pen-to-square"></i></button>
                                 <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition" title="구글 맵 보기"><i class="fa-solid fa-map-location-dot"></i></a>
                                 <button onclick="removePlaceItem('${p.id}')" class="text-rose-400 hover:text-rose-600 p-1.5 rounded transition" title="장소 삭제"><i class="fa-solid fa-trash-can"></i></button>
@@ -759,8 +776,8 @@ const defaultPlacesData = {
         function renderDayContent(dayIdx, isAllView) {
             const currentDayObj = tripData.days[dayIdx];
             if (!currentDayObj) return '';
+            
             let eventsHtml = ''; let coordIndex = 1; let prevValidEvent = null;
-
             const firstEvt = currentDayObj.events[0];
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
 
@@ -775,8 +792,7 @@ const defaultPlacesData = {
                                 <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm"><i class="fa-solid fa-bed"></i></span>
                             </div>
                             <div class="flex items-center gap-2 flex-1 min-w-0">
-                                <span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>
-                                <h4 class="font-bold text-base sm:text-lg text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
+                                <h4 class="font-bold text-lg sm:text-xl text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
                                 <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
@@ -798,7 +814,7 @@ const defaultPlacesData = {
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button></div>`;
+                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button></div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
                     const evtIdx = startIndex + subIdx;
@@ -844,8 +860,7 @@ const defaultPlacesData = {
                                 <div class="flex flex-col justify-center items-center w-7 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">${moveUpBtn}${moveDownBtn}</div>
                                 <div class="flex items-center gap-3 flex-1 min-w-0">
                                     ${numCircle}
-                                    ${isMidHotel ? `<span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>` : ''}
-                                    <h4 class="font-bold text-base sm:text-lg text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                    <h4 class="font-bold text-lg sm:text-xl text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
                                     <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
@@ -864,28 +879,59 @@ const defaultPlacesData = {
                 </div>`;
             }
 
-            let bottomButtonsHtml = `<div class="mt-4 flex gap-2 sm:gap-3 w-full">
-                <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
-                    <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">저장</span>
-                </button>
-                <button onclick="openDayMapModal(${dayIdx})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
-                    <i class="fa-solid fa-map-location-dot"></i><span class="tracking-tight">일정 지도 보기</span>
-                </button>
+            let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
+            
+            // 헤더 컨테이너: 전체일정일 때는 기존 UI, 개별일정(Day탭)일 때는 Sticky 디자인
+            let headerWrapperClass = isAllView ? 
+                "px-4 sm:px-6 pt-4 pb-3 flex justify-between items-start" 
+                : 
+                "day-header-sticky sticky bg-cyan-50/95 backdrop-blur-md border-b border-cyan-200 px-4 sm:px-6 py-2.5 z-[30] shadow-sm flex justify-between items-center transition-all -mx-0 sm:-mx-0";
+            
+            let dayTitleHtml = isAllView ? 
+                `<div>
+                    <span class="font-extrabold text-xl sm:text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span>
+                    <span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span>
+                </div>${dayCompanionsHtml}`
+                :
+                `<div class="flex-1 min-w-0 pr-2">
+                    <div class="flex items-baseline gap-1.5 flex-wrap">
+                        <span class="font-extrabold text-lg sm:text-xl text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
+                        <span class="text-xs sm:text-sm text-cyan-700 font-medium">${currentDayObj.date}</span>
+                    </div>
+                    ${dayCompanionsHtml}
+                </div>`;
+
+            // 액션 버튼: 전체일정에서는 추가 버튼만 우측, 개별일정에서는 [저장,지도보기,추가] 나란히 배치
+            let topActionHtml = isAllView ? 
+                `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 shrink-0 ml-2"><i class="fa-solid fa-plus"></i><span class="hidden sm:inline">추가</span></button>`
+                :
+                `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[13px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>
+                    <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[13px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
+                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[13px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>
+                </div>`;
+
+            let topSectionHtml = `<div class="${headerWrapperClass}">
+                ${isAllView ? `<div>${dayTitleHtml}</div>${topActionHtml}` : `${dayTitleHtml}${topActionHtml}`}
             </div>`;
 
-            let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-sm font-bold text-cyan-800 mt-1"><i class="fa-solid fa-users mr-1"></i>동행자: ${currentDayObj.companions}</div>` : '';
+            // 하단 버튼: 전체일정에서만 표시됨
+            let bottomButtonsHtml = isAllView ? `<div class="px-4 sm:px-6 pb-4 mt-4">
+                <div class="flex gap-2 sm:gap-3 w-full">
+                    <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">저장</span>
+                    </button>
+                    <button onclick="openDayMapModal(${dayIdx})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition whitespace-nowrap">
+                        <i class="fa-solid fa-map-location-dot"></i><span class="tracking-tight">일정 지도 보기</span>
+                    </button>
+                </div>
+            </div>` : '';
 
             return `
-                <div class="bg-cyan-50/30 py-4 sm:py-5 border-y border-cyan-100/60 shadow-sm overflow-hidden mb-6">
-                    <div class="flex justify-between items-start pb-3 border-b border-cyan-100/60 mb-4 px-4 sm:px-6">
-                        <div>
-                            <div><span class="font-extrabold text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span><span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span></div>
-                            ${dayCompanionsHtml}
-                        </div>
-                        <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 hover:bg-cyan-700 text-white text-sm sm:text-base font-bold px-4 py-2 rounded-lg shadow-sm transition flex items-center gap-1.5 mt-0.5"><i class="fa-solid fa-plus"></i> 추가</button>
-                    </div>
+                <div class="${isAllView ? 'bg-cyan-50/30 border-y border-cyan-100/60 shadow-sm overflow-hidden mb-6' : 'bg-transparent pb-6'}">
+                    ${topSectionHtml}
                     <div class="space-y-0 px-0">${eventsHtml}</div>
-                    <div class="px-4 sm:px-6 pb-2 mt-2">${bottomButtonsHtml}</div>
+                    ${bottomButtonsHtml}
                 </div>
             `;
         }
@@ -911,6 +957,8 @@ const defaultPlacesData = {
                     contentContainer.innerHTML = renderDayContent(tripData.activeDay, false);
                 }
             }
+            // 렌더링 직후 고정 레이아웃(Sticky top) 자동 재계산
+            setTimeout(updateStickyPositions, 50);
         }
         
         function updateEventMemo(dayIdx, evtIdx, val) { tripData.days[dayIdx].events[evtIdx].memo = val; saveDataToLocalStorage(); }
@@ -945,6 +993,47 @@ const defaultPlacesData = {
                     L.marker([lat, lng], { icon: numberIcon }).addTo(leafletMap).bindPopup(popupContent);
                 });
                 if (bounds.length > 0) leafletMap.fitBounds(bounds, { padding: [50, 50] });
+            }, 100);
+        }
+
+        // 선택된 지역 및 카테고리에 대한 장소 맵 보기 기능 추가
+        function openCategoryMapModal() {
+            const places = placesData[currentRegion] || [];
+            const filteredPlaces = places.filter(p => p.group === currentCategory);
+            
+            if (filteredPlaces.length === 0) {
+                alert('지도에 표시할 장소가 없습니다.'); return;
+            }
+
+            const regionName = currentRegion === 'south' ? '남부' : (currentRegion === 'central' ? '중부' : '북부');
+            document.getElementById('map-modal-title').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>[${regionName}] ${currentCategory} 장소 보기`;
+            document.getElementById('mapModal').classList.remove('hidden');
+
+            setTimeout(() => {
+                if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+                leafletMap = L.map('dayMapContainer');
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(leafletMap);
+                let bounds = [];
+
+                filteredPlaces.forEach((evt, idx) => {
+                    let lat = parseFloat(evt.lat); let lng = parseFloat(evt.lng);
+                    if(isNaN(lat) || isNaN(lng)) return;
+                    bounds.push([lat, lng]);
+                    let numberIcon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-map-marker" style="background:#10b981;">${idx + 1}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+                    let popupContent = `<div style="font-family: sans-serif; padding: 4px; min-width: 150px;">
+                        <span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소</span>
+                        <h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4>
+                        <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a>
+                    </div>`;
+                    L.marker([lat, lng], { icon: numberIcon }).addTo(leafletMap).bindPopup(popupContent);
+                });
+                
+                if (bounds.length > 0) {
+                    leafletMap.fitBounds(bounds, { padding: [50, 50] });
+                } else {
+                    leafletMap.setView([26.3, 127.8], 10);
+                }
             }, 100);
         }
 
@@ -1099,13 +1188,26 @@ const defaultPlacesData = {
             lngNum = isNaN(lngNum) ? regionCoords[region].lng : lngNum;
 
             if (editingId) {
+                // 수정 시 기존 위치(순서) 그대로 덮어쓰기 로직 적용
                 for (let reg in placesData) {
                     let idx = placesData[reg].findIndex(p => p.id === editingId);
-                    if (idx !== -1) { placesData[reg].splice(idx, 1); break; }
+                    if (idx !== -1) {
+                        placesData[reg][idx].name = name;
+                        placesData[reg][idx].group = group;
+                        placesData[reg][idx].desc = desc;
+                        placesData[reg][idx].lat = latNum;
+                        placesData[reg][idx].lng = lngNum;
+                        placesData[reg][idx].category = group === '호텔' ? '호텔/숙소' : '구글 맵 명소';
+
+                        // 지역(Region)이 바뀌었을 경우에만 목록에서 꺼내서 새 지역의 맨 뒤로 이동
+                        if (reg !== region) {
+                            let movedItem = placesData[reg].splice(idx, 1)[0];
+                            if(!placesData[region]) placesData[region] = [];
+                            placesData[region].push(movedItem);
+                        }
+                        break; 
+                    }
                 }
-                if (!placesData[region]) placesData[region] = [];
-                placesData[region].push({ id: editingId, group: group, name: name, category: group === '호텔' ? '호텔/숙소' : '구글 맵 명소', desc: desc, lat: latNum, lng: lngNum });
-                
                 switchRegion(region); switchCategory(group); renderPlaces(); renderPlanner(); saveDataToLocalStorage(); closeAddModal();
                 alert(`[${name}] 장소 정보가 수정되었습니다.`);
             } else {

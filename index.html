@@ -264,7 +264,6 @@
     </div>
 
     <script>
-        // 요청하신 21개 필수 스팟 정보 총정리
         const defaultPlacesData = {
             south: [
                 { id: 's_att1', group: '관광지', name: '슈리성', category: '역사유적', desc: '오키나와의 역사를 담은 류큐 왕국의 궁전 유적입니다.', lat: 26.2170, lng: 127.7195 },
@@ -297,10 +296,8 @@
             ]
         };
 
-        // 기본 장소를 복사하여 초기화
         let placesData = JSON.parse(JSON.stringify(defaultPlacesData));
 
-        // 기존 브라우저에 저장된 [직접 추가한 장소]가 있다면 병합(Merge)하여 데이터 보존
         try {
             const savedPlaces = localStorage.getItem('okinawa_placesData');
             if (savedPlaces) {
@@ -308,7 +305,6 @@
                 ['south', 'central', 'north'].forEach(region => {
                     if (parsed[region]) {
                         parsed[region].forEach(customPlace => {
-                            // 'custom-'으로 시작하는 직접 등록 장소만 추려내서 새 리스트에 추가
                             if (customPlace.id && customPlace.id.startsWith('custom-')) {
                                 placesData[region].push(customPlace);
                             }
@@ -330,7 +326,6 @@
         let targetAddDayIdx = 0; 
         let leafletMap = null; 
 
-        // 달력 인스턴스 전역 변수
         let headerFp = null;
         let settingsFp = null;
 
@@ -386,7 +381,7 @@
             if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
             let compHtml = '';
             tripData.days.forEach((d, i) => {
-                compHtml += `<div class="flex items-center gap-2 w-full"><label class="w-11 text-xs font-bold text-slate-600 whitespace-nowrap">Day ${d.dayNum}</label><input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-[13px] outline-none focus:border-cyan-400"></div>`;
+                compHtml += `<div class="flex items-center gap-2 w-full"><label class="w-12 text-sm font-bold text-slate-600 whitespace-nowrap">Day ${d.dayNum}</label><input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-xs outline-none focus:border-cyan-400"></div>`;
             });
             document.getElementById('day-companions-container').innerHTML = compHtml;
             document.getElementById('day-companions-container').classList.add('hidden');
@@ -625,7 +620,7 @@
                             </div>
                             <div class="flex items-center gap-2 flex-1 min-w-0">
                                 <span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>
-                                <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
+                                <h4 class="font-bold text-base sm:text-lg text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
                                 <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
@@ -633,7 +628,7 @@
                             </div>
                         </div>
                         <div class="pl-10 pr-1">
-                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-xs text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
+                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-[11px] text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
                         </div>
                     </div>
                 `;
@@ -660,9 +655,9 @@
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
                         eventsHtml += `
-                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-xs sm:text-sm text-slate-600 border-slate-200/60 shadow-sm w-full">
+                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-xs sm:text-sm">
+                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[11px] sm:text-xs">
                                         <option value="운전" ${currentTransport==='운전'?'selected':''}>🚗 운전</option>
                                         <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>🚌 대중교통</option>
                                         <option value="도보" ${currentTransport==='도보'?'selected':''}>🚶 도보</option>
@@ -672,7 +667,7 @@
                                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                     <span class="whitespace-nowrap">거리: <strong class="text-slate-800">${route.distance}</strong></span>
                                     <span class="whitespace-nowrap">소요: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-sm sm:text-base"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
                                 </div>
                             </div>
                         `;
@@ -694,7 +689,7 @@
                                 <div class="flex items-center gap-3 flex-1 min-w-0">
                                     ${numCircle}
                                     ${isMidHotel ? `<span class="text-[11px] font-bold text-indigo-700 bg-indigo-100 px-1.5 py-0.5 rounded shrink-0">숙소</span>` : ''}
-                                    <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                    <h4 class="font-bold text-base sm:text-lg text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
                                     <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
@@ -702,7 +697,7 @@
                                 </div>
                             </div>
                             <div class="pl-10 pr-1">
-                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
+                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-[11px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
                             </div>
                         </div>
                     `;

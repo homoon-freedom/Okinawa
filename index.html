@@ -275,7 +275,7 @@
                     <h2 id="expenseHeaderTitle" class="text-lg font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
                         여행 정산 & 송금 계산기
                     </h2>
-                    <p class="text-[11px] text-slate-400">지출별 내역 기반 직관적 정산 시스템</p>
+                    <p class="text-[11px] text-slate-400">개인별 · 부부별 맞춤형 지출 정산 시스템</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-white p-1.5 transition">
@@ -317,6 +317,45 @@
                     <div id="participantTags" class="flex flex-wrap gap-1.5 pt-1">
                         <!-- Dynamically populated -->
                     </div>
+
+                    <!-- 정산 방식 선택 (개인별 / 부부별) -->
+                    <div class="border-t border-slate-800/80 pt-3 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-semibold text-slate-300">정산 방식 선택</span>
+                            <div class="inline-flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                                <button type="button" id="modeIndividualBtn" onclick="setSettlementMode('individual')"
+                                    class="px-3 py-1 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow-sm">
+                                    👤 개인별 정산
+                                </button>
+                                <button type="button" id="modeCoupleBtn" onclick="setSettlementMode('couple')"
+                                    class="px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200">
+                                    💑 부부별 정산
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 부부 그룹 설정 영역 (부부별 선택 시 노출) -->
+                        <div id="coupleSetupSection" class="hidden bg-slate-950 border border-indigo-500/30 rounded-xl p-3 space-y-2.5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-indigo-300">💑 부부 묶기 및 대표자 지정</span>
+                                <span class="text-[10px] text-slate-400">👑 클릭 시 대표 변경</span>
+                            </div>
+
+                            <!-- 부부 묶기 선택 컨트롤 -->
+                            <div id="couplePairCreator" class="space-y-1.5">
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <select id="coupleMember1" class="w-full min-w-0 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-200 outline-none focus:border-indigo-500"></select>
+                                    <select id="coupleMember2" class="w-full min-w-0 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-200 outline-none focus:border-indigo-500"></select>
+                                </div>
+                                <button type="button" onclick="addCouplePair()" class="w-full bg-indigo-600/90 hover:bg-indigo-500 text-white py-1.5 rounded-lg text-xs font-semibold transition shadow-sm">
+                                    + 선택한 두 명을 부부로 묶기
+                                </button>
+                            </div>
+
+                            <!-- 등록된 부부 및 미지정 인원 표시 -->
+                            <div id="coupleListContainer" class="space-y-1.5 pt-1"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Add Expense Form -->
@@ -342,7 +381,9 @@
                             </div>
                         </div>
                         <div>
-                            <label class="text-xs text-slate-400 mb-1 block">참여 인원 (체크된 사람들끼리 N분의 1)</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs text-slate-400 block">지출 참여 인원 (체크된 사람 수만큼 1/N 분담)</label>
+                            </div>
                             <div id="expenseParticipants" class="flex flex-wrap gap-2 pt-1 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                                 <!-- Dynamically populated checkboxes -->
                             </div>
@@ -378,9 +419,9 @@
                         <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
                             <div>
                                 <h3 id="summaryMainTitle" class="text-base font-bold text-slate-100">여행 정산 및 송금 요약</h3>
-                                <p class="text-[11px] text-slate-400">지출 내역 및 개인별 정산 결과</p>
+                                <p id="summarySubTitle" class="text-[11px] text-slate-400">지출 내역 및 개인별 정산 결과</p>
                             </div>
-                            <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full font-medium">정산 완료</span>
+                            <span id="summaryModeBadge" class="text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full font-medium">개인별 정산</span>
                         </div>
 
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
@@ -394,7 +435,7 @@
                         </div>
 
                         <div class="space-y-3">
-                            <h4 class="text-sm font-bold text-slate-200 pt-1">개인별 정산 카드</h4>
+                            <h4 id="summaryCardsHeading" class="text-sm font-bold text-slate-200 pt-1">개인별 정산 카드</h4>
                             <div id="personalSummaries" class="space-y-3"></div>
                         </div>
 
@@ -600,6 +641,11 @@ const defaultPlacesData = {
 
         // 경비 정산 앱 관련 변수 및 로컬스토리지 연동
         let participants = ["찬팅", "미르", "마스터", "샤인"];
+        let settlementMode = "individual"; // "individual" | "couple"
+        let couples = [
+            { id: 1, member1: "찬팅", member2: "미르", rep: "찬팅" },
+            { id: 2, member1: "마스터", member2: "샤인", rep: "마스터" }
+        ];
         let expenses = [
             { id: 1, title: "숙박", amount: 70000, payer: "찬팅", targets: ["찬팅", "미르", "마스터", "샤인"] },
             { id: 2, title: "식사", amount: 65000, payer: "미르", targets: ["찬팅", "미르", "마스터", "샤인"] }
@@ -611,6 +657,8 @@ const defaultPlacesData = {
                 const parsedExp = JSON.parse(savedExpenseData);
                 if (parsedExp.participants) participants = parsedExp.participants;
                 if (parsedExp.expenses) expenses = parsedExp.expenses;
+                if (parsedExp.settlementMode) settlementMode = parsedExp.settlementMode;
+                if (Array.isArray(parsedExp.couples)) couples = parsedExp.couples;
                 if (parsedExp.tripTitle !== undefined) {
                     setTimeout(() => {
                         const titleInput = document.getElementById('tripTitleInput');
@@ -629,6 +677,8 @@ const defaultPlacesData = {
             const expensePayload = {
                 tripTitle: tripTitle,
                 participants: participants,
+                settlementMode: settlementMode,
+                couples: couples,
                 expenses: expenses
             };
             localStorage.setItem('okinawa_expenseAppData', JSON.stringify(expensePayload));
@@ -641,6 +691,8 @@ const defaultPlacesData = {
             const expensePayload = {
                 tripTitle: tripTitle,
                 participants: participants,
+                settlementMode: settlementMode,
+                couples: couples,
                 expenses: expenses
             };
             localStorage.setItem('okinawa_expenseAppData', JSON.stringify(expensePayload));
@@ -1375,7 +1427,7 @@ const defaultPlacesData = {
             }
         }
 
-        // --- 경비 정산 및 송금 계산기 연동 로직 ---
+        // --- 경비 정산 및 송금 계산기 연동 로직 (개인별 / 부부별 정산 지원) ---
         function openExpenseModal() {
             document.getElementById('expenseModal').classList.remove('hidden');
             initExpenseApp();
@@ -1386,11 +1438,217 @@ const defaultPlacesData = {
         }
 
         function initExpenseApp() {
+            cleanInvalidCouples();
+            updateSettlementModeUI();
             renderParticipants();
+            renderCoupleSetup();
             renderExpenseParticipantsCheckboxes();
             renderExpenses();
             updatePayerDropdown();
             calculateSettlement();
+        }
+
+        function cleanInvalidCouples() {
+            const used = new Set();
+            couples = couples.filter(c => {
+                if (!participants.includes(c.member1) || !participants.includes(c.member2)) return false;
+                if (c.member1 === c.member2) return false;
+                if (used.has(c.member1) || used.has(c.member2)) return false;
+                used.add(c.member1);
+                used.add(c.member2);
+                if (c.rep !== c.member1 && c.rep !== c.member2) c.rep = c.member1;
+                return true;
+            });
+        }
+
+        function setSettlementMode(mode) {
+            settlementMode = mode;
+            updateSettlementModeUI();
+            renderCoupleSetup();
+            renderExpenseParticipantsCheckboxes();
+            renderExpenses();
+            calculateSettlement();
+            autoSaveExpenseAppData();
+        }
+
+        function updateSettlementModeUI() {
+            const indBtn = document.getElementById('modeIndividualBtn');
+            const cplBtn = document.getElementById('modeCoupleBtn');
+            const setupSec = document.getElementById('coupleSetupSection');
+            if (!indBtn || !cplBtn || !setupSec) return;
+
+            if (settlementMode === 'couple') {
+                indBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200';
+                cplBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow-sm';
+                setupSec.classList.remove('hidden');
+            } else {
+                indBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white shadow-sm';
+                cplBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-slate-200';
+                setupSec.classList.add('hidden');
+            }
+        }
+
+        function getAssignedCoupleMembers() {
+            const set = new Set();
+            couples.forEach(c => {
+                set.add(c.member1);
+                set.add(c.member2);
+            });
+            return set;
+        }
+
+        function renderCoupleSetup() {
+            const m1Select = document.getElementById('coupleMember1');
+            const m2Select = document.getElementById('coupleMember2');
+            const creatorBox = document.getElementById('couplePairCreator');
+            const listContainer = document.getElementById('coupleListContainer');
+            if (!m1Select || !m2Select || !listContainer) return;
+
+            cleanInvalidCouples();
+            const assigned = getAssignedCoupleMembers();
+            const unassigned = participants.filter(p => !assigned.has(p));
+
+            if (unassigned.length >= 2) {
+                creatorBox.classList.remove('hidden');
+                m1Select.innerHTML = unassigned.map((p, idx) => `<option value="${p}" ${idx === 0 ? 'selected' : ''}>${p}</option>`).join('');
+                m2Select.innerHTML = unassigned.map((p, idx) => `<option value="${p}" ${idx === 1 ? 'selected' : ''}>${p}</option>`).join('');
+            } else {
+                creatorBox.classList.add('hidden');
+            }
+
+            let html = '';
+            if (couples.length === 0) {
+                html += `<p class="text-[11px] text-slate-500 text-center py-1">아직 묶인 부부가 없습니다. 위에서 두 명을 선택해 부부로 묶어주세요.</p>`;
+            } else {
+                html += couples.map((c, idx) => {
+                    const isM1Rep = c.rep === c.member1;
+                    const isM2Rep = c.rep === c.member2;
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-2 flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+                                <span class="text-[10px] font-bold text-slate-400 mr-0.5">부부${idx + 1}</span>
+                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member1}')"
+                                    class="px-2 py-0.5 rounded-md text-xs font-semibold border transition flex items-center gap-1 ${isM1Rep ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'}"
+                                    title="클릭하여 대표자로 지정">
+                                    ${isM1Rep ? '<span>👑</span>' : ''}${c.member1}
+                                </button>
+                                <span class="text-slate-600 text-xs">&amp;</span>
+                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member2}')"
+                                    class="px-2 py-0.5 rounded-md text-xs font-semibold border transition flex items-center gap-1 ${isM2Rep ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'}"
+                                    title="클릭하여 대표자로 지정">
+                                    ${isM2Rep ? '<span>👑</span>' : ''}${c.member2}
+                                </button>
+                            </div>
+                            <button type="button" onclick="removeCouplePair(${c.id})" class="text-slate-500 hover:text-rose-400 text-xs px-1.5 py-0.5 shrink-0" title="부부 묶기 해제">
+                                해제
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            if (unassigned.length > 0) {
+                html += `<div class="text-[11px] text-slate-400 pt-1 px-1">미지정(개인 단위 정산): <span class="text-slate-300 font-medium">${unassigned.join(', ')}</span></div>`;
+            }
+
+            listContainer.innerHTML = html;
+        }
+
+        function addCouplePair() {
+            const m1 = document.getElementById('coupleMember1').value;
+            const m2 = document.getElementById('coupleMember2').value;
+            if (!m1 || !m2 || m1 === m2) {
+                alert('서로 다른 두 명의 참가자를 선택해주세요.');
+                return;
+            }
+            couples.push({
+                id: Date.now(),
+                member1: m1,
+                member2: m2,
+                rep: m1
+            });
+            renderCoupleSetup();
+            renderExpenseParticipantsCheckboxes();
+            renderExpenses();
+            calculateSettlement();
+            autoSaveExpenseAppData();
+        }
+
+        function setCoupleRep(coupleId, memberName) {
+            const target = couples.find(c => c.id === coupleId);
+            if (target && (target.member1 === memberName || target.member2 === memberName)) {
+                target.rep = memberName;
+                renderCoupleSetup();
+                renderExpenses();
+                calculateSettlement();
+                autoSaveExpenseAppData();
+            }
+        }
+
+        function removeCouplePair(coupleId) {
+            couples = couples.filter(c => c.id !== coupleId);
+            renderCoupleSetup();
+            renderExpenseParticipantsCheckboxes();
+            renderExpenses();
+            calculateSettlement();
+            autoSaveExpenseAppData();
+        }
+
+        function getSettlementEntities() {
+            if (settlementMode !== 'couple') {
+                return participants.map(p => ({
+                    id: p,
+                    label: p,
+                    subLabel: '',
+                    fullTitle: p,
+                    rep: p,
+                    members: [p],
+                    isCouple: false
+                }));
+            }
+
+            cleanInvalidCouples();
+            const entities = [];
+            const assigned = new Set();
+
+            couples.forEach(c => {
+                assigned.add(c.member1);
+                assigned.add(c.member2);
+                const rep = c.rep || c.member1;
+                entities.push({
+                    id: 'couple_' + c.id,
+                    label: rep,
+                    subLabel: `${c.member1} · ${c.member2} 부부 대표`,
+                    fullTitle: `${rep} (${c.member1}·${c.member2} 부부)`,
+                    rep: rep,
+                    members: [c.member1, c.member2],
+                    isCouple: true
+                });
+            });
+
+            participants.forEach(p => {
+                if (!assigned.has(p)) {
+                    entities.push({
+                        id: 'solo_' + p,
+                        label: p,
+                        subLabel: '개인 정산',
+                        fullTitle: p,
+                        rep: p,
+                        members: [p],
+                        isCouple: false
+                    });
+                }
+            });
+
+            return entities;
+        }
+
+        function findEntityByPerson(personName, entities) {
+            return entities.find(ent => ent.members.includes(personName));
+        }
+
+        function gcd(a, b) {
+            return b === 0 ? a : gcd(b, a % b);
         }
 
         function toggleExpenseList() {
@@ -1415,7 +1673,7 @@ const defaultPlacesData = {
                 headerTitle.innerText = `여행 정산 & 송금 계산기`;
                 summaryMainTitle.innerText = `여행 정산 및 송금 요약`;
             }
-            autoSaveExpenseAppData(); // 자동 백업 (알림 없음)
+            autoSaveExpenseAppData();
         }
 
         function renderParticipants() {
@@ -1432,6 +1690,7 @@ const defaultPlacesData = {
             `).join('');
             
             updatePayerDropdown();
+            renderCoupleSetup();
             renderExpenseParticipantsCheckboxes();
         }
 
@@ -1451,29 +1710,67 @@ const defaultPlacesData = {
 
         function removeParticipant(name) {
             participants = participants.filter(p => p !== name);
+            couples = couples.filter(c => c.member1 !== name && c.member2 !== name);
             expenses.forEach(exp => {
                 exp.targets = exp.targets.filter(t => t !== name);
             });
             renderParticipants();
             renderExpenses();
+            calculateSettlement();
             autoSaveExpenseAppData();
         }
 
         function updatePayerDropdown() {
             const select = document.getElementById('expensePayer');
             if(!select) return;
-            select.innerHTML = participants.map(p => `<option value="${p}">${p}</option>`).join('');
+            const prevVal = select.value;
+            select.innerHTML = participants.map(p => `<option value="${p}" ${p === prevVal ? 'selected' : ''}>${p}</option>`).join('');
         }
 
         function renderExpenseParticipantsCheckboxes() {
             const container = document.getElementById('expenseParticipants');
             if(!container) return;
-            container.innerHTML = participants.map(p => `
-                <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
-                    <input type="checkbox" value="${p}" checked class="accent-indigo-500 expense-target-checkbox">
-                    ${p}
-                </label>
-            `).join('');
+
+            if (settlementMode === 'couple' && couples.length > 0) {
+                const assigned = getAssignedCoupleMembers();
+                let html = '';
+
+                couples.forEach(c => {
+                    html += `
+                        <div class="inline-flex items-center gap-1.5 bg-slate-900/90 px-2 py-1 rounded-lg border border-indigo-500/30">
+                            <span class="text-[10px] text-indigo-300 font-semibold mr-0.5">부부</span>
+                            <label class="inline-flex items-center gap-1 text-xs text-slate-200 cursor-pointer bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                                <input type="checkbox" value="${c.member1}" checked class="accent-indigo-500 expense-target-checkbox">
+                                ${c.member1}
+                            </label>
+                            <label class="inline-flex items-center gap-1 text-xs text-slate-200 cursor-pointer bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                                <input type="checkbox" value="${c.member2}" checked class="accent-indigo-500 expense-target-checkbox">
+                                ${c.member2}
+                            </label>
+                        </div>
+                    `;
+                });
+
+                participants.forEach(p => {
+                    if (!assigned.has(p)) {
+                        html += `
+                            <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                                <input type="checkbox" value="${p}" checked class="accent-indigo-500 expense-target-checkbox">
+                                ${p}
+                            </label>
+                        `;
+                    }
+                });
+
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = participants.map(p => `
+                    <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                        <input type="checkbox" value="${p}" checked class="accent-indigo-500 expense-target-checkbox">
+                        ${p}
+                    </label>
+                `).join('');
+            }
         }
 
         function addExpense() {
@@ -1501,12 +1798,14 @@ const defaultPlacesData = {
             titleInput.value = '';
             amountInput.value = '';
             renderExpenses();
+            calculateSettlement();
             autoSaveExpenseAppData();
         }
 
         function deleteExpense(id) {
             expenses = expenses.filter(e => e.id !== id);
             renderExpenses();
+            calculateSettlement();
             autoSaveExpenseAppData();
         }
 
@@ -1529,22 +1828,49 @@ const defaultPlacesData = {
                 return;
             }
 
-            const listHtml = expenses.map(e => `
-                <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex justify-between items-center text-xs">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-200 text-sm">${e.title}</span>
-                            <span class="text-indigo-400 font-semibold">${e.amount.toLocaleString()}원</span>
+            const entities = getSettlementEntities();
+
+            const listHtml = expenses.map(e => {
+                const validTargets = e.targets.filter(t => participants.includes(t));
+                let ratioHtml = '';
+
+                if (settlementMode === 'couple' && validTargets.length > 0) {
+                    const countMap = {};
+                    validTargets.forEach(t => {
+                        const ent = findEntityByPerson(t, entities);
+                        if (ent) countMap[ent.id] = (countMap[ent.id] || 0) + 1;
+                    });
+                    const denom = validTargets.length;
+                    const parts = entities
+                        .filter(ent => countMap[ent.id] > 0)
+                        .map(ent => {
+                            const num = countMap[ent.id];
+                            const g = gcd(num, denom);
+                            return `${ent.label}${ent.isCouple ? ' 부부' : ''} ${num / g}/${denom / g}`;
+                        });
+                    if (parts.length > 0) {
+                        ratioHtml = `<div class="text-[11px] text-indigo-300 mt-0.5">부담 비율: ${parts.join(' · ')}</div>`;
+                    }
+                }
+
+                return `
+                    <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex justify-between items-center text-xs">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-200 text-sm">${e.title}</span>
+                                <span class="text-indigo-400 font-semibold">${e.amount.toLocaleString()}원</span>
+                            </div>
+                            <div class="text-slate-400">
+                                결제자: <span class="text-slate-200 font-medium">${e.payer}</span> | 참여 인원 (${validTargets.length}명): ${validTargets.join(', ')}
+                            </div>
+                            ${ratioHtml}
                         </div>
-                        <div class="text-slate-400">
-                            결제자: <span class="text-slate-200 font-medium">${e.payer}</span> | 참여 인원 (${e.targets.length}명): ${e.targets.join(', ')}
-                        </div>
+                        <button onclick="deleteExpense(${e.id})" class="text-slate-500 hover:text-rose-400 p-1.5 transition shrink-0">
+                            🗑️
+                        </button>
                     </div>
-                    <button onclick="deleteExpense(${e.id})" class="text-slate-500 hover:text-rose-400 p-1.5 transition">
-                        🗑️
-                    </button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             container.innerHTML = listHtml;
             if (summaryContainer) summaryContainer.innerHTML = listHtml;
@@ -1553,116 +1879,167 @@ const defaultPlacesData = {
         function calculateSettlement() {
             renderExpenses(); 
 
+            const entities = getSettlementEntities();
             let paidMap = {};
             let shareMap = {};
+            let personShareMap = {};
+
+            entities.forEach(ent => {
+                paidMap[ent.id] = 0;
+                shareMap[ent.id] = 0;
+            });
             participants.forEach(p => {
-                paidMap[p] = 0;
-                shareMap[p] = 0;
+                personShareMap[p] = 0;
             });
 
             let debtMatrix = {}; 
-            participants.forEach(p => {
-                debtMatrix[p] = {};
-                participants.forEach(tp => { debtMatrix[p][tp] = 0; });
+            entities.forEach(e1 => {
+                debtMatrix[e1.id] = {};
+                entities.forEach(e2 => { debtMatrix[e1.id][e2.id] = 0; });
             });
 
             expenses.forEach(e => {
-                paidMap[e.payer] = (paidMap[e.payer] || 0) + e.amount;
-                let sharePerPerson = e.amount / e.targets.length;
+                const validTargets = e.targets.filter(t => participants.includes(t));
+                if (validTargets.length === 0) return;
+
+                const payerEntity = findEntityByPerson(e.payer, entities);
+                if (payerEntity) {
+                    paidMap[payerEntity.id] = (paidMap[payerEntity.id] || 0) + e.amount;
+                }
+
+                let sharePerPerson = e.amount / validTargets.length;
                 
-                e.targets.forEach(t => {
-                    shareMap[t] = (shareMap[t] || 0) + sharePerPerson;
-                    if (t !== e.payer) {
-                        debtMatrix[t][e.payer] = (debtMatrix[t][e.payer] || 0) + sharePerPerson;
+                validTargets.forEach(t => {
+                    personShareMap[t] = (personShareMap[t] || 0) + sharePerPerson;
+                    const targetEntity = findEntityByPerson(t, entities);
+                    if (targetEntity) {
+                        shareMap[targetEntity.id] = (shareMap[targetEntity.id] || 0) + sharePerPerson;
+                        if (payerEntity && targetEntity.id !== payerEntity.id) {
+                            debtMatrix[targetEntity.id][payerEntity.id] = (debtMatrix[targetEntity.id][payerEntity.id] || 0) + sharePerPerson;
+                        }
                     }
                 });
             });
 
-            participants.forEach(p1 => {
-                participants.forEach(p2 => {
-                    if (p1 !== p2 && debtMatrix[p1][p2] > 0 && debtMatrix[p2][p1] > 0) {
-                        let minVal = Math.min(debtMatrix[p1][p2], debtMatrix[p2][p1]);
-                        debtMatrix[p1][p2] -= minVal;
-                        debtMatrix[p2][p1] -= minVal;
+            entities.forEach(e1 => {
+                entities.forEach(e2 => {
+                    if (e1.id !== e2.id && debtMatrix[e1.id][e2.id] > 0 && debtMatrix[e2.id][e1.id] > 0) {
+                        let minVal = Math.min(debtMatrix[e1.id][e2.id], debtMatrix[e2.id][e1.id]);
+                        debtMatrix[e1.id][e2.id] -= minVal;
+                        debtMatrix[e2.id][e1.id] -= minVal;
                     }
                 });
             });
 
             let detailedTransfers = [];
-            participants.forEach(from => {
-                participants.forEach(to => {
-                    let amt = debtMatrix[from][to];
+            entities.forEach(fromEnt => {
+                entities.forEach(toEnt => {
+                    let amt = debtMatrix[fromEnt.id][toEnt.id];
                     if (amt > 0.1) {
-                        detailedTransfers.push({ from, to, amount: Math.round(amt) });
+                        detailedTransfers.push({ from: fromEnt, to: toEnt, amount: Math.round(amt) });
                     }
                 });
             });
 
             let outgoingMap = {};
             let incomingMap = {};
-            participants.forEach(p => {
-                outgoingMap[p] = [];
-                incomingMap[p] = [];
+            entities.forEach(ent => {
+                outgoingMap[ent.id] = [];
+                incomingMap[ent.id] = [];
             });
 
             detailedTransfers.forEach(t => {
-                outgoingMap[t.from].push({ to: t.to, amount: t.amount });
-                incomingMap[t.to].push({ from: t.from, amount: t.amount });
+                outgoingMap[t.from.id].push({ to: t.to, amount: t.amount });
+                incomingMap[t.to.id].push({ from: t.from, amount: t.amount });
             });
+
+            // 요약 헤더 텍스트 업데이트
+            const summarySub = document.getElementById('summarySubTitle');
+            const summaryBadge = document.getElementById('summaryModeBadge');
+            const summaryHeading = document.getElementById('summaryCardsHeading');
+            if (settlementMode === 'couple') {
+                if (summarySub) summarySub.innerText = '지출 내역 및 부부(대표자)별 정산 결과';
+                if (summaryBadge) summaryBadge.innerText = '💑 부부별 정산';
+                if (summaryHeading) summaryHeading.innerText = '부부(대표자)별 정산 카드';
+            } else {
+                if (summarySub) summarySub.innerText = '지출 내역 및 개인별 정산 결과';
+                if (summaryBadge) summaryBadge.innerText = '👤 개인별 정산';
+                if (summaryHeading) summaryHeading.innerText = '개인별 정산 카드';
+            }
 
             document.getElementById('settlementResultSection').classList.remove('hidden');
             
             const personalContainer = document.getElementById('personalSummaries');
-            personalContainer.innerHTML = participants.map(p => {
-                let paid = paidMap[p] || 0;
-                let share = shareMap[p] || 0;
+            personalContainer.innerHTML = entities.map(ent => {
+                let paid = paidMap[ent.id] || 0;
+                let share = shareMap[ent.id] || 0;
                 let net = paid - share;
                 
-                let outList = outgoingMap[p] || [];
-                let inList = incomingMap[p] || [];
+                let outList = outgoingMap[ent.id] || [];
+                let inList = incomingMap[ent.id] || [];
                 let totalOut = outList.reduce((sum, o) => sum + o.amount, 0);
 
                 let badgeHtml = '';
-                if (net > 0) {
+                if (net > 0.5) {
                     badgeHtml = `<span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold">+${Math.round(net).toLocaleString()}원 받을 예정</span>`;
-                } else if (net < 0) {
+                } else if (net < -0.5) {
                     badgeHtml = `<span class="bg-rose-500/20 text-rose-400 text-xs px-2.5 py-1 rounded-full font-bold">${Math.round(-net).toLocaleString()}원 보낼 예정</span>`;
                 } else {
-                    badgeHtml = `<span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-medium">정산 완료 (0원)</span>`;
+                    badgeHtml = `<span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-full font-medium">정산 완료 (0원)</span>`;
                 }
+
+                const titleHtml = ent.isCouple
+                    ? `<div>
+                         <div class="flex items-center gap-1.5">
+                           <span class="text-amber-400 text-sm">👑</span>
+                           <span class="font-bold text-slate-100 text-base">${ent.label}</span>
+                         </div>
+                         <div class="text-[11px] text-indigo-300 mt-0.5">${ent.subLabel}</div>
+                       </div>`
+                    : `<div>
+                         <span class="font-bold text-slate-100 text-base">${ent.label}</span>
+                         ${ent.subLabel ? `<div class="text-[11px] text-slate-400 mt-0.5">${ent.subLabel}</div>` : ''}
+                       </div>`;
+
+                const memberBreakdownHtml = ent.isCouple
+                    ? `<div class="text-[11px] text-slate-400 text-right">
+                         (${ent.members.map(m => `${m} ${Math.round(personShareMap[m] || 0).toLocaleString()}원`).join(' + ')})
+                       </div>`
+                    : '';
 
                 return `
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="font-bold text-slate-100 text-base">${p}</span>
-                            ${badgeHtml}
+                        <div class="flex justify-between items-start gap-2">
+                            ${titleHtml}
+                            <div class="shrink-0">${badgeHtml}</div>
                         </div>
                         <div class="text-xs space-y-1 text-slate-300 border-t border-slate-800/80 pt-2.5">
                             <div class="flex justify-between">
-                                <span class="text-slate-400">내가 결제한 금액:</span>
+                                <span class="text-slate-400">${ent.isCouple ? '부부 결제한 금액:' : '내가 결제한 금액:'}</span>
                                 <span class="font-semibold text-slate-200">${paid.toLocaleString()}원</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-400">내가 부담할 몫 (사용 금액):</span>
+                                <span class="text-slate-400">${ent.isCouple ? '부부 부담할 몫 (사용 금액):' : '내가 부담할 몫 (사용 금액):'}</span>
                                 <span class="font-semibold text-slate-200">${Math.round(share).toLocaleString()}원</span>
                             </div>
+                            ${memberBreakdownHtml}
                         </div>
 
                         ${outList.length > 0 ? `
                             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5 text-xs">
                                 <div class="text-rose-400 font-semibold">총 송금할 금액: ${totalOut.toLocaleString()}원</div>
-                                ${outList.map(o => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${o.to}</span> 님에게: <span class="font-semibold text-white">${o.amount.toLocaleString()}원</span></div>`).join('')}
+                                ${outList.map(o => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${o.to.fullTitle}</span> 님에게: <span class="font-semibold text-white">${o.amount.toLocaleString()}원</span></div>`).join('')}
                             </div>
                         ` : `
                             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-400">
-                                내가 송금할 금액: 0원 (보낼 금액 없음)
+                                ${ent.isCouple ? '부부 대표가 송금할 금액: 0원 (보낼 금액 없음)' : '내가 송금할 금액: 0원 (보낼 금액 없음)'}
                             </div>
                         `}
 
                         ${inList.length > 0 ? `
                             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5 text-xs">
                                 <div class="text-emerald-400 font-semibold">받을 상세 내역:</div>
-                                ${inList.map(i => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${i.from}</span> 님으로부터: <span class="font-semibold text-white">${i.amount.toLocaleString()}원</span></div>`).join('')}
+                                ${inList.map(i => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${i.from.fullTitle}</span> 님으로부터: <span class="font-semibold text-white">${i.amount.toLocaleString()}원</span></div>`).join('')}
                             </div>
                         ` : ''}
                     </div>

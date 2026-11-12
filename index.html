@@ -1193,8 +1193,9 @@ const defaultPlacesData = {
 
             setTimeout(() => {
                 if (leafletMap) { leafletMap.remove(); leafletMap = null; }
-                leafletMap = L.map('dayMapContainer').setView([26.3, 127.8], 10);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(leafletMap);
+leafletMap = L.map('dayMapContainer', { zoomControl: false }).setView([26.3, 127.8], 10);
+
+                L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ko&x={x}&y={y}&z={z}', { subdomains: ['0', '1', '2', '3'], maxZoom: 20, attribution: '&copy; Google Maps' }).addTo(leafletMap);
                 let bounds = [];
 
                 validEvents.forEach((evt, idx) => {
@@ -1224,8 +1225,9 @@ const defaultPlacesData = {
 
             setTimeout(() => {
                 if (leafletMap) { leafletMap.remove(); leafletMap = null; }
-                leafletMap = L.map('dayMapContainer');
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '&copy; OpenStreetMap contributors' }).addTo(leafletMap);
+
+leafletMap = L.map('dayMapContainer', { zoomControl: false });
+                L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ko&x={x}&y={y}&z={z}', { subdomains: ['0', '1', '2', '3'], maxZoom: 20, attribution: '&copy; Google Maps' }).addTo(leafletMap);
                 let bounds = [];
 
                 filteredPlaces.forEach((evt, idx) => {

@@ -32,12 +32,13 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             border: 2px solid white;
         }
+        /* iOS 등에서 화면 확대 방지 및 입력창 최소 크기 고정 대비 */
         input, select, textarea { font-size: 16px !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans relative">
 
-    <!-- Header (항상 위에 고정되도록 sticky 적용) -->
+    <!-- Header -->
     <header class="sticky top-0 z-[40] bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
         <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col items-center justify-center">
             <h1 class="text-2xl sm:text-3xl font-bold flex items-center justify-center gap-2">
@@ -76,55 +77,33 @@
                 <h3 class="font-bold text-base"><i class="fa-solid fa-gear mr-2"></i>플래너 설정 및 관리</h3>
                 <button onclick="closeSettingsModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-5 space-y-5 overflow-y-auto hide-scrollbar">
+            
+            <div class="p-5 space-y-5 overflow-y-auto hide-scrollbar w-full box-border">
                 
-                <!-- 날짜 설정 (정렬 오류 수정: flex 사용) -->
-                <div>
+                <!-- 날짜 설정 (그리드 적용으로 벗어남 및 겹침 완벽 방지) -->
+                <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-regular fa-calendar mr-1"></i>여행 날짜 설정</h4>
-                    <div class="flex gap-2 mb-3">
-                        <div class="flex-1">
+                    <div class="grid grid-cols-2 gap-3 mb-3 w-full">
+                        <div class="min-w-0 flex flex-col">
                             <label class="block text-[11px] text-slate-500 mb-1">출발 날짜</label>
-                            <input type="date" id="startDate" class="w-full box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded outline-none focus:border-cyan-400">
+                            <input type="date" id="startDate" class="w-full min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded outline-none focus:border-cyan-400">
                         </div>
-                        <div class="flex-1">
+                        <div class="min-w-0 flex flex-col">
                             <label class="block text-[11px] text-slate-500 mb-1">귀국 날짜</label>
-                            <input type="date" id="endDate" class="w-full box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded outline-none focus:border-cyan-400">
+                            <input type="date" id="endDate" class="w-full min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded outline-none focus:border-cyan-400">
                         </div>
                     </div>
                 </div>
                 
-                <!-- 동행자 설정 -->
-                <div>
-                    <h4 class="text-xs font-bold text-slate-500 mb-1.5"><i class="fa-solid fa-users mr-1"></i>Day별 함께하는 친구들</h4>
-                    <p class="text-[10px] text-slate-400 mb-2">각 일자별로 동행하는 친구들의 이름을 자유롭게 입력하세요.</p>
-                    <div id="day-companions-container" class="space-y-1.5 max-h-40 overflow-y-auto pr-1 hide-scrollbar">
-                        <!-- JS 렌더링 -->
-                    </div>
-                </div>
-
-                <button onclick="updateTripSettings()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">설정 내역 저장</button>
-                
-                <hr class="border-slate-100">
-
-                <!-- 공유 기능 설정 창으로 이동 -->
-                <div>
-                    <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-share-nodes mr-1"></i>일정 공유하기</h4>
-                    <button onclick="shareFromSettings()" class="w-full bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] py-2.5 rounded-lg font-bold text-sm transition shadow-sm flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-image"></i> 전체 일정 이미지로 저장/공유
-                    </button>
-                </div>
-
-                <hr class="border-slate-100">
-
-                <!-- 커스텀 장소 관리 -->
-                <div>
+                <!-- 커스텀 장소 관리 (동행자 위로 이동) -->
+                <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-map-pin mr-1"></i>나만의 장소 직접 추가 및 관리</h4>
-                    <div class="flex gap-2 mb-2">
-                        <button onclick="closeSettingsModal(); openAddModal();" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-plus-circle"></i> 직접 추가하기
+                    <div class="flex gap-2 mb-2 w-full">
+                        <button onclick="closeSettingsModal(); openAddModal();" class="flex-1 min-w-0 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-plus-circle"></i> 직접 추가
                         </button>
-                        <button onclick="openSettingsTimelineAdd()" class="flex-1 bg-violet-500 hover:bg-violet-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-list-check"></i> 추가된 장소 보기
+                        <button onclick="openSettingsTimelineAdd()" class="flex-1 min-w-0 bg-violet-500 hover:bg-violet-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-list-check"></i> 추가된 장소
                         </button>
                     </div>
                     <p class="text-[10px] text-slate-400 text-center">우측 버튼을 누르면 목록에서 장소를 확인하고 일정을 짤 수 있습니다.</p>
@@ -132,17 +111,37 @@
 
                 <hr class="border-slate-100">
 
-                <!-- 데이터 관리 -->
-                <div>
-                    <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-database mr-1"></i>데이터 관리</h4>
-                    <div class="flex gap-2">
-                        <button onclick="exportBackupData()" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2 rounded-lg font-bold text-sm transition shadow-sm flex items-center justify-center gap-1.5">
+                <!-- 동행자 설정 (토글 기능 추가 & 스크롤 제거하여 전부 표시) -->
+                <div class="w-full">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <h4 class="text-xs font-bold text-slate-500"><i class="fa-solid fa-users mr-1"></i>Day별 함께하는 친구들</h4>
+                        <button onclick="toggleCompanions()" id="companionsToggleBtn" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded font-bold transition border border-slate-200 shadow-sm">보이기</button>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mb-2">각 일자별로 동행하는 친구들의 이름을 입력하세요.</p>
+                    <div id="day-companions-container" class="space-y-1.5 hidden w-full">
+                        <!-- JS 렌더링 -->
+                    </div>
+                </div>
+
+                <!-- 설정 내역 저장 버튼 -->
+                <button onclick="updateTripSettings()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2.5 rounded-lg text-sm font-bold transition shadow-sm">설정 내역 저장</button>
+                
+                <hr class="border-slate-100">
+
+                <!-- 데이터 관리 및 공유 (공유 버튼 우측 이동 및 크기 통일) -->
+                <div class="w-full">
+                    <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-database mr-1"></i>데이터 및 공유 관리</h4>
+                    <div class="flex gap-1.5 w-full">
+                        <button onclick="exportBackupData()" class="flex-1 min-w-0 bg-sky-500 hover:bg-sky-600 text-white py-2 rounded-lg font-bold text-[12px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
                             <i class="fa-solid fa-download"></i> 백업
                         </button>
-                        <label class="flex-1 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-bold text-sm transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer m-0">
+                        <label class="flex-1 min-w-0 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-bold text-[12px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1 cursor-pointer m-0">
                             <i class="fa-solid fa-upload"></i> 복구
                             <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
                         </label>
+                        <button onclick="shareFromSettings()" class="flex-1 min-w-0 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] py-2 rounded-lg font-bold text-[12px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-image"></i> 이미지공유
+                        </button>
                     </div>
                 </div>
             </div>
@@ -200,7 +199,7 @@
         </div>
     </div>
 
-    <!-- Custom Place Modal (등록 및 수정 겸용) -->
+    <!-- Custom Place Modal -->
     <div id="addPlaceModal" class="hidden fixed inset-0 z-[90] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div id="modal-header-bg" class="bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 flex justify-between items-center text-white">
@@ -325,6 +324,19 @@
             document.getElementById('header-date-display').innerText = `${format(startVal)} - ${format(endVal)}`;
         }
 
+        // 동행자 토글 기능
+        function toggleCompanions() {
+            const container = document.getElementById('day-companions-container');
+            const btn = document.getElementById('companionsToggleBtn');
+            if (container.classList.contains('hidden')) {
+                container.classList.remove('hidden');
+                btn.innerText = '숨기기';
+            } else {
+                container.classList.add('hidden');
+                btn.innerText = '보이기';
+            }
+        }
+
         function openSettingsModal() { 
             document.getElementById('startDate').value = tripData.startDate;
             document.getElementById('endDate').value = tripData.endDate;
@@ -332,18 +344,22 @@
             let compHtml = '';
             tripData.days.forEach((d, i) => {
                 compHtml += `
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 w-full">
                     <label class="w-11 text-xs font-bold text-slate-600 whitespace-nowrap">Day ${d.dayNum}</label>
-                    <input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-[13px] outline-none focus:border-cyan-400">
+                    <input type="text" id="comp-day-${i}" value="${d.companions || ''}" placeholder="예: 찬다, 냐나, 미르" class="flex-1 min-w-0 box-border bg-slate-50 border border-slate-300 text-slate-800 px-2 py-1.5 rounded text-[13px] outline-none focus:border-cyan-400">
                 </div>`;
             });
             document.getElementById('day-companions-container').innerHTML = compHtml;
+            
+            // 모달 열 때마다 동행자 리스트는 숨기기 상태로 초기화
+            document.getElementById('day-companions-container').classList.add('hidden');
+            document.getElementById('companionsToggleBtn').innerText = '보이기';
 
             document.getElementById('settingsModal').classList.remove('hidden'); 
         }
+        
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
 
-        // 설정 창에서 공유 기능 호출
         function shareFromSettings() {
             closeSettingsModal();
             shareAllDaysAsImages();
@@ -611,7 +627,7 @@
                             </div>
                         </div>
                         <div class="pl-10 pr-1">
-                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-sm text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
+                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-xs text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
                         </div>
                     </div>
                 `;
@@ -638,9 +654,9 @@
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
                         eventsHtml += `
-                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
+                            <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-xs sm:text-sm text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-sm sm:text-base">
+                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-xs sm:text-sm">
                                         <option value="운전" ${currentTransport==='운전'?'selected':''}>🚗 운전</option>
                                         <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>🚌 대중교통</option>
                                         <option value="도보" ${currentTransport==='도보'?'selected':''}>🚶 도보</option>
@@ -650,7 +666,7 @@
                                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                     <span class="whitespace-nowrap">거리: <strong class="text-slate-800">${route.distance}</strong></span>
                                     <span class="whitespace-nowrap">소요: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-sm sm:text-base"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-xs sm:text-sm"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
                                 </div>
                             </div>
                         `;
@@ -680,7 +696,7 @@
                                 </div>
                             </div>
                             <div class="pl-10 pr-1">
-                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-sm text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
+                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
                             </div>
                         </div>
                     `;
@@ -691,7 +707,6 @@
                 </div>`;
             }
 
-            // 하단 버튼 구성 (공유 기능은 설정으로 빠짐)
             let bottomButtonsHtml = `<div class="mt-4 flex gap-2 sm:gap-3 w-full">
                 <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <i class="fa-solid fa-floppy-disk"></i><span class="tracking-tight">저장</span>

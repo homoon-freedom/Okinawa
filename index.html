@@ -792,7 +792,7 @@ const defaultPlacesData = {
                                 <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm"><i class="fa-solid fa-bed"></i></span>
                             </div>
                             <div class="flex items-center gap-2 flex-1 min-w-0">
-                                <h4 class="font-bold text-lg sm:text-xl text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
+                                <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
                                 <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
@@ -800,7 +800,7 @@ const defaultPlacesData = {
                             </div>
                         </div>
                         <div class="pl-10 pr-1">
-                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-[11px] text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
+                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-[10px] text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
                         </div>
                     </div>
                 `;
@@ -829,7 +829,7 @@ const defaultPlacesData = {
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[11px] sm:text-xs">
+                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[10px] sm:text-[11px]">
                                         <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                         <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                         <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -855,12 +855,12 @@ const defaultPlacesData = {
                     let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-1 transition"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></button>` : `<span class="py-1 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-xs sm:text-sm"></i></span>`;
 
                     eventsHtml += `
-                        <div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-3 px-4 sm:px-6 gap-2">
+<div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2 px-4 sm:px-6 gap-1.5">
                             <div class="flex items-center gap-3 w-full">
                                 <div class="flex flex-col justify-center items-center w-7 bg-slate-50 rounded-lg border border-slate-100 shrink-0 py-0.5">${moveUpBtn}${moveDownBtn}</div>
                                 <div class="flex items-center gap-3 flex-1 min-w-0">
                                     ${numCircle}
-                                    <h4 class="font-bold text-lg sm:text-xl text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                    <h4 class="font-bold text-sm sm:text-base text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
                                     <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
@@ -895,7 +895,7 @@ const defaultPlacesData = {
                 :
                 `<div class="flex-1 min-w-0 pr-2">
                     <div class="flex items-baseline gap-1.5 flex-wrap">
-                        <span class="font-extrabold text-lg sm:text-xl text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
+                        <span class="font-extrabold text-sm sm:text-base text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
                         <span class="text-xs sm:text-sm text-cyan-700 font-medium">${currentDayObj.date}</span>
                     </div>
                     ${dayCompanionsHtml}

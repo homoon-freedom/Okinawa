@@ -264,38 +264,194 @@
     </div>
 
     <script>
-        const defaultPlacesData = {
-            south: [
-                { id: 's_att1', group: '관광지', name: '슈리성', category: '역사유적', desc: '오키나와의 역사를 담은 류큐 왕국의 궁전 유적입니다.', lat: 26.2170, lng: 127.7195 },
-                { id: 's_att2', group: '관광지', name: '국제거리', category: '번화가', desc: '나하 최대의 번화가로 쇼핑과 식사의 메카입니다.', lat: 26.2154, lng: 127.6846 },
-                { id: 's_eat1', group: '식당', name: '잭스 스테이크 하우스', category: '식당', desc: '1953년 개업하여 오랫동안 사랑받는 오키나와 정통 스테이크 하우스.', lat: 26.2144, lng: 127.6749 },
-                { id: 's_caf1', group: '카페', name: '하마노차야', category: '카페', desc: '창밖으로 푸른 바다를 마주하고 앉아 커피를 즐기는 남부 최고의 오션뷰 카페.', lat: 26.1368, lng: 127.7816 },
-                { id: 's_shp1', group: '쇼핑', name: '국제거리 (쇼핑)', category: '쇼핑', desc: '돈키호테, 기념품 샵, 특산물 상점이 끝없이 이어지는 거리.', lat: 26.2154, lng: 127.6846 },
-                { id: 's_shp2', group: '쇼핑', name: '아시비나 아울렛', category: '쇼핑', desc: '다양한 글로벌 브랜드가 모여 있는 오키나와 유일의 프리미엄 아울렛 몰.', lat: 26.1583, lng: 127.6565 },
-                { id: 's_act1', group: '액티비티', name: '동굴 탐험 (오키나와 월드)', category: '액티비티', desc: '신비로운 대형 종유석 동굴(교쿠센도) 탐험과 류큐 전통 문화를 체험할 수 있습니다.', lat: 26.1396, lng: 127.7503 },
-                { id: 's_act2', group: '액티비티', name: '류진 온천 (세나가지마)', category: '액티비티', desc: '탁 트인 바다와 일몰을 바라보며 즐기는 힐링 노천 온천.', lat: 26.1740, lng: 127.6433 }
-            ],
-            central: [
-                { id: 'c_att1', group: '관광지', name: '아메리칸 빌리지', category: '테마타운', desc: '이국적인 미국 서해안 풍경과 화려한 야경, 포토스팟이 가득한 복합 문화 공간.', lat: 26.3164, lng: 127.7578 },
-                { id: 'c_att2', group: '관광지', name: '만자모', category: '자연경관', desc: '코끼리 코 모양의 독특한 바위와 끝없이 펼쳐진 푸른 바다가 어우러진 절경.', lat: 26.5049, lng: 127.8502 },
-                { id: 'c_eat1', group: '식당', name: '킹 타코스', category: '식당', desc: '풍성한 양을 자랑하는 오키나와 소울푸드 \'타코라이스\'의 원조 맛집.', lat: 26.4526, lng: 127.9250 },
-                { id: 'c_eat2', group: '식당', name: '스테이크하우스 88', category: '식당', desc: '오키나와 전역에서 사랑받는 가성비 좋은 스테이크 전문점.', lat: 26.3150, lng: 127.7565 },
-                { id: 'c_caf1', group: '카페', name: 'BANTA CAFE (호시노 리조트)', category: '카페', desc: '해안선 지형을 살려 만든 압도적인 스케일의 절벽 위 오션뷰 카페.', lat: 26.4172, lng: 127.7144 },
-                { id: 'c_shp1', group: '쇼핑', name: '아메리칸 빌리지 (쇼핑)', category: '쇼핑', desc: '개성 넘치는 의류, 빈티지 샵, 수비니어 상점들이 모여있는 구역.', lat: 26.3164, lng: 127.7578 },
-                { id: 'c_shp2', group: '쇼핑', name: '이온몰 오키나와 라이컴', category: '쇼핑', desc: '수많은 브랜드와 거대 수조가 있는 오키나와 최대 규모의 메가 쇼핑몰.', lat: 26.3142, lng: 127.7958 },
-                { id: 'c_act1', group: '액티비티', name: '푸른 동굴 스노클링', category: '액티비티', desc: '마에다 곶에 위치한 신비로운 푸른빛 동굴에서의 다이빙 및 스노클링 체험.', lat: 26.4447, lng: 127.7719 }
-            ],
-            north: [
-                { id: 'n_att1', group: '관광지', name: '츄라우미 수족관', category: '수족관', desc: '거대한 수조 속 고래상어와 만타가 압도적인 오키나와 필수 방문지.', lat: 26.6943, lng: 127.8780 },
-                { id: 'n_att2', group: '관광지', name: '코우리섬 & 코우리 대교', category: '자연경관', desc: '에메랄드빛 투명한 바다 위를 시원하게 가로지르는 대교와 아름다운 섬.', lat: 26.6967, lng: 128.0200 },
-                { id: 'n_eat1', group: '식당', name: '레스토랑 플리퍼', category: '식당', desc: '나고 지역에서 현지인과 관광객 모두에게 오랫동안 사랑받는 로컬 수제 스테이크하우스.', lat: 26.6111, lng: 127.9622 },
-                { id: 'n_caf1', group: '카페', name: '코우리섬 카페 (오션타워)', category: '카페', desc: '코우리 대교와 투명한 바다가 한눈에 내려다보이는 완벽한 뷰 맛집.', lat: 26.7032, lng: 128.0238 },
-                { id: 'n_shp1', group: '쇼핑', name: '나고 쇼핑몰 (이온 등)', category: '쇼핑', desc: '식료품부터 필수품까지 북부 여행의 거점이 되는 핵심 쇼핑 및 마트 시설.', lat: 26.5866, lng: 127.9866 },
-                { id: 'n_act1', group: '액티비티', name: '카약 (맹그로브 탐험)', category: '액티비티', desc: '얀바루 대자연 속 맹그로브 숲에서 즐기는 힐링 카약 탐험.', lat: 26.6045, lng: 128.1477 },
-                { id: 'n_act2', group: '액티비티', name: '해양 스포츠', category: '액티비티', desc: '북부 투명한 바다와 민나섬 등에서 즐기는 패러세일링, 다이빙 등 다양한 액티비티.', lat: 26.6586, lng: 127.8887 }
-            ]
-        };
+// 전체 기본 장소 데이터 (오키나와 남부·중부·북부 각 50개 장소 반영)
+const defaultPlacesData = {
+    south: [
+        // --- [관광지] ---
+        { id: 's_att1', group: '관광지', name: '슈리성', category: '역사유적', desc: '류큐왕국의 왕궁이자 역사 유적', lat: 26.2171, lng: 127.7195 },
+        { id: 's_att2', group: '관광지', name: '국제거리', category: '번화가', desc: '오키나와 대표 번화가와 관광 거리', lat: 26.2166, lng: 127.6846 },
+        { id: 's_att3', group: '관광지', name: '세이화우타키', category: '관광지', desc: '류큐왕국의 신성한 성지', lat: 26.1740, lng: 127.8265 },
+        { id: 's_att4', group: '관광지', name: '오키나와 월드', category: '관광지', desc: '전통문화와 동굴을 체험하는 테마파크', lat: 26.1360, lng: 127.7505 },
+        { id: 's_att5', group: '관광지', name: '교쿠센도 동굴', category: '관광지', desc: '대규모 석회암 종유동굴', lat: 26.1365, lng: 127.7510 },
+        { id: 's_att6', group: '관광지', name: '평화기념공원', category: '관광지', desc: '오키나와 전쟁을 기억하는 추모공원', lat: 26.0958, lng: 127.7165 },
+        { id: 's_att7', group: '관광지', name: '히메유리 평화기념자료관', category: '관광지', desc: '전쟁 당시 여학생들의 희생을 기리는 박물관', lat: 26.0970, lng: 127.6880 },
+        { id: 's_att8', group: '관광지', name: '세나가지마 우미카지테라스', category: '관광지', desc: '바다 전망의 흰색 건물과 상점 거리', lat: 26.1760, lng: 127.6530 },
+        { id: 's_att9', group: '관광지', name: '치넨미사키 공원', category: '관광지', desc: '태평양을 바라보는 전망 명소', lat: 26.1585, lng: 127.8290 },
+        { id: 's_att10', group: '관광지', name: '오지마섬', category: '관광지', desc: '해산물과 튀김으로 유명한 작은 어촌섬', lat: 26.1385, lng: 127.7735 },
 
+        // --- [식당] ---
+        { id: 's_eat1', group: '식당', name: '잭스 스테이크 하우스', category: '식당', desc: '나하의 유명한 미국식 스테이크 전문점', lat: 26.2130, lng: 127.6785 },
+        { id: 's_eat2', group: '식당', name: '얏빠리 스테이크', category: '식당', desc: '합리적인 가격의 일본식 스테이크', lat: 26.2155, lng: 127.6870 },
+        { id: 's_eat3', group: '식당', name: '미카도', category: '식당', desc: '현지인에게 인기 있는 일본 가정식 식당', lat: 26.2150, lng: 127.6770 },
+        { id: 's_eat4', group: '식당', name: '만부', category: '식당', desc: '오키나와 흑돼지 아구 요리 전문점', lat: 26.2160, lng: 127.6850 },
+        { id: 's_eat5', group: '식당', name: '키시모토 식당', category: '식당', desc: '전통 오키나와 소바 전문점', lat: 26.1370, lng: 127.7510 },
+        { id: 's_eat6', group: '식당', name: '하마노차야', category: '식당', desc: '바다 전망을 즐기는 해변 레스토랑', lat: 26.1310, lng: 127.7750 },
+        { id: 's_eat7', group: '식당', name: '마키시 공설시장', category: '식당', desc: '신선한 해산물과 오키나와 음식', lat: 26.2165, lng: 127.6900 },
+        { id: 's_eat8', group: '식당', name: '포크 타마고 오니기리', category: '식당', desc: '스팸과 계란을 넣은 오키나와 주먹밥', lat: 26.2135, lng: 127.6800 },
+        { id: 's_eat9', group: '식당', name: '오지마 튀김 전문점', category: '식당', desc: '해산물과 야채 튀김 전문점', lat: 26.1385, lng: 127.7735 },
+        { id: 's_eat10', group: '식당', name: '류큐 요리 우라시마', category: '식당', desc: '전통 류큐 요리를 맛볼 수 있는 식당', lat: 26.2170, lng: 127.6810 },
+
+        // --- [카페] ---
+        { id: 's_caf1', group: '카페', name: '하마노차야 (Hamabe no Chaya)', category: '카페', desc: '바다 바로 앞에서 커피를 즐기는 카페', lat: 26.1310, lng: 127.7750 },
+        { id: 's_caf2', group: '카페', name: '카페 쿠루쿠마', category: '카페', desc: '태국 음식과 아름다운 바다 전망', lat: 26.1530, lng: 127.8230 },
+        { id: 's_caf3', group: '카페', name: '우미카지테라스 카페', category: '카페', desc: '바다와 비행기 전망을 즐기는 카페', lat: 26.1760, lng: 127.6530 },
+        { id: 's_caf4', group: '카페', name: '가란가란', category: '카페', desc: '전통 오키나와 분위기의 휴식 공간', lat: 26.1430, lng: 127.7500 },
+        { id: 's_caf5', group: '카페', name: '플랜트홀릭', category: '카페', desc: '식물과 자연 분위기의 감성 카페', lat: 26.2170, lng: 127.6850 },
+        { id: 's_caf6', group: '카페', name: '로칸 커피 크리에이터스', category: '카페', desc: '스페셜티 커피 전문점', lat: 26.2100, lng: 127.6870 },
+        { id: 's_caf7', group: '카페', name: '후스 커피', category: '카페', desc: '감각적인 인테리어와 브런치 카페', lat: 26.2160, lng: 127.6900 },
+        { id: 's_caf8', group: '카페', name: '씨사이드 가든 나미노우에', category: '카페', desc: '바다 전망과 하와이풍 메뉴', lat: 26.2200, lng: 127.6680 },
+        { id: 's_caf9', group: '카페', name: '야치문 카페 차타로', category: '카페', desc: '전통 도자기 마을 분위기의 카페', lat: 26.2070, lng: 127.7180 },
+        { id: 's_caf10', group: '카페', name: '류보 백화점 카페 거리', category: '카페', desc: '쇼핑과 함께 즐기는 도심 카페 공간', lat: 26.2140, lng: 127.6790 },
+
+        // --- [쇼핑] ---
+        { id: 's_shp1', group: '쇼핑', name: '국제거리', category: '쇼핑', desc: '오키나와 기념품과 특산품 쇼핑 거리', lat: 26.2166, lng: 127.6846 },
+        { id: 's_shp2', group: '쇼핑', name: '마키시 공설시장', category: '쇼핑', desc: '해산물, 식품, 지역 특산품 시장', lat: 26.2165, lng: 127.6900 },
+        { id: 's_shp3', group: '쇼핑', name: '돈키호테 국제거리점', category: '쇼핑', desc: '화장품, 과자, 생활용품 쇼핑', lat: 26.2150, lng: 127.6890 },
+        { id: 's_shp4', group: '쇼핑', name: 'T 갤러리아 오키나와', category: '쇼핑', desc: '명품 및 면세 쇼핑 공간', lat: 26.2220, lng: 127.6980 },
+        { id: 's_shp5', group: '쇼핑', name: '나하 메인 플레이스', category: '쇼핑', desc: '대형 쇼핑몰과 식당가', lat: 26.2240, lng: 127.6950 },
+        { id: 's_shp6', group: '쇼핑', name: '아시비나 아울렛', category: '쇼핑', desc: '일본 및 해외 브랜드 아울렛', lat: 26.1600, lng: 127.6540 },
+        { id: 's_shp7', group: '쇼핑', name: '우미카지테라스 (쇼핑)', category: '쇼핑', desc: '기념품, 디저트, 패션 소품', lat: 26.1760, lng: 127.6530 },
+        { id: 's_shp8', group: '쇼핑', name: '츠보야 야치문 거리', category: '쇼핑', desc: '오키나와 전통 도자기 쇼핑 거리', lat: 26.2140, lng: 127.6890 },
+        { id: 's_shp9', group: '쇼핑', name: '산에이 나하 메인 플레이스', category: '쇼핑', desc: '패션, 식품, 생활용품 쇼핑몰', lat: 26.2240, lng: 127.6950 },
+        { id: 's_shp10', group: '쇼핑', name: '파르코시티', category: '쇼핑', desc: '다양한 브랜드가 입점한 복합 쇼핑몰', lat: 26.2580, lng: 127.6990 },
+
+        // --- [액티비티] ---
+        { id: 's_act1', group: '액티비티', name: '세나가지마 온천', category: '액티비티', desc: '바다를 바라보며 즐기는 온천', lat: 26.1760, lng: 127.6530 },
+        { id: 's_act2', group: '액티비티', name: '오키나와 월드 전통공연', category: '액티비티', desc: '에이사 전통춤과 류큐 문화 공연', lat: 26.1360, lng: 127.7505 },
+        { id: 's_act3', group: '액티비티', name: '교쿠센도 동굴 탐험', category: '액티비티', desc: '석회암 동굴 내부 탐방', lat: 26.1365, lng: 127.7510 },
+        { id: 's_act4', group: '액티비티', name: '하마히가섬 드라이브', category: '액티비티', desc: '전통마을과 해안도로 드라이브', lat: 26.3400, lng: 127.9600 },
+        { id: 's_act5', group: '액티비티', name: '치넨미사키 일출 감상', category: '액티비티', desc: '태평양의 아름다운 일출 감상', lat: 26.1585, lng: 127.8290 },
+        { id: 's_act6', group: '액티비티', name: '오지마 해산물 체험', category: '액티비티', desc: '현지 해산물과 튀김 먹거리 체험', lat: 26.1385, lng: 127.7735 },
+        { id: 's_act7', group: '액티비티', name: '국제거리 먹거리 투어', category: '액티비티', desc: '현지 음식과 길거리 음식 탐방', lat: 26.2166, lng: 127.6846 },
+        { id: 's_act8', group: '액티비티', name: '나하 크루즈 투어', category: '액티비티', desc: '나하항 주변 바다 관광', lat: 26.2200, lng: 127.6700 },
+        { id: 's_act9', group: '액티비티', name: '세이화우타키 문화 탐방', category: '액티비티', desc: '류큐왕국의 종교와 역사 탐방', lat: 26.1740, lng: 127.8265 },
+        { id: 's_act10', group: '액티비티', name: '이토만 해안 드라이브', category: '액티비티', desc: '남부 해안도로와 등대 풍경 감상', lat: 26.0700, lng: 127.6900 }
+    ],
+
+    central: [
+        // --- [관광지] ---
+        { id: 'c_att1', group: '관광지', name: '아메리칸 빌리지', category: '관광지', desc: '미국 서부 분위기의 쇼핑 및 관광 명소', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_att2', group: '관광지', name: '만자모', category: '관광지', desc: '코끼리 코 모양의 절벽과 바다 전망', lat: 26.5040, lng: 127.8520 },
+        { id: 'c_att3', group: '관광지', name: '푸른 동굴', category: '관광지', desc: '푸른빛 바다로 유명한 해양 명소', lat: 26.4460, lng: 127.7790 },
+        { id: 'c_att4', group: '관광지', name: '잔파곶', category: '관광지', desc: '하얀 등대와 해안 절벽', lat: 26.4410, lng: 127.7130 },
+        { id: 'c_att5', group: '관광지', name: '가쓰렌성터', category: '관광지', desc: '류큐왕국 시대의 세계유산 성터', lat: 26.3300, lng: 127.8790 },
+        { id: 'c_att6', group: '관광지', name: '나카구스쿠성터', category: '관광지', desc: '웅장한 석벽이 남아 있는 세계유산', lat: 26.3000, lng: 127.7910 },
+        { id: 'c_att7', group: '관광지', name: '자키미성터', category: '관광지', desc: '류큐왕국의 역사적 성터', lat: 26.3970, lng: 127.7430 },
+        { id: 'c_att8', group: '관광지', name: '류큐무라', category: '관광지', desc: '전통 가옥과 류큐 문화 체험 공간', lat: 26.4350, lng: 127.8060 },
+        { id: 'c_att9', group: '관광지', name: '도구치 해변', category: '관광지', desc: '잔잔한 바다와 해변 산책 명소', lat: 26.3400, lng: 127.7500 },
+        { id: 'c_att10', group: '관광지', name: '도카시키 해변 전망대', category: '관광지', desc: '해안 풍경을 감상하는 전망 장소', lat: 26.3300, lng: 127.7500 },
+
+        // --- [식당] ---
+        { id: 'c_eat1', group: '식당', name: '스테이크하우스 88 차탄점', category: '식당', desc: '오키나와 대표 스테이크 전문점', lat: 26.3150, lng: 127.7560 },
+        { id: 'c_eat2', group: '식당', name: '블루씰 아이스크림', category: '식당', desc: '오키나와 대표 아이스크림 브랜드', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_eat3', group: '식당', name: '차탄 하버 브루어리', category: '식당', desc: '항구 전망과 다양한 요리', lat: 26.3150, lng: 127.7460 },
+        { id: 'c_eat4', group: '식당', name: '지바고 커피 주변 레스토랑', category: '식당', desc: '미국식 브런치와 해변 식사 공간', lat: 26.3180, lng: 127.7570 },
+        { id: 'c_eat5', group: '식당', name: '하마노야', category: '식당', desc: '오키나와 전통 음식과 소바', lat: 26.4450, lng: 127.8060 },
+        { id: 'c_eat6', group: '식당', name: '피자 인더스트리', category: '식당', desc: '피자와 전망을 함께 즐기는 식당', lat: 26.3950, lng: 127.7460 },
+        { id: 'c_eat7', group: '식당', name: '잔파 로얄 주변 레스토랑', category: '식당', desc: '리조트 주변 해산물과 다양한 요리', lat: 26.4400, lng: 127.7100 },
+        { id: 'c_eat8', group: '식당', name: '고자 시내 이자카야', category: '식당', desc: '오키나와 전통 안주와 현지 분위기', lat: 26.3350, lng: 127.8010 },
+        { id: 'c_eat9', group: '식당', name: '킹 타코스', category: '식당', desc: '오키나와 대표 타코라이스 전문점', lat: 26.3540, lng: 127.8000 },
+        { id: 'c_eat10', group: '식당', name: '차탄 데포아일랜드 레스토랑', category: '식당', desc: '해산물, 스테이크, 양식 레스토랑', lat: 26.3160, lng: 127.7580 },
+
+        // --- [카페] ---
+        { id: 'c_caf1', group: '카페', name: 'BANTA CAFE', category: '카페', desc: '절벽 위에서 바다를 바라보는 대형 카페', lat: 26.4070, lng: 127.7240 },
+        { id: 'c_caf2', group: '카페', name: '지바고 커피 웍스', category: '카페', desc: '미국 서부 스타일의 스페셜티 커피', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_caf3', group: '카페', name: '굿데이 커피', category: '카페', desc: '브런치와 커피가 유명한 카페', lat: 26.3260, lng: 127.7520 },
+        { id: 'c_caf4', group: '카페', name: '씨사이드 카페 한잔', category: '카페', desc: '바다 전망을 즐기는 카페', lat: 26.3200, lng: 127.7600 },
+        { id: 'c_caf5', group: '카페', name: '하와이안 팬케이크 하우스', category: '카페', desc: '하와이식 팬케이크와 디저트', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_caf6', group: '카페', name: '더 칼리포니아', category: '카페', desc: '미국 서부 스타일의 카페 공간', lat: 26.3150, lng: 127.7560 },
+        { id: 'c_caf7', group: '카페', name: '카페 츄라미', category: '카페', desc: '오키나와 디저트와 음료', lat: 26.4350, lng: 127.8060 },
+        { id: 'c_caf8', group: '카페', name: '온나 블루 카페', category: '카페', desc: '리조트 분위기의 바다 전망 카페', lat: 26.4400, lng: 127.8100 },
+        { id: 'c_caf9', group: '카페', name: '스타벅스 차탄점', category: '카페', desc: '해안 드라이브 중 들르기 좋은 카페', lat: 26.3160, lng: 127.7560 },
+        { id: 'c_caf10', group: '카페', name: '카페 난조', category: '카페', desc: '자연과 해안 풍경을 즐기는 휴식 공간', lat: 26.3500, lng: 127.8000 },
+
+        // --- [쇼핑] ---
+        { id: 'c_shp1', group: '쇼핑', name: '데포아일랜드', category: '쇼핑', desc: '아메리칸 빌리지의 대표 쇼핑 공간', lat: 26.3160, lng: 127.7580 },
+        { id: 'c_shp2', group: '쇼핑', name: '이온몰 오키나와 라이컴', category: '쇼핑', desc: '대형 복합 쇼핑몰', lat: 26.3150, lng: 127.7970 },
+        { id: 'c_shp3', group: '쇼핑', name: '파르코시티', category: '쇼핑', desc: '대형 쇼핑몰과 다양한 브랜드', lat: 26.2580, lng: 127.6990 },
+        { id: 'c_shp4', group: '쇼핑', name: '아메리칸 빌리지 쇼핑거리', category: '쇼핑', desc: '패션, 기념품, 잡화 쇼핑', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_shp5', group: '쇼핑', name: '아메리칸 디포', category: '쇼핑', desc: '빈티지 의류와 미국식 소품', lat: 26.3160, lng: 127.7570 },
+        { id: 'c_shp6', group: '쇼핑', name: '플라자 하우스', category: '쇼핑', desc: '오키나와의 역사 깊은 쇼핑센터', lat: 26.3180, lng: 127.8000 },
+        { id: 'c_shp7', group: '쇼핑', name: '이온몰 구스쿠', category: '쇼핑', desc: '현지 생활용품과 식품 쇼핑', lat: 26.3600, lng: 127.8010 },
+        { id: 'c_shp8', group: '쇼핑', name: '우루마 이온몰', category: '쇼핑', desc: '쇼핑과 식사를 함께 즐기는 공간', lat: 26.3650, lng: 127.8270 },
+        { id: 'c_shp9', group: '쇼핑', name: '요미탄 도자기 마을', category: '쇼핑', desc: '오키나와 전통 도자기 구매', lat: 26.3960, lng: 127.7450 },
+        { id: 'c_shp10', group: '쇼핑', name: '미하마 쇼핑 스트리트', category: '쇼핑', desc: '패션과 액세서리, 기념품 쇼핑', lat: 26.3170, lng: 127.7580 },
+
+        // --- [액티비티] ---
+        { id: 'c_act1', group: '액티비티', name: '푸른 동굴 스노클링', category: '액티비티', desc: '푸른빛 바닷속에서 해양생물 감상', lat: 26.4460, lng: 127.7790 },
+        { id: 'c_act2', group: '액티비티', name: '푸른 동굴 스쿠버다이빙', category: '액티비티', desc: '전문 강사와 함께하는 다이빙', lat: 26.4460, lng: 127.7790 },
+        { id: 'c_act3', group: '액티비티', name: '마에다곶 해양 액티비티', category: '액티비티', desc: '다이빙과 스노클링 명소', lat: 26.4460, lng: 127.7790 },
+        { id: 'c_act4', group: '액티비티', name: '만자모 일몰 감상', category: '액티비티', desc: '서쪽 해안의 아름다운 일몰 감상', lat: 26.5040, lng: 127.8520 },
+        { id: 'c_act5', group: '액티비티', name: '아메리칸 빌리지 야경', category: '액티비티', desc: '야경과 쇼핑, 거리 사진 촬영', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_act6', group: '액티비티', name: '잔파곶 해안 산책', category: '액티비티', desc: '절벽과 바다를 따라 걷는 산책', lat: 26.4410, lng: 127.7130 },
+        { id: 'c_act7', group: '액티비티', name: '카약 체험', category: '액티비티', desc: '해안과 바다에서 카약 즐기기', lat: 26.4500, lng: 127.8100 },
+        { id: 'c_act8', group: '액티비티', name: '류큐무라 전통문화 체험', category: '액티비티', desc: '전통 의상과 공예, 공연 체험', lat: 26.4350, lng: 127.8060 },
+        { id: 'c_act9', group: '액티비티', name: '가쓰렌성터 역사 탐방', category: '액티비티', desc: '류큐왕국의 역사와 전망 감상', lat: 26.3300, lng: 127.8790 },
+        { id: 'c_act10', group: '액티비티', name: '우루마 해중도로 드라이브', category: '액티비티', desc: '바다 위를 달리는 특별한 드라이브', lat: 26.3300, lng: 127.9300 }
+    ],
+
+    north: [
+        // --- [관광지] ---
+        { id: 'n_att1', group: '관광지', name: '츄라우미 수족관', category: '관광지', desc: '고래상어와 대형 수조로 유명한 수족관', lat: 26.6940, lng: 127.8770 },
+        { id: 'n_att2', group: '관광지', name: '코우리섬', category: '관광지', desc: '에메랄드빛 바다와 아름다운 섬', lat: 26.6970, lng: 128.0170 },
+        { id: 'n_att3', group: '관광지', name: '코우리 대교', category: '관광지', desc: '바다 위를 달리는 아름다운 드라이브 코스', lat: 26.6870, lng: 128.0180 },
+        { id: 'n_att4', group: '관광지', name: '하트록', category: '관광지', desc: '하트 모양 바위로 유명한 사진 명소', lat: 26.7060, lng: 128.0210 },
+        { id: 'n_att5', group: '관광지', name: '비세 후쿠기 가로수길', category: '관광지', desc: '전통 가옥과 후쿠기 나무가 이어지는 길', lat: 26.7040, lng: 127.8830 },
+        { id: 'n_att6', group: '관광지', name: '나키진성터', category: '관광지', desc: '세계유산으로 지정된 류큐왕국 성터', lat: 26.6910, lng: 127.9290 },
+        { id: 'n_att7', group: '관광지', name: '세소코섬', category: '관광지', desc: '아름다운 백사장과 투명한 바다', lat: 26.6400, lng: 127.8580 },
+        { id: 'n_att8', group: '관광지', name: '해양박람회 기념공원', category: '관광지', desc: '수족관, 식물원, 해변을 갖춘 공원', lat: 26.6940, lng: 127.8770 },
+        { id: 'n_att9', group: '관광지', name: '헤도곶', category: '관광지', desc: '오키나와 최북단의 해안 절벽', lat: 26.8700, lng: 128.2630 },
+        { id: 'n_att10', group: '관광지', name: '다이세키린잔', category: '관광지', desc: '독특한 석회암 바위와 아열대 숲', lat: 26.8500, lng: 128.2550 },
+
+        // --- [식당] ---
+        { id: 'n_eat1', group: '식당', name: '플리퍼 스테이크 하우스', category: '식당', desc: '나고 지역의 유명 스테이크 전문점', lat: 26.5970, lng: 127.9790 },
+        { id: 'n_eat2', group: '식당', name: '키시모토 식당', category: '식당', desc: '전통 오키나와 소바 전문점', lat: 26.6600, lng: 127.8910 },
+        { id: 'n_eat3', group: '식당', name: '카이호우마루', category: '식당', desc: '해산물 요리를 즐기기 좋은 식당', lat: 26.6850, lng: 127.8840 },
+        { id: 'n_eat4', group: '식당', name: '코우리 오션 타워 레스토랑', category: '식당', desc: '바다 전망을 즐기는 레스토랑', lat: 26.6970, lng: 128.0170 },
+        { id: 'n_eat5', group: '식당', name: '야마하라 소바', category: '식당', desc: '현지 스타일의 오키나와 소바', lat: 26.5910, lng: 127.9770 },
+        { id: 'n_eat6', group: '식당', name: '나고 파인애플 파크 레스토랑', category: '식당', desc: '파인애플을 활용한 디저트와 음식', lat: 26.6110, lng: 127.9580 },
+        { id: 'n_eat7', group: '식당', name: '모토부 목장 레스토랑', category: '식당', desc: '오키나와 와규와 스테이크', lat: 26.6600, lng: 127.8900 },
+        { id: 'n_eat8', group: '식당', name: '하나사키 마르쉐 식당가', category: '식당', desc: '해산물과 지역 먹거리', lat: 26.6760, lng: 127.8820 },
+        { id: 'n_eat9', group: '식당', name: '나고 사쿠라 식당', category: '식당', desc: '현지 일본식 식당', lat: 26.5900, lng: 127.9780 },
+        { id: 'n_eat10', group: '식당', name: '코우리섬 해산물 식당가', category: '식당', desc: '신선한 해산물과 오션뷰 식사', lat: 26.6960, lng: 128.0170 },
+
+        // --- [카페] ---
+        { id: 'n_caf1', group: '카페', name: '코우리 오션 브리즈', category: '카페', desc: '바다를 바라보며 커피를 즐기는 카페', lat: 26.6960, lng: 128.0170 },
+        { id: 'n_caf2', group: '카페', name: '카페 차하야부', category: '카페', desc: '자연 속에서 여유롭게 즐기는 카페', lat: 26.6800, lng: 127.9000 },
+        { id: 'n_caf3', group: '카페', name: '카페 오션 블루', category: '카페', desc: '츄라우미 수족관 주변 바다 전망 카페', lat: 26.6940, lng: 127.8770 },
+        { id: 'n_caf4', group: '카페', name: '카페 하마베', category: '카페', desc: '해안 풍경을 감상하는 휴식 공간', lat: 26.6700, lng: 127.8900 },
+        { id: 'n_caf5', group: '카페', name: '코우리 슈퍼 커피', category: '카페', desc: '섬의 풍경을 즐기는 커피숍', lat: 26.6970, lng: 128.0170 },
+        { id: 'n_caf6', group: '카페', name: '카페 이차라', category: '카페', desc: '숲속의 조용한 분위기와 식사', lat: 26.6730, lng: 127.9100 },
+        { id: 'n_caf7', group: '카페', name: '피자 카페 오키나와', category: '카페', desc: '자연 속에서 피자와 음료를 즐기는 공간', lat: 26.6500, lng: 127.8800 },
+        { id: 'n_caf8', group: '카페', name: '카페 하나사키', category: '카페', desc: '해안 전망과 디저트', lat: 26.6750, lng: 127.8830 },
+        { id: 'n_caf9', group: '카페', name: '나고 파인애플 파크 카페', category: '카페', desc: '파인애플 디저트와 음료', lat: 26.6110, lng: 127.9580 },
+        { id: 'n_caf10', group: '카페', name: '코우리섬 해변 카페', category: '카페', desc: '바다를 보며 쉬기 좋은 카페', lat: 26.6950, lng: 128.0150 },
+
+        // --- [쇼핑] ---
+        { id: 'n_shp1', group: '쇼핑', name: '나고 이온몰', category: '쇼핑', desc: '북부지역의 대표 쇼핑몰', lat: 26.5880, lng: 127.9800 },
+        { id: 'n_shp2', group: '쇼핑', name: '나고 파인애플 파크 기념품점', category: '쇼핑', desc: '파인애플 과자와 지역 특산품', lat: 26.6110, lng: 127.9580 },
+        { id: 'n_shp3', group: '쇼핑', name: '코우리 오션 타워 기념품점', category: '쇼핑', desc: '섬 관련 기념품과 특산품', lat: 26.6970, lng: 128.0170 },
+        { id: 'n_shp4', group: '쇼핑', name: '츄라우미 수족관 기념품점', category: '쇼핑', desc: '해양생물 캐릭터와 기념품', lat: 26.6940, lng: 127.8770 },
+        { id: 'n_shp5', group: '쇼핑', name: '하나사키 마르쉐', category: '쇼핑', desc: '식품, 특산품, 기념품 쇼핑', lat: 26.6760, lng: 127.8820 },
+        { id: 'n_shp6', group: '쇼핑', name: '나고 시내 쇼핑거리', category: '쇼핑', desc: '현지 상점과 생활용품', lat: 26.5910, lng: 127.9780 },
+        { id: 'n_shp7', group: '쇼핑', name: '모토부 시장', category: '쇼핑', desc: '지역 농산물과 특산품', lat: 26.6600, lng: 127.8920 },
+        { id: 'n_shp8', group: '쇼핑', name: '얀바루 휴게소', category: '쇼핑', desc: '지역 특산물과 농산품 판매', lat: 26.7450, lng: 128.1770 },
+        { id: 'n_shp9', group: '쇼핑', name: '오기미 휴게소', category: '쇼핑', desc: '시콰사 등 지역 특산품 판매', lat: 26.7000, lng: 128.1190 },
+        { id: 'n_shp10', group: '쇼핑', name: '코우리섬 기념품 상점', category: '쇼핑', desc: '섬의 특산품과 기념품', lat: 26.6970, lng: 128.0170 },
+
+        // --- [액티비티] ---
+        { id: 'n_act1', group: '액티비티', name: '츄라우미 수족관 관람', category: '액티비티', desc: '고래상어와 다양한 해양생물 관람', lat: 26.6940, lng: 127.8770 },
+        { id: 'n_act2', group: '액티비티', name: '코우리섬 드라이브', category: '액티비티', desc: '코우리 대교를 건너는 드라이브', lat: 26.6970, lng: 128.0170 },
+        { id: 'n_act3', group: '액티비티', name: '코우리섬 스노클링', category: '액티비티', desc: '맑고 투명한 바다에서 해양 체험', lat: 26.6950, lng: 128.0150 },
+        { id: 'n_act4', group: '액티비티', name: '세소코섬 해양 스포츠', category: '액티비티', desc: '스노클링과 해변 액티비티', lat: 26.6400, lng: 127.8580 },
+        { id: 'n_act5', group: '액티비티', name: '비세 후쿠기 숲길 자전거', category: '액티비티', desc: '전통마월과 숲길 자전거 탐방', lat: 26.7040, lng: 127.8830 },
+        { id: 'n_act6', group: '액티비티', name: '얀바루 숲 트레킹', category: '액티비티', desc: '아열대 숲과 희귀 동식물 관찰', lat: 26.7450, lng: 128.1700 },
+        { id: 'n_act7', group: '액티비티', name: '맹그로브 카약', category: '액티비티', desc: '강과 맹그로브 숲 탐험', lat: 26.6300, lng: 128.0200 },
+        { id: 'n_act8', group: '액티비티', name: '다이세키린잔 트레킹', category: '액티비티', desc: '기암괴석과 자연 산책', lat: 26.8500, lng: 128.2550 },
+        { id: 'n_act9', group: '액티비티', name: '헤도곶 해안 감상', category: '액티비티', desc: '오키나와 최북단의 자연경관 감상', lat: 26.8700, lng: 128.2630 },
+        { id: 'n_act10', group: '액티비티', name: '고래 관찰 투어', category: '액티비티', desc: '겨울철 혹등고래 관찰 프로그램', lat: 26.5900, lng: 127.9800 }
+    ]
+};
         let placesData = JSON.parse(JSON.stringify(defaultPlacesData));
 
         try {

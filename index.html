@@ -9,6 +9,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Flatpickr (달력 라이브러리) 추가 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
     <style>
         .line-clamp-2 {
             display: -webkit-box;
@@ -32,8 +38,10 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             border: 2px solid white;
         }
-        /* iOS 등에서 화면 확대 방지 및 입력창 최소 크기 고정 대비 */
+        /* iOS 등에서 화면 확대 방지 */
         input, select, textarea { font-size: 16px !important; }
+        /* Flatpickr 달력 최상위 노출 */
+        .flatpickr-calendar { z-index: 9999 !important; font-family: inherit; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans relative">
@@ -45,7 +53,8 @@
                 <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
             </h1>
             <div class="flex items-center justify-center gap-2 mt-3">
-                <div class="bg-white/15 px-3 py-1.5 rounded-full backdrop-blur-sm text-sm sm:text-base font-medium text-cyan-50 flex items-center shadow-inner tracking-tight">
+                <!-- 상단 날짜 클릭 영역 (커서 포인터 추가) -->
+                <div id="header-date-trigger" class="cursor-pointer hover:bg-white/25 transition bg-white/15 px-3 py-1.5 rounded-full backdrop-blur-sm text-sm sm:text-base font-medium text-cyan-50 flex items-center shadow-inner tracking-tight" title="클릭하여 날짜 변경하기">
                     <i class="fa-regular fa-calendar-check mr-2 text-cyan-200"></i>
                     <span id="header-date-display">2026. 12. 27. - 2027. 01. 03.</span>
                 </div>
@@ -80,22 +89,17 @@
             
             <div class="p-5 space-y-5 overflow-y-auto hide-scrollbar w-full box-border">
                 
-<!-- 날짜 설정 (하단 버튼과 간격 및 크기 완벽 일치) -->
+                <!-- 날짜 설정 (하나의 입력창으로 통합) -->
                 <div class="w-full">
-                    <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-regular fa-calendar mr-1"></i>여행 날짜 설정</h4>
-                    <div class="flex gap-2 mb-3 w-full">
+                    <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-regular fa-calendar mr-1"></i>여행 기간 설정</h4>
+                    <div class="flex mb-3 w-full">
                         <div class="flex-1 min-w-0 flex flex-col">
-                            <label class="block text-[11px] text-slate-500 mb-1">출발 날짜</label>
-                            <input type="date" id="startDate" class="w-full box-border bg-slate-50 border border-slate-300 text-slate-800 px-3 py-2 rounded-lg outline-none focus:border-cyan-400">
-                        </div>
-                        <div class="flex-1 min-w-0 flex flex-col">
-                            <label class="block text-[11px] text-slate-500 mb-1">귀국 날짜</label>
-                            <input type="date" id="endDate" class="w-full box-border bg-slate-50 border border-slate-300 text-slate-800 px-3 py-2 rounded-lg outline-none focus:border-cyan-400">
+                            <input type="text" id="settingsDateRange" class="w-full box-border bg-slate-50 border border-slate-300 text-slate-800 px-3 py-2 rounded-lg outline-none focus:border-cyan-400 cursor-pointer text-center font-medium" placeholder="출발일 - 귀국일 선택" readonly>
                         </div>
                     </div>
                 </div>
                 
-                <!-- 커스텀 장소 관리 (동행자 위로 이동) -->
+                <!-- 커스텀 장소 관리 -->
                 <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-map-pin mr-1"></i>나만의 장소 직접 추가 및 관리</h4>
                     <div class="flex gap-2 mb-2 w-full">
@@ -111,7 +115,7 @@
 
                 <hr class="border-slate-100">
 
-                <!-- 동행자 설정 (토글 기능 추가 & 스크롤 제거하여 전부 표시) -->
+                <!-- 동행자 설정 -->
                 <div class="w-full">
                     <div class="flex justify-between items-center mb-1.5">
                         <h4 class="text-xs font-bold text-slate-500"><i class="fa-solid fa-users mr-1"></i>Day별 함께하는 친구들</h4>
@@ -128,7 +132,7 @@
                 
                 <hr class="border-slate-100">
 
-                <!-- 데이터 관리 및 공유 (공유 버튼 우측 이동 및 크기 통일) -->
+                <!-- 데이터 관리 및 공유 -->
                 <div class="w-full">
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-database mr-1"></i>데이터 및 공유 관리</h4>
                     <div class="flex gap-1.5 w-full">
@@ -308,9 +312,45 @@
         let targetAddDayIdx = 0; 
         let leafletMap = null; 
 
+        // 달력 인스턴스 전역 변수
+        let headerFp = null;
+        let settingsFp = null;
+
         window.onload = function() {
-            document.getElementById('startDate').value = tripData.startDate || '2026-12-27';
-            document.getElementById('endDate').value = tripData.endDate || '2027-01-03';
+            // Flatpickr 공통 설정
+            const fpOptions = {
+                mode: "range",
+                locale: "ko",
+                dateFormat: "Y-m-d",
+                defaultDate: [tripData.startDate, tripData.endDate],
+                showMonths: window.innerWidth > 640 ? 2 : 1, // PC는 두 달, 모바일은 한 달 표시
+                disableMobile: true // 모바일에서도 플랫피커 UI 강제 적용
+            };
+
+            // 상단 헤더 달력 초기화
+            headerFp = flatpickr("#header-date-trigger", {
+                ...fpOptions,
+                onClose: function(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        const format = flatpickr.formatDate;
+                        tripData.startDate = format(selectedDates[0], "Y-m-d");
+                        tripData.endDate = format(selectedDates[1], "Y-m-d");
+                        
+                        if (settingsFp) settingsFp.setDate(selectedDates); // 설정 모달 동기화
+                        generateDaysFromDates();
+                        updateHeaderDateDisplay();
+                        renderPlanner();
+                        saveDataToLocalStorage();
+                    } else {
+                        // 두 날짜를 다 안 고르고 닫았을 경우 원래 설정으로 복원
+                        headerFp.setDate([tripData.startDate, tripData.endDate]);
+                    }
+                }
+            });
+
+            // 설정 모달 안의 달력 초기화
+            settingsFp = flatpickr("#settingsDateRange", fpOptions);
+
             generateDaysFromDates();
             updateHeaderDateDisplay();
             renderPlaces();
@@ -338,8 +378,8 @@
         }
 
         function openSettingsModal() { 
-            document.getElementById('startDate').value = tripData.startDate;
-            document.getElementById('endDate').value = tripData.endDate;
+            // 설정 모달 열 때 달력 날짜 동기화
+            if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
             
             let compHtml = '';
             tripData.days.forEach((d, i) => {
@@ -351,7 +391,6 @@
             });
             document.getElementById('day-companions-container').innerHTML = compHtml;
             
-            // 모달 열 때마다 동행자 리스트는 숨기기 상태로 초기화
             document.getElementById('day-companions-container').classList.add('hidden');
             document.getElementById('companionsToggleBtn').innerText = '보이기';
 
@@ -404,8 +443,13 @@
                     if (imported.tripData && imported.placesData) { tripData = imported.tripData; placesData = imported.placesData; }
                     else { tripData = imported; }
                     saveDataToLocalStorage();
-                    if (tripData.startDate) document.getElementById('startDate').value = tripData.startDate;
-                    if (tripData.endDate) document.getElementById('endDate').value = tripData.endDate;
+                    
+                    // 불러온 날짜를 달력에 반영
+                    if (tripData.startDate && tripData.endDate) {
+                        if (headerFp) headerFp.setDate([tripData.startDate, tripData.endDate]);
+                        if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
+                    }
+
                     generateDaysFromDates(); updateHeaderDateDisplay(); renderPlaces(); renderPlanner();
                     alert('백업 데이터가 성공적으로 복구되었습니다!'); closeSettingsModal();
                 } catch (err) { alert('파일을 읽는 중 오류가 발생했습니다.'); }
@@ -415,8 +459,8 @@
         }
 
         function generateDaysFromDates() {
-            const startVal = document.getElementById('startDate').value || '2026-12-27';
-            const endVal = document.getElementById('endDate').value || '2027-01-03';
+            const startVal = tripData.startDate || '2026-12-27';
+            const endVal = tripData.endDate || '2027-01-03';
             const start = new Date(startVal.replace(/-/g, '/')); const end = new Date(endVal.replace(/-/g, '/'));
             
             let timeDiff = end.getTime() - start.getTime();
@@ -439,8 +483,17 @@
         }
 
         function updateTripSettings() {
-            tripData.startDate = document.getElementById('startDate').value;
-            tripData.endDate = document.getElementById('endDate').value;
+            // 설정 모달에서 선택한 달력 날짜 추출
+            if (settingsFp && settingsFp.selectedDates.length === 2) {
+                const format = flatpickr.formatDate;
+                tripData.startDate = format(settingsFp.selectedDates[0], "Y-m-d");
+                tripData.endDate = format(settingsFp.selectedDates[1], "Y-m-d");
+                
+                if (headerFp) headerFp.setDate(settingsFp.selectedDates); // 상단 헤더 동기화
+            } else {
+                alert("여행 기간(출발일과 귀국일)을 달력에서 모두 선택해주세요.");
+                return;
+            }
             
             tripData.days.forEach((d, i) => {
                 let input = document.getElementById(`comp-day-${i}`);

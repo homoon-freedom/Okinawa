@@ -577,8 +577,6 @@ const defaultPlacesData = {
             if (savedTrip) tripData = JSON.parse(savedTrip);
         } catch(e) { console.error('기존 일정 데이터 로드 실패'); }
 
-        let editModeState = {};
-
         let currentRegion = 'south'; 
         let currentCategory = '관광지';
         let addMode = 'place'; 
@@ -588,7 +586,7 @@ const defaultPlacesData = {
         let headerFp = null;
         let settingsFp = null;
 
-        // 정산 앱 관련 변수
+        // 경비 정산 앱 관련 변수
         let participants = ["찬팅", "미르", "마스터", "샤인"];
         let expenses = [
             { id: 1, title: "숙박", amount: 70000, payer: "찬팅", targets: ["찬팅", "미르", "마스터", "샤인"] },
@@ -893,8 +891,6 @@ const defaultPlacesData = {
         function renderDayContent(dayIdx, isAllView) {
             const currentDayObj = tripData.days[dayIdx];
             if (!currentDayObj) return '';
-            
-            let isEditing = !!editModeState[dayIdx];
 
             let eventsHtml = ''; let coordIndex = 1; let prevValidEvent = null;
             const firstEvt = currentDayObj.events[0];
@@ -904,11 +900,8 @@ const defaultPlacesData = {
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
-                let hotelDeleteBtn = isEditing ? `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>` : '';
-                let memoInputHtml = isEditing ? 
-                    `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white border border-indigo-200 rounded px-3 py-2 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:border-indigo-400">`
-                    :
-                    (firstEvt.memo ? `<div class="text-[13px] sm:text-[15px] text-indigo-900 bg-indigo-50/80 px-3 py-1.5 rounded border border-indigo-100">📝 ${firstEvt.memo}</div>` : '');
+                let hotelDeleteBtn = `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>`;
+                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white border border-indigo-200 rounded px-3 py-1.5 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:border-indigo-400">`;
 
                 eventsHtml += `
                     <div class="flex flex-col bg-indigo-50/50 border-b border-slate-200 shadow-sm py-3 px-4 sm:px-6 gap-2">
@@ -924,7 +917,7 @@ const defaultPlacesData = {
                                 ${hotelDeleteBtn}
                             </div>
                         </div>
-                        ${memoInputHtml ? `<div class="pl-9 pr-1">${memoInputHtml}</div>` : ''}
+                        <div class="w-full">${memoInputHtml}</div>
                     </div>
                 `;
             } else {
@@ -949,15 +942,12 @@ const defaultPlacesData = {
                         let travelModeMap = { '운전': 'driving', '대중교통': 'transit', '도보': 'walking', '자전거': 'bicycling' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
-                        let transportSelectorHtml = isEditing ? 
-                            `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[14px] sm:text-[16px]">
+                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[14px] sm:text-[16px]">
                                 <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                 <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                 <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
                                 <option value="자전거" ${currentTransport==='자전거'?'selected':''}>자전거</option>
-                            </select>`
-                            :
-                            `<span class="bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md text-[13px] sm:text-[14px] font-bold">🚗 ${currentTransport}</span>`;
+                            </select>`;
 
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
@@ -980,60 +970,33 @@ const defaultPlacesData = {
                     
                     let singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${(evt.lat && evt.lng) ? evt.lat+','+evt.lng : encodeURIComponent(evt.name + ' 오키나와')}`;
                     
-                    let reorderBoxHtml = '';
-                    let deleteBtnHtml = '';
-                    if (isEditing) {
-                        let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-xs"></i></button>` : `<span class="w-full h-8 bg-slate-50 text-slate-300 flex items-center justify-center border-b border-slate-200"><i class="fa-solid fa-chevron-up text-xs"></i></span>`;
-                        let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-xs"></i></button>` : `<span class="w-full h-8 bg-slate-50 text-slate-300 flex items-center justify-center"><i class="fa-solid fa-chevron-down text-xs"></i></span>`;
-                        
-                        // 요청사항 반영: 위로는 숫자(배지) 왼쪽, 아래는 메모 왼쪽, 전체 높이를 차지하도록 왼쪽에 배치되는 세로 박스
-                        reorderBoxHtml = `<div class="flex flex-col justify-between w-8 self-stretch bg-slate-50 rounded-lg border border-slate-200 overflow-hidden shrink-0 shadow-inner h-full">${moveUpBtn}${moveDownBtn}</div>`;
-                        deleteBtnHtml = `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
-                    }
+                    let moveUpBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-xs"></i></button>`;
+                    let moveDownBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-xs"></i></button>`;
+                    let reorderBoxHtml = `<div class="flex flex-col w-7 h-[38px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
+                    let deleteBtnHtml = `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
 
-                    let memoInputHtml = isEditing ? 
-                        `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`
-                        :
-                        (evt.memo ? `<div class="text-[13px] sm:text-[15px] text-slate-700 bg-slate-50 px-3 py-1.5 rounded border border-slate-200/80">📝 ${evt.memo}</div>` : '');
+                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
 
-                    // 카드가 수정 모드일 때 위로는 숫자 왼쪽, 아래는 메모 왼쪽에 오도록 좌우 배치 구조 적용
-                    if (isEditing) {
-                        eventsHtml += `
-                            <div class="flex bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2.5 px-4 sm:px-6 gap-3 items-stretch">
+                    eventsHtml += `
+                        <div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2.5 px-4 sm:px-6 gap-2">
+                            <div class="flex items-center justify-between w-full">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    ${numCircle}
+                                    <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
+                                    <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
+                                    ${deleteBtnHtml}
+                                </div>
+                            </div>
+                            <div class="flex items-center w-full">
+                                <div class="flex-1 min-w-0">
+                                    ${memoInputHtml}
+                                </div>
                                 ${reorderBoxHtml}
-                                <div class="flex-1 min-w-0 flex flex-col justify-between space-y-2">
-                                    <div class="flex items-center justify-between w-full">
-                                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                                            ${numCircle}
-                                            <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
-                                        </div>
-                                        <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
-                                            <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
-                                            ${deleteBtnHtml}
-                                        </div>
-                                    </div>
-                                    <div class="w-full">
-                                        ${memoInputHtml}
-                                    </div>
-                                </div>
                             </div>
-                        `;
-                    } else {
-                        eventsHtml += `
-                            <div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2 px-4 sm:px-6 gap-1.5">
-                                <div class="flex items-center gap-3 w-full">
-                                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                                        ${numCircle}
-                                        <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
-                                        <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
-                                    </div>
-                                </div>
-                                ${memoInputHtml ? `<div class="pl-9">${memoInputHtml}</div>` : ''}
-                            </div>
-                        `;
-                    }
+                        </div>
+                    `;
                 });
 
                 eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-x-0 border-slate-200 py-3 px-4 sm:px-6">
@@ -1062,57 +1025,26 @@ const defaultPlacesData = {
                     ${dayCompanionsHtml}
                 </div>`;
 
-            let editBtnText = isEditing ? '완료' : '수정';
-            let editBtnIcon = isEditing ? 'fa-check' : 'fa-pen-to-square';
-            let editBtnColor = isEditing ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600';
+            // 공통 버튼 그룹 (경비, 저장, 지도, 추가)
+            let actionButtonsHtml = `
+                <button onclick="openExpenseModal()" class="bg-emerald-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-700" title="경비"><i class="fa-solid fa-won-sign sm:mr-1.5"></i><span class="hidden sm:inline">경비</span></button>
+                <button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>
+                <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
+                <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>
+            `;
 
-            let topActionHtml = isAllView ? 
-                `<div class="flex items-center gap-1.5 shrink-0 ml-2">
-                    <button onclick="toggleEditMode(${dayIdx})" class="${editBtnColor} text-white text-xs sm:text-sm font-bold px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid ${editBtnIcon}"></i><span>${editBtnText}</span></button>
-                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-sm transition flex items-center gap-1.5"><i class="fa-solid fa-plus"></i><span class="hidden sm:inline">추가</span></button>
-                </div>`
-                :
-                `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                    <button onclick="openExpenseModal()" class="bg-emerald-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-700" title="경비"><i class="fa-solid fa-won-sign sm:mr-1.5"></i><span class="hidden sm:inline">경비</span></button>
-                    <button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>
-                    <button onclick="toggleEditMode(${dayIdx})" class="${editBtnColor} text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition" title="${editBtnText}"><i class="fa-solid ${editBtnIcon} sm:mr-1.5"></i><span class="hidden sm:inline">${editBtnText}</span></button>
-                    <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
-                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>
-                </div>`;
+            let topActionHtml = `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">${actionButtonsHtml}</div>`;
 
             let topSectionHtml = `<div class="${headerWrapperClass}">
                 ${isAllView ? `<div>${dayTitleHtml}</div>${topActionHtml}` : `${dayTitleHtml}${topActionHtml}`}
             </div>`;
 
-            let bottomButtonsHtml = isAllView ? `<div class="px-4 sm:px-6 pb-4 mt-4">
-                <div class="flex gap-2 sm:gap-3 w-full">
-                    <button onclick="openExpenseModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-won-sign"></i><span>경비</span>
-                    </button>
-                    <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-floppy-disk"></i><span>저장</span>
-                    </button>
-                    <button onclick="toggleEditMode(${dayIdx})" class="flex-1 ${editBtnColor} text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
-                        <i class="fa-solid fa-edit"></i><span>${editBtnText} 모드</span>
-                    </button>
-                    <button onclick="openDayMapModal(${dayIdx})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition">
-                        <i class="fa-solid fa-map-location-dot"></i><span>지도</span>
-                    </button>
-                </div>
-            </div>` : '';
-
             return `
                 <div class="${isAllView ? 'bg-cyan-50/30 border-y border-cyan-100/60 shadow-sm overflow-hidden mb-6' : 'bg-transparent pb-6'}">
                     ${topSectionHtml}
                     <div class="space-y-0 px-0">${eventsHtml}</div>
-                    ${bottomButtonsHtml}
                 </div>
             `;
-        }
-
-        function toggleEditMode(dayIdx) {
-            editModeState[dayIdx] = !editModeState[dayIdx];
-            renderPlanner();
         }
 
         function renderPlanner() {

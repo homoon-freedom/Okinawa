@@ -1006,7 +1006,7 @@ const defaultPlacesData = {
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
                 let hotelDeleteBtn = `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
-                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[12px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
+                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[11px] sm:text-[12px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
 
                 eventsHtml += `
                     <div class="px-3 sm:px-4 py-1.5">

@@ -814,16 +814,16 @@ const defaultPlacesData = {
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
                                     <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-[11px] sm:text-xs">
-                                        <option value="운전" ${currentTransport==='운전'?'selected':''}>🚗 운전</option>
-                                        <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>🚌 대중교통</option>
-                                        <option value="도보" ${currentTransport==='도보'?'selected':''}>🚶 도보</option>
-                                        <option value="자전거" ${currentTransport==='자전거'?'selected':''}>🚲 자전거</option>
+                                        <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
+                                        <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
+                                        <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
+                                        <option value="자전거" ${currentTransport==='자전거'?'selected':''}>자전거</option>
                                     </select>
                                 </div>
                                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                                     <span class="whitespace-nowrap">거리: <strong class="text-slate-800">${route.distance}</strong></span>
                                     <span class="whitespace-nowrap">소요: <strong class="text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-sm sm:text-base"><i class="fa-solid fa-route"></i> <span class="hidden sm:inline">길찾기</span></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded shadow-sm flex items-center gap-1.5 font-bold text-sm sm:text-base"><i class="fa-solid fa-route"></i></a>
                                 </div>
                             </div>
                         `;

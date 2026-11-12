@@ -39,7 +39,7 @@
             border: 2px solid white;
         }
         /* iOS 등에서 화면 확대 방지 */
-        input, select, textarea { font-size: 16px; }
+        input, select, textarea { font-size: 16px !important; }
         /* Flatpickr 달력 최상위 노출 */
         .flatpickr-calendar { z-index: 9999 !important; font-family: inherit; }
     </style>
@@ -258,6 +258,141 @@
         </div>
     </div>
 
+    <!-- 경비 정산 및 송금 계산기 모달 -->
+    <div id="expenseModal" class="hidden fixed inset-0 z-[110] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-slate-950 text-slate-100 rounded-2xl w-full max-w-md shadow-2xl border border-slate-800 flex flex-col max-h-[92vh] overflow-hidden my-auto">
+            
+            <!-- 모달 상단 헤더 -->
+            <div class="sticky top-0 z-25 bg-slate-950/95 backdrop-blur-md px-4 py-3.5 border-b border-slate-900 flex justify-between items-center shrink-0">
+                <div class="space-y-0.5">
+                    <h2 id="expenseHeaderTitle" class="text-lg font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                        여행 정산 & 송금 계산기
+                    </h2>
+                    <p class="text-[11px] text-slate-400">지출별 내역 기반 직관적 정산 시스템</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="shareAsImage()" class="bg-[#FEE500] hover:bg-[#FDD835] text-slate-900 font-semibold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 transition shadow-md">
+                        <span>💬</span> 카카오톡 공유
+                    </button>
+                    <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-white p-1.5 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 모달 내부 스크롤 콘텐츠 영역 -->
+            <div class="p-4 space-y-5 overflow-y-auto flex-1 hide-scrollbar">
+                
+                <!-- Participants Management & Trip Title -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-400 mb-1 block">여행 장소 / 제목</label>
+                        <input type="text" id="tripTitleInput" placeholder="예: 오키나와 우정 여행" oninput="updateTripTitle()"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500 mb-3">
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-slate-800/80 pt-3">
+                        <h3 class="text-sm font-semibold text-slate-300">참여자 관리</h3>
+                        <span id="participantCount" class="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full font-medium">4명</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="newParticipantName" placeholder="이름 입력 (예: 찬팅)" 
+                            class="w-[58%] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
+                        <button onclick="addParticipant()" class="w-[42%] bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-3 rounded-xl text-sm font-semibold transition shadow-md shadow-indigo-600/20">
+                            참여자 추가
+                        </button>
+                    </div>
+                    <div id="participantTags" class="flex flex-wrap gap-1.5 pt-1">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+
+                <!-- Add Expense Form -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <h3 class="text-sm font-semibold text-slate-300">지출 입력</h3>
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">지출 항목명</label>
+                            <input type="text" id="expenseTitle" placeholder="예: 숙박, 식사, 택시" 
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-slate-400 mb-1 block">금액 (원)</label>
+                                <input type="number" id="expenseAmount" placeholder="0" 
+                                    class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 mb-1 block">결제자</label>
+                                <select id="expensePayer" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
+                                    <!-- Dynamically populated -->
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 mb-1 block">참여 인원 (체크된 사람들끼리 N분의 1)</label>
+                            <div id="expenseParticipants" class="flex flex-wrap gap-2 pt-1 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                                <!-- Dynamically populated checkboxes -->
+                            </div>
+                        </div>
+                        <button onclick="addExpense()" class="w-full bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-medium py-2.5 rounded-xl text-sm transition shadow-lg shadow-indigo-500/20">
+                            지출 내역 추가
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expense List (메인 화면용) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleExpenseList()">
+                        <h3 class="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
+                            지출 내역 목록 <span class="text-[10px] text-indigo-400 font-normal">(클릭하여 펼치기/접기)</span>
+                        </h3>
+                        <span id="totalExpenseSummary" class="text-xs text-indigo-400 font-medium">총 지출: 0원</span>
+                    </div>
+                    <div id="expenseListContainer" class="space-y-2 hidden">
+                        <p class="text-xs text-slate-500 text-center py-4">등록된 지출 내역이 없습니다.</p>
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <button onclick="calculateSettlement()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-2xl text-sm transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                    <span>🧮</span> 정산하기 (자동 계산)
+                </button>
+
+                <!-- Settlement Results -->
+                <div id="settlementResultSection" class="space-y-4 hidden">
+                    <div id="captureArea" class="bg-slate-950 p-2 space-y-4 rounded-2xl">
+                        
+                        <div class="border-b border-slate-800 pb-3 flex justify-between items-center">
+                            <div>
+                                <h3 id="summaryMainTitle" class="text-base font-bold text-slate-100">여행 정산 및 송금 요약</h3>
+                                <p class="text-[11px] text-slate-400">지출 내역 및 개인별 정산 결과</p>
+                            </div>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-300 px-2.5 py-1 rounded-full font-medium">정산 완료</span>
+                        </div>
+
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                            <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleSummaryExpenseList()">
+                                <h4 class="text-sm font-semibold text-slate-300 flex items-center gap-1.5">
+                                    전체 지출 내역 <span class="text-[10px] text-indigo-400 font-normal">(클릭하여 펼치기/접기)</span>
+                                </h4>
+                                <span id="summaryTotalExpense" class="text-xs text-indigo-400 font-medium">총 지출: 0원</span>
+                            </div>
+                            <div id="summaryExpenseListContainer" class="space-y-2 hidden"></div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h4 class="text-sm font-bold text-slate-200 pt-1">개인별 정산 카드</h4>
+                            <div id="personalSummaries" class="space-y-3"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
 // 전체 기본 장소 데이터 (오키나와 남부·중부·북부 각 50개 장소 반영)
 const defaultPlacesData = {
@@ -442,7 +577,6 @@ const defaultPlacesData = {
             if (savedTrip) tripData = JSON.parse(savedTrip);
         } catch(e) { console.error('기존 일정 데이터 로드 실패'); }
 
-        // 각 Day별 수정 모드 상태 관리 객체 (true일 때만 순서 변경, 삭제, 메모 수정 등 편집 가능)
         let editModeState = {};
 
         let currentRegion = 'south'; 
@@ -453,6 +587,13 @@ const defaultPlacesData = {
 
         let headerFp = null;
         let settingsFp = null;
+
+        // 정산 앱 관련 변수
+        let participants = ["찬팅", "미르", "마스터", "샤인"];
+        let expenses = [
+            { id: 1, title: "숙박", amount: 70000, payer: "찬팅", targets: ["찬팅", "미르", "마스터", "샤인"] },
+            { id: 2, title: "식사", amount: 65000, payer: "미르", targets: ["찬팅", "미르", "마스터", "샤인"] }
+        ];
 
         function updateStickyPositions() {
             const header = document.querySelector('header');
@@ -498,6 +639,7 @@ const defaultPlacesData = {
             updateHeaderDateDisplay();
             renderPlaces();
             renderPlanner();
+            initExpenseApp();
         };
 
         function updateHeaderDateDisplay() {
@@ -752,7 +894,6 @@ const defaultPlacesData = {
             const currentDayObj = tripData.days[dayIdx];
             if (!currentDayObj) return '';
             
-            // 해당 Day가 수정 모드인지 여부 (전체 일정에서는 기본 false, 개별 탭에서는 각각 상태 유지)
             let isEditing = !!editModeState[dayIdx];
 
             let eventsHtml = ''; let coordIndex = 1; let prevValidEvent = null;
@@ -763,7 +904,7 @@ const defaultPlacesData = {
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
-                let hotelDeleteBtn = isEditing ? `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>` : '';
+                let hotelDeleteBtn = isEditing ? `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>` : '';
                 let memoInputHtml = isEditing ? 
                     `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white border border-indigo-200 rounded px-3 py-2 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:border-indigo-400">`
                     :
@@ -786,7 +927,7 @@ const defaultPlacesData = {
                         ${memoInputHtml ? `<div class="pl-9 pr-1">${memoInputHtml}</div>` : ''}
                     </div>
                 `;
-            } else if (isEditing) {
+            } else {
                 eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-slate-200 py-3 px-4 sm:px-6">
                     <button onclick="openTimelineAddModal('hotel', ${dayIdx})" class="w-full bg-slate-50 text-indigo-600 py-2.5 px-2 rounded-lg font-bold text-sm sm:text-base transition border border-dashed border-indigo-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> Day ${currentDayObj.dayNum} 숙소 추가</button>
                 </div>`;
@@ -796,7 +937,7 @@ const defaultPlacesData = {
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p>${isEditing ? `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button>` : ''}</div>`;
+                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button></div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
                     const evtIdx = startIndex + subIdx;
@@ -839,44 +980,65 @@ const defaultPlacesData = {
                     
                     let singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${(evt.lat && evt.lng) ? evt.lat+','+evt.lng : encodeURIComponent(evt.name + ' 오키나와')}`;
                     
-                    // 수정 모드일 때만 순서 변경 화살표 및 삭제 버튼 노출
                     let reorderBoxHtml = '';
                     let deleteBtnHtml = '';
                     if (isEditing) {
-                        let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-0.5 transition"><i class="fa-solid fa-chevron-up text-[11px]"></i></button>` : `<span class="py-0.5 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-up text-[11px]"></i></span>`;
-                        let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="text-slate-400 hover:text-slate-700 w-full flex justify-center py-0.5 transition"><i class="fa-solid fa-chevron-down text-[11px]"></i></button>` : `<span class="py-0.5 w-full flex justify-center invisible"><i class="fa-solid fa-chevron-down text-[11px]"></i></span>`;
-                        reorderBoxHtml = `<div class="flex flex-col justify-center items-center w-6 bg-slate-50 rounded-md border border-slate-100 shrink-0 py-0">${moveUpBtn}${moveDownBtn}</div>`;
+                        let moveUpBtn = subIdx > 0 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-xs"></i></button>` : `<span class="w-full h-8 bg-slate-50 text-slate-300 flex items-center justify-center border-b border-slate-200"><i class="fa-solid fa-chevron-up text-xs"></i></span>`;
+                        let moveDownBtn = subIdx < actualEvents.length - 1 ? `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-8 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-xs"></i></button>` : `<span class="w-full h-8 bg-slate-50 text-slate-300 flex items-center justify-center"><i class="fa-solid fa-chevron-down text-xs"></i></span>`;
+                        
+                        // 요청사항 반영: 위로는 숫자(배지) 왼쪽, 아래는 메모 왼쪽, 전체 높이를 차지하도록 왼쪽에 배치되는 세로 박스
+                        reorderBoxHtml = `<div class="flex flex-col justify-between w-8 self-stretch bg-slate-50 rounded-lg border border-slate-200 overflow-hidden shrink-0 shadow-inner h-full">${moveUpBtn}${moveDownBtn}</div>`;
                         deleteBtnHtml = `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
                     }
 
                     let memoInputHtml = isEditing ? 
                         `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-2 text-[14px] sm:text-[16px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`
                         :
-                        (evt.memo ? `<div class="text-[13px] sm:text-[15px] text-slate-700 bg-slate-50 px-3 py-1.5 rounded border border-slate-200/80">${evt.memo}</div>` : '');
+                        (evt.memo ? `<div class="text-[13px] sm:text-[15px] text-slate-700 bg-slate-50 px-3 py-1.5 rounded border border-slate-200/80">📝 ${evt.memo}</div>` : '');
 
-                    eventsHtml += `
-                        <div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2 px-4 sm:px-6 gap-1.5">
-                            <div class="flex items-center gap-3 w-full">
+                    // 카드가 수정 모드일 때 위로는 숫자 왼쪽, 아래는 메모 왼쪽에 오도록 좌우 배치 구조 적용
+                    if (isEditing) {
+                        eventsHtml += `
+                            <div class="flex bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2.5 px-4 sm:px-6 gap-3 items-stretch">
                                 ${reorderBoxHtml}
-                                <div class="flex items-center gap-3 flex-1 min-w-0">
-                                    ${numCircle}
-                                    <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
-                                </div>
-                                <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
-                                    <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
-                                    ${deleteBtnHtml}
+                                <div class="flex-1 min-w-0 flex flex-col justify-between space-y-2">
+                                    <div class="flex items-center justify-between w-full">
+                                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                                            ${numCircle}
+                                            <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
+                                            <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
+                                            ${deleteBtnHtml}
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        ${memoInputHtml}
+                                    </div>
                                 </div>
                             </div>
-                            ${memoInputHtml ? `<div class="pl-9 pr-1">${memoInputHtml}</div>` : ''}
-                        </div>
-                    `;
+                        `;
+                    } else {
+                        eventsHtml += `
+                            <div class="flex flex-col bg-white border-y border-x-0 border-slate-200 shadow-sm overflow-hidden py-2 px-4 sm:px-6 gap-1.5">
+                                <div class="flex items-center gap-3 w-full">
+                                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                                        ${numCircle}
+                                        <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
+                                        <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
+                                    </div>
+                                </div>
+                                ${memoInputHtml ? `<div class="pl-9">${memoInputHtml}</div>` : ''}
+                            </div>
+                        `;
+                    }
                 });
 
-                if (isEditing) {
-                    eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-x-0 border-slate-200 py-3 px-4 sm:px-6">
-                        <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
-                    </div>`;
-                }
+                eventsHtml += `<div class="flex items-center justify-center bg-white border-b border-x-0 border-slate-200 py-3 px-4 sm:px-6">
+                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
+                </div>`;
             }
 
             let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
@@ -900,7 +1062,6 @@ const defaultPlacesData = {
                     ${dayCompanionsHtml}
                 </div>`;
 
-            // 상단 우측 버튼 영역: 저장 버튼 옆에 수정 버튼 배치 (수정 중일 때는 '완료' 또는 토글 형태)
             let editBtnText = isEditing ? '완료' : '수정';
             let editBtnIcon = isEditing ? 'fa-check' : 'fa-pen-to-square';
             let editBtnColor = isEditing ? 'bg-amber-600 hover:bg-amber-700' : 'bg-amber-500 hover:bg-amber-600';
@@ -912,10 +1073,11 @@ const defaultPlacesData = {
                 </div>`
                 :
                 `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                    <button onclick="openExpenseModal()" class="bg-emerald-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-700" title="경비"><i class="fa-solid fa-won-sign sm:mr-1.5"></i><span class="hidden sm:inline">경비</span></button>
                     <button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>
                     <button onclick="toggleEditMode(${dayIdx})" class="${editBtnColor} text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition" title="${editBtnText}"><i class="fa-solid ${editBtnIcon} sm:mr-1.5"></i><span class="hidden sm:inline">${editBtnText}</span></button>
                     <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
-                    ${isEditing ? `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>` : ''}
+                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>
                 </div>`;
 
             let topSectionHtml = `<div class="${headerWrapperClass}">
@@ -924,11 +1086,14 @@ const defaultPlacesData = {
 
             let bottomButtonsHtml = isAllView ? `<div class="px-4 sm:px-6 pb-4 mt-4">
                 <div class="flex gap-2 sm:gap-3 w-full">
+                    <button onclick="openExpenseModal()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-won-sign"></i><span>경비</span>
+                    </button>
                     <button onclick="manualSaveData()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
                         <i class="fa-solid fa-floppy-disk"></i><span>저장</span>
                     </button>
                     <button onclick="toggleEditMode(${dayIdx})" class="flex-1 ${editBtnColor} text-white py-3 px-2 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
-                        <i class="fa-solid ${editBtnIcon}"></i><span>${editBtnText} 모드</span>
+                        <i class="fa-solid fa-edit"></i><span>${editBtnText} 모드</span>
                     </button>
                     <button onclick="openDayMapModal(${dayIdx})" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 py-3 px-2 rounded-lg text-sm sm:text-base font-bold shadow-md transition">
                         <i class="fa-solid fa-map-location-dot"></i><span>지도</span>
@@ -945,7 +1110,6 @@ const defaultPlacesData = {
             `;
         }
 
-        // 수정 모드 토글 함수
         function toggleEditMode(dayIdx) {
             editModeState[dayIdx] = !editModeState[dayIdx];
             renderPlanner();
@@ -1172,7 +1336,6 @@ const defaultPlacesData = {
             document.getElementById('customPlaceDesc').value = place.desc || '';
             document.getElementById('customLat').value = place.lat || '';
             document.getElementById('customLng').value = place.lng || '';
-            document.getElementById('addPlaceModal').classList.add('hidden'); // 오타 방지용 수정
             document.getElementById('addPlaceModal').classList.remove('hidden');
             document.getElementById('customPlaceName').focus();
         }
@@ -1224,6 +1387,331 @@ const defaultPlacesData = {
                 switchRegion(region); switchCategory(group); renderPlaces(); saveDataToLocalStorage(); closeAddModal();
                 alert(`[${name}] 장소가 목록에 등록되었습니다.`);
             }
+        }
+
+        // --- 경비 정산 및 송금 계산기 연동 로직 ---
+        function openExpenseModal() {
+            document.getElementById('expenseModal').classList.remove('hidden');
+            initExpenseApp();
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expenseModal').classList.add('hidden');
+        }
+
+        function initExpenseApp() {
+            renderParticipants();
+            renderExpenseParticipantsCheckboxes();
+            renderExpenses();
+            updatePayerDropdown();
+            calculateSettlement();
+        }
+
+        function toggleExpenseList() {
+            const container = document.getElementById('expenseListContainer');
+            container.classList.toggle('hidden');
+        }
+
+        function toggleSummaryExpenseList() {
+            const container = document.getElementById('summaryExpenseListContainer');
+            container.classList.toggle('hidden');
+        }
+
+        function updateTripTitle() {
+            const tripName = document.getElementById('tripTitleInput').value.trim();
+            const headerTitle = document.getElementById('expenseHeaderTitle');
+            const summaryMainTitle = document.getElementById('summaryMainTitle');
+
+            if (tripName) {
+                headerTitle.innerText = `${tripName} 정산 & 송금 계산기`;
+                summaryMainTitle.innerText = `${tripName} 정산 및 송금 요약`;
+            } else {
+                headerTitle.innerText = `여행 정산 & 송금 계산기`;
+                summaryMainTitle.innerText = `여행 정산 및 송금 요약`;
+            }
+        }
+
+        function renderParticipants() {
+            const container = document.getElementById('participantTags');
+            const countBadge = document.getElementById('participantCount');
+            if(!container) return;
+            countBadge.innerText = `${participants.length}명`;
+            
+            container.innerHTML = participants.map(p => `
+                <span class="inline-flex items-center gap-1.5 bg-slate-950 border border-slate-800 text-slate-300 px-2.5 py-1 rounded-lg text-xs">
+                    ${p}
+                    ${participants.length > 1 ? `<button onclick="removeParticipant('${p}')" class="text-slate-500 hover:text-rose-400 font-bold">&times;</button>` : ''}
+                </span>
+            `).join('');
+            
+            updatePayerDropdown();
+            renderExpenseParticipantsCheckboxes();
+        }
+
+        function addParticipant() {
+            const input = document.getElementById('newParticipantName');
+            const name = input.value.trim();
+            if (!name) return;
+            if (participants.includes(name)) {
+                alert('이미 존재하는 참여자입니다.');
+                return;
+            }
+            participants.push(name);
+            input.value = '';
+            renderParticipants();
+        }
+
+        function removeParticipant(name) {
+            participants = participants.filter(p => p !== name);
+            expenses.forEach(exp => {
+                exp.targets = exp.targets.filter(t => t !== name);
+            });
+            renderParticipants();
+            renderExpenses();
+        }
+
+        function updatePayerDropdown() {
+            const select = document.getElementById('expensePayer');
+            if(!select) return;
+            select.innerHTML = participants.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        function renderExpenseParticipantsCheckboxes() {
+            const container = document.getElementById('expenseParticipants');
+            if(!container) return;
+            container.innerHTML = participants.map(p => `
+                <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                    <input type="checkbox" value="${p}" checked class="accent-indigo-500 expense-target-checkbox">
+                    ${p}
+                </label>
+            `).join('');
+        }
+
+        function addExpense() {
+            const titleInput = document.getElementById('expenseTitle');
+            const amountInput = document.getElementById('expenseAmount');
+            const payerSelect = document.getElementById('expensePayer');
+            const checkboxes = document.querySelectorAll('.expense-target-checkbox:checked');
+
+            const title = titleInput.value.trim() || '일반 지출';
+            const amount = parseFloat(amountInput.value);
+            const payer = payerSelect.value;
+            const targets = Array.from(checkboxes).map(cb => cb.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                alert('올바른 금액을 입력해주세요.');
+                return;
+            }
+            if (targets.length === 0) {
+                alert('참여 인원을 최소 1명 이상 선택해주세요.');
+                return;
+            }
+
+            expenses.push({ id: Date.now(), title, amount, payer, targets });
+            
+            titleInput.value = '';
+            amountInput.value = '';
+            renderExpenses();
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            renderExpenses();
+        }
+
+        function renderExpenses() {
+            const container = document.getElementById('expenseListContainer');
+            const summary = document.getElementById('totalExpenseSummary');
+            const summaryContainer = document.getElementById('summaryExpenseListContainer');
+            const summaryTotal = document.getElementById('summaryTotalExpense');
+
+            if(!container) return;
+
+            let total = expenses.reduce((sum, e) => sum + e.amount, 0);
+            summary.innerText = `총 지출: ${total.toLocaleString()}원`;
+            if (summaryTotal) summaryTotal.innerText = `총 지출: ${total.toLocaleString()}원`;
+
+            if (expenses.length === 0) {
+                const emptyHtml = `<p class="text-xs text-slate-500 text-center py-4">등록된 지출 내역이 없습니다.</p>`;
+                container.innerHTML = emptyHtml;
+                if (summaryContainer) summaryContainer.innerHTML = emptyHtml;
+                return;
+            }
+
+            const listHtml = expenses.map(e => `
+                <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex justify-between items-center text-xs">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-slate-200 text-sm">${e.title}</span>
+                            <span class="text-indigo-400 font-semibold">${e.amount.toLocaleString()}원</span>
+                        </div>
+                        <div class="text-slate-400">
+                            결제자: <span class="text-slate-200 font-medium">${e.payer}</span> | 참여 인원 (${e.targets.length}명): ${e.targets.join(', ')}
+                        </div>
+                    </div>
+                    <button onclick="deleteExpense(${e.id})" class="text-slate-500 hover:text-rose-400 p-1.5 transition">
+                        🗑️
+                    </button>
+                </div>
+            `).join('');
+
+            container.innerHTML = listHtml;
+            if (summaryContainer) summaryContainer.innerHTML = listHtml;
+        }
+
+        function calculateSettlement() {
+            renderExpenses(); 
+
+            let paidMap = {};
+            let shareMap = {};
+            participants.forEach(p => {
+                paidMap[p] = 0;
+                shareMap[p] = 0;
+            });
+
+            let debtMatrix = {}; 
+            participants.forEach(p => {
+                debtMatrix[p] = {};
+                participants.forEach(tp => { debtMatrix[p][tp] = 0; });
+            });
+
+            expenses.forEach(e => {
+                paidMap[e.payer] = (paidMap[e.payer] || 0) + e.amount;
+                let sharePerPerson = e.amount / e.targets.length;
+                
+                e.targets.forEach(t => {
+                    shareMap[t] = (shareMap[t] || 0) + sharePerPerson;
+                    if (t !== e.payer) {
+                        debtMatrix[t][e.payer] = (debtMatrix[t][e.payer] || 0) + sharePerPerson;
+                    }
+                });
+            });
+
+            participants.forEach(p1 => {
+                participants.forEach(p2 => {
+                    if (p1 !== p2 && debtMatrix[p1][p2] > 0 && debtMatrix[p2][p1] > 0) {
+                        let minVal = Math.min(debtMatrix[p1][p2], debtMatrix[p2][p1]);
+                        debtMatrix[p1][p2] -= minVal;
+                        debtMatrix[p2][p1] -= minVal;
+                    }
+                });
+            });
+
+            let detailedTransfers = [];
+            participants.forEach(from => {
+                participants.forEach(to => {
+                    let amt = debtMatrix[from][to];
+                    if (amt > 0.1) {
+                        detailedTransfers.push({ from, to, amount: Math.round(amt) });
+                    }
+                });
+            });
+
+            let outgoingMap = {};
+            let incomingMap = {};
+            participants.forEach(p => {
+                outgoingMap[p] = [];
+                incomingMap[p] = [];
+            });
+
+            detailedTransfers.forEach(t => {
+                outgoingMap[t.from].push({ to: t.to, amount: t.amount });
+                incomingMap[t.to].push({ from: t.from, amount: t.amount });
+            });
+
+            document.getElementById('settlementResultSection').classList.remove('hidden');
+            
+            const personalContainer = document.getElementById('personalSummaries');
+            personalContainer.innerHTML = participants.map(p => {
+                let paid = paidMap[p] || 0;
+                let share = shareMap[p] || 0;
+                let net = paid - share;
+                
+                let outList = outgoingMap[p] || [];
+                let inList = incomingMap[p] || [];
+                let totalOut = outList.reduce((sum, o) => sum + o.amount, 0);
+
+                let badgeHtml = '';
+                if (net > 0) {
+                    badgeHtml = `<span class="bg-emerald-500/20 text-emerald-400 text-xs px-2.5 py-1 rounded-full font-bold">+${Math.round(net).toLocaleString()}원 받을 예정</span>`;
+                } else if (net < 0) {
+                    badgeHtml = `<span class="bg-rose-500/20 text-rose-400 text-xs px-2.5 py-1 rounded-full font-bold">${Math.round(-net).toLocaleString()}원 보낼 예정</span>`;
+                } else {
+                    badgeHtml = `<span class="bg-slate-800 text-slate-400 text-xs px-2.5 py-1 rounded-full font-medium">정산 완료 (0원)</span>`;
+                }
+
+                return `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-bold text-slate-100 text-base">${p}</span>
+                            ${badgeHtml}
+                        </div>
+                        <div class="text-xs space-y-1 text-slate-300 border-t border-slate-800/80 pt-2.5">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">내가 결제한 금액:</span>
+                                <span class="font-semibold text-slate-200">${paid.toLocaleString()}원</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">내가 부담할 몫 (사용 금액):</span>
+                                <span class="font-semibold text-slate-200">${Math.round(share).toLocaleString()}원</span>
+                            </div>
+                        </div>
+
+                        ${outList.length > 0 ? `
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5 text-xs">
+                                <div class="text-rose-400 font-semibold">총 송금할 금액: ${totalOut.toLocaleString()}원</div>
+                                ${outList.map(o => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${o.to}</span> 님에게: <span class="font-semibold text-white">${o.amount.toLocaleString()}원</span></div>`).join('')}
+                            </div>
+                        ` : `
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-400">
+                                내가 송금할 금액: 0원 (보낼 금액 없음)
+                            </div>
+                        `}
+
+                        ${inList.length > 0 ? `
+                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1.5 text-xs">
+                                <div class="text-emerald-400 font-semibold">받을 상세 내역:</div>
+                                ${inList.map(i => `<div class="text-slate-300 pl-2">👉 <span class="text-white font-medium">${i.from}</span> 님으로부터: <span class="font-semibold text-white">${i.amount.toLocaleString()}원</span></div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function shareAsImage() {
+            const targetElement = document.getElementById('captureArea');
+            
+            if (document.getElementById('settlementResultSection').classList.contains('hidden')) {
+                alert('먼저 "정산하기" 버튼을 눌러 정산 결과를 생성해주세요!');
+                return;
+            }
+
+            alert('정산 요약 내역을 이미지로 변환 중입니다. 잠시만 기다려주세요!');
+
+            html2canvas(targetElement, {
+                scale: 2,
+                backgroundColor: '#020617',
+                useCORS: true
+            }).then(canvas => {
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'travel-settlement-summary.png', { type: 'image/png' });
+                    
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        navigator.share({
+                            title: '여행 정산 요약 내역',
+                            text: '여행 정산 및 송금 요약 결과입니다.',
+                            files: [file]
+                        }).catch(() => {});
+                    } else {
+                        const link = document.createElement('a');
+                        link.download = '여행정산요약내역.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        alert('이미지가 저장되었습니다! 카카오톡 채팅창에 이 이미지를 첨부하여 공유해 주세요.');
+                    }
+                });
+            });
         }
     </script>
 </body>

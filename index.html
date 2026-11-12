@@ -38,8 +38,8 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             border: 2px solid white;
         }
-        /* iOS 등에서 화면 확대 방지 */
-        input, select, textarea { font-size: 16px !important; }
+        /* iOS 등에서 화면 확대 방지 (!important 제거하여 개별 크기 적용 가능하게 변경) */
+        input, select, textarea { font-size: 16px; }
         /* Flatpickr 달력 최상위 노출 */
         .flatpickr-calendar { z-index: 9999 !important; font-family: inherit; }
     </style>
@@ -214,12 +214,12 @@
                             <i class="fa-solid fa-location-crosshairs"></i> 위도·경도 불러오기
                         </button>
                     </div>
-                    <input type="text" id="customPlaceName" placeholder="예: 블루씰 아이스크림" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500">
+                    <input type="text" id="customPlaceName" placeholder="예: 블루씰 아이스크림" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">지역</label>
-                        <select id="customPlaceRegion" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none">
+                        <select id="customPlaceRegion" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none text-[16px] sm:text-sm">
                             <option value="south">남부</option>
                             <option value="central">중부</option>
                             <option value="north">북부</option>
@@ -227,7 +227,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">분류</label>
-                        <select id="customPlaceGroup" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none">
+                        <select id="customPlaceGroup" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 bg-white outline-none text-[16px] sm:text-sm">
                             <option value="관광지">관광지</option>
                             <option value="식당">식당</option>
                             <option value="카페" selected>카페</option>
@@ -239,7 +239,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">장소 설명 (선택)</label>
-                    <textarea id="customPlaceDesc" rows="2" placeholder="구글맵에서 확인한 설명이나 메모를 입력하세요." class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500"></textarea>
+                    <textarea id="customPlaceDesc" rows="2" placeholder="구글맵에서 확인한 설명이나 메모를 입력하세요." class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm"></textarea>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">
@@ -247,8 +247,8 @@
                     </label>
                     <p class="text-[11px] text-slate-400 mb-1.5">위도·경도 불러오기를 누르거나 좌표를 그대로 붙여넣으세요.</p>
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="customLat" placeholder="위도 (예: 26.1738)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500" oninput="handleCustomCoordPaste(event)">
-                        <input type="text" id="customLng" placeholder="경도 (예: 127.6429)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500" oninput="handleCustomCoordPaste(event)">
+                        <input type="text" id="customLat" placeholder="위도 (예: 26.1738)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm" oninput="handleCustomCoordPaste(event)">
+                        <input type="text" id="customLng" placeholder="경도 (예: 127.6429)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm" oninput="handleCustomCoordPaste(event)">
                     </div>
                 </div>
                 
@@ -800,7 +800,7 @@ const defaultPlacesData = {
                             </div>
                         </div>
                         <div class="pl-10 pr-1">
-                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-sm sm:text-base text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
+                            <input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white/80 border border-indigo-200 rounded px-3 py-1.5 text-xs sm:text-sm text-slate-700 outline-none focus:bg-white focus:border-indigo-400">
                         </div>
                     </div>
                 `;
@@ -829,7 +829,7 @@ const defaultPlacesData = {
                         eventsHtml += `
                             <div class="my-0 flex items-center justify-between bg-slate-100/70 px-4 sm:px-6 py-2.5 border-y border-x-0 text-sm sm:text-base text-slate-600 border-slate-200/60 shadow-sm w-full">
                                 <div class="flex items-center gap-2">
-                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-sm sm:text-base">
+                                    <select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-bold shadow-sm cursor-pointer hover:border-cyan-400 text-xs sm:text-sm">
                                         <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                         <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                         <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -868,7 +868,7 @@ const defaultPlacesData = {
                                 </div>
                             </div>
                             <div class="pl-10 pr-1">
-                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-sm sm:text-base text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
+                                <input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded px-3 py-1.5 text-xs sm:text-sm text-slate-700 outline-none focus:bg-white focus:border-cyan-400">
                             </div>
                         </div>
                     `;
@@ -970,7 +970,7 @@ const defaultPlacesData = {
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
             const routeEvents = hasHotel ? dayObj.events.slice(1) : dayObj.events;
             let validEvents = routeEvents.filter(e => e.lat && e.lng);
-            if (validEvents.length === 0) { alert('지도에 표시할 위치(위도/경도)가 등록된 장소를 없습니다.'); return; }
+            if (validEvents.length === 0) { alert('지도에 표시할 위치(위도/경도)가 등록된 장소가 없습니다.'); return; }
 
             document.getElementById('map-modal-title').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>Day ${dayObj.dayNum} 전체위치 (${validEvents.length}개소)`;
             document.getElementById('mapModal').classList.remove('hidden');
@@ -1046,8 +1046,8 @@ const defaultPlacesData = {
                 day.events.forEach((evt, i) => {
                     let isHotel = (evt.type === 'hotel' || evt.group === '호텔');
                     let icon = isHotel ? '🏨 숙소' : '📍 ' + (evt.category || '명소');
-                    let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 16px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
-                    let memoHtml = evt.memo ? `<div style="font-size: 16px; color: #475569; margin-top: 6px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">📝 ${evt.memo}</div>` : '';
+                    let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 13px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
+                    let memoHtml = evt.memo ? `<div style="font-size: 13px; color: #475569; margin-top: 6px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">📝 ${evt.memo}</div>` : '';
 
                     eventsHtml += `
                     <div style="display: flex; flex-direction: column; background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">

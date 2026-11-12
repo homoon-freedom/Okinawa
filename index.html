@@ -295,10 +295,10 @@
                             <input type="text" id="tripTitleInput" placeholder="예: 오키나와 우정 여행" oninput="updateTripTitle()"
                                 class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-indigo-500">
                             <button onclick="saveExpenseAppData()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-md shadow-indigo-600/20 shrink-0 h-[38px]">
-                                <span></span> 저장
+                                <span>💾</span> 저장
                             </button>
                             <button onclick="shareAsImage()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-md shadow-indigo-600/20 shrink-0 h-[38px]">
-                                <span></span> 공유
+                                <span>💬</span> 공유
                             </button>
                         </div>
                     </div>
@@ -953,21 +953,19 @@ const defaultPlacesData = {
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
-                let hotelDeleteBtn = `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>`;
-                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-white border border-indigo-200 rounded-lg px-3 py-1.5 text-[13px] sm:text-[14px] text-slate-700 outline-none focus:border-indigo-400">`;
+                let hotelDeleteBtn = `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
+                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[13px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
 
                 eventsHtml += `
                     <div class="px-3 sm:px-4 py-1.5">
-                        <div class="flex flex-col bg-indigo-50/60 border border-indigo-100 rounded-xl shadow-sm py-3 px-4 gap-2">
-                            <div class="flex items-center gap-3">
-                                <div class="w-6 flex justify-center shrink-0">
-                                    <span class="w-5 h-5 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[9px] shadow-sm"><i class="fa-solid fa-bed"></i></span>
-                                </div>
-                                <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <div class="flex flex-col bg-indigo-50/60 border border-indigo-100 rounded-2xl shadow-sm py-3 px-4 gap-2">
+                            <div class="flex items-center justify-between w-full">
+                                <div class="flex items-center gap-3 flex-1 min-w-0">
+                                    <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[9px] shadow-sm shrink-0"><i class="fa-solid fa-bed"></i></span>
                                     <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-200">
-                                    <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
+                                <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-indigo-200/60">
+                                    <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
                                     ${hotelDeleteBtn}
                                 </div>
                             </div>
@@ -997,7 +995,7 @@ const defaultPlacesData = {
                         let travelModeMap = { '운전': 'driving', '대중교통': 'transit', '도보': 'walking', '자전거': 'bicycling' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
-                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-normal shadow-sm cursor-pointer hover:border-cyan-400 text-[13px] sm:text-[14px]">
+                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-normal shadow-sm cursor-pointer hover:border-cyan-400 text-[12px] sm:text-[13px]">
                                 <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                 <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                 <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -1005,14 +1003,14 @@ const defaultPlacesData = {
                             </select>`;
 
                         eventsHtml += `
-                            <div class="my-1.5 flex items-center justify-between bg-slate-100/80 mx-3 sm:mx-4 px-4 py-2.5 rounded-xl border border-slate-200/80 text-[13px] sm:text-sm text-slate-600 shadow-sm w-[calc(100%-1.5rem)] sm:w-[calc(100%-2rem)]">
+                            <div class="my-1.5 flex items-center justify-between bg-slate-100/80 mx-3 sm:mx-4 px-4 py-2.5 rounded-xl border border-slate-200/80 text-[12px] sm:text-[13px] text-slate-600 shadow-sm w-[calc(100%-1.5rem)] sm:w-[calc(100%-2rem)]">
                                 <div class="flex items-center gap-2">
                                     ${transportSelectorHtml}
                                 </div>
                                 <div class="flex items-center gap-2 sm:gap-3 shrink-0 font-normal">
                                     <span class="whitespace-nowrap">거리: <strong class="font-normal text-slate-800">${route.distance}</strong></span>
                                     <span class="whitespace-nowrap">소요: <strong class="font-normal text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2.5 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 font-normal text-[13px] sm:text-sm" title="경로 보기"><i class="fa-solid fa-route"></i></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 font-normal text-[12px] sm:text-[13px]" title="경로 보기"><i class="fa-solid fa-route"></i></a>
                                 </div>
                             </div>
                         `;
@@ -1030,7 +1028,7 @@ const defaultPlacesData = {
                     let reorderBoxHtml = `<div class="flex flex-col w-7 h-[38px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
                     let deleteBtnHtml = `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
 
-                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[13px] sm:text-[14px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
+                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[13px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
 
                     eventsHtml += `
                         <div class="px-3 sm:px-4 py-1.5">

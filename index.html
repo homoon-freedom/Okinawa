@@ -140,7 +140,7 @@
                             <input type="file" accept=".json" onchange="importBackupData(event)" class="hidden">
                         </label>
                         <button onclick="shareFromSettings()" class="flex-1 min-w-0 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] py-2 rounded-lg font-bold text-[13px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-image"></i> 이미지공유
+                            <i class="fa-solid fa-image"></i> 전체공유
                         </button>
                     </div>
                 </div>
@@ -155,10 +155,8 @@
                 <h3 id="map-modal-title" class="font-bold text-base"><i class="fa-solid fa-map-location-dot mr-2"></i>지도보기</h3>
                 <button onclick="closeMapModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            <!-- 지도 영역 꽉 채우기 -->
             <div class="p-0 flex-1 bg-slate-100 flex flex-col relative">
                 <div id="dayMapContainer" class="w-full h-full z-10"></div>
-                
                 <!-- 현재 위치 보기 플로팅 버튼 -->
                 <button onclick="locateCurrentPosition()" class="absolute bottom-6 right-4 z-[400] bg-white text-emerald-600 w-12 h-12 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-200 flex items-center justify-center text-xl hover:bg-emerald-50 transition" title="내 위치 보기">
                     <i class="fa-solid fa-location-crosshairs"></i>
@@ -698,7 +696,6 @@ const defaultPlacesData = {
             });
         }
 
-        // 사용자가 명시적으로 저장 버튼을 누를 때만 알림 메시지 출력
         function saveExpenseAppData() {
             const tripTitle = document.getElementById('tripTitleInput') ? document.getElementById('tripTitleInput').value : '';
             const expensePayload = {
@@ -712,7 +709,6 @@ const defaultPlacesData = {
             alert('경비 데이터가 로컬스토리지에 안전하게 저장되었습니다!');
         }
 
-        // 백그라운드 자동 저장 (알림 없음)
         function autoSaveExpenseAppData() {
             const tripTitle = document.getElementById('tripTitleInput') ? document.getElementById('tripTitleInput').value : '';
             const expensePayload = {
@@ -1140,7 +1136,7 @@ const defaultPlacesData = {
                 }
             }
 
-            let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
+            let dayCompsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
             
             let dayTitleHtml = `
                 <div class="flex-1 min-w-0 pr-2">
@@ -1148,7 +1144,7 @@ const defaultPlacesData = {
                         <span class="font-extrabold text-xl sm:text-2xl text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
                         <span class="text-sm sm:text-base text-cyan-700 font-medium">${currentDayObj.date}</span>
                     </div>
-                    ${dayCompanionsHtml}
+                    ${dayCompsHtml}
                 </div>
             `;
 
@@ -1279,9 +1275,10 @@ const defaultPlacesData = {
 
         function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); if (leafletMap) { leafletMap.remove(); leafletMap = null; } }
 
+        // 전체 일정 캡쳐용 HTML 생성 (여백 및 반복되는 푸터 제거)
         function generateDayHtmlForCapture(day) {
             let eventsHtml = '';
-            if (!day.events || day.events.length === 0) { eventsHtml = `<div style="text-align: center; color: #94a3b8; padding: 40px 0;">등록된 일정이 없습니다.</div>`; }
+            if (!day.events || day.events.length === 0) { eventsHtml = `<div style="text-align: center; color: #94a3b8; padding: 30px 0;">등록된 일정이 없습니다.</div>`; }
             else {
                 day.events.forEach((evt, i) => {
                     let isHotel = (evt.type === 'hotel' || evt.group === '호텔');
@@ -1305,54 +1302,70 @@ const defaultPlacesData = {
             
             let dayCompsHtml = day.companions ? `<div style="font-size: 14px; font-weight: bold; color: #0891b2; margin-top: 6px; background: white; display: inline-block; padding: 4px 10px; border-radius: 20px;">👥 동행자: ${day.companions}</div>` : '';
 
-            return `<div style="background: #f8fafc; padding: 24px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;">
-                <div style="background: linear-gradient(to right, #0891b2, #1d4ed8); border-radius: 16px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">Day ${day.dayNum}</div>
-                    <div style="font-size: 16px; font-weight: 500; opacity: 0.9;">${day.date}</div>
+            return `
+            <div style="margin-bottom: 24px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;">
+                <div style="background: linear-gradient(to right, #0891b2, #1d4ed8); border-radius: 16px; padding: 16px 20px; color: white; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">Day ${day.dayNum}</div>
+                    <div style="font-size: 15px; font-weight: 500; opacity: 0.9;">${day.date}</div>
                     ${dayCompsHtml}
                 </div>
-                <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">${eventsHtml}</div>
-                <div style="text-align: center; margin-top: 16px; color: #94a3b8; font-size: 12px; font-weight: bold;">오키나와 완벽 맞춤형 여행 플래너</div>
+                <div style="background: white; border-radius: 16px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">${eventsHtml}</div>
             </div>`;
         }
 
+        // 전체 일정을 하나의 긴 이미지로 만들어서 텍스트 없이 공유
         async function shareAllDaysAsImages() {
             if (tripData.days.length === 0) { alert('공유할 일정이 없습니다.'); return; }
             let loader = document.createElement('div');
             loader.id = 'share-loader';
-            loader.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-spinner fa-spin text-4xl text-white mb-3"></i><p class="text-white font-bold text-sm mt-2">일정 이미지를 생성 중입니다...</p><p class="text-white/70 text-[11px] mt-1">잠시만 기다려주세요 (약 3~5초 소요)</p></div>';
+            loader.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-spinner fa-spin text-4xl text-white mb-3"></i><p class="text-white font-bold text-sm mt-2">전체 일정을 하나의 이미지로 생성 중입니다...</p><p class="text-white/70 text-[11px] mt-1">잠시만 기다려주세요</p></div>';
             loader.className = 'fixed inset-0 z-[100] bg-slate-900/80 flex items-center justify-center';
             document.body.appendChild(loader);
 
             try {
+                // 캡처를 위한 하나의 거대한 DOM 영역 생성
                 let captureArea = document.createElement('div');
-                captureArea.style.position = 'absolute'; captureArea.style.top = '-9999px'; captureArea.style.left = '0'; captureArea.style.width = '400px'; 
+                captureArea.style.position = 'absolute'; captureArea.style.top = '-99999px'; captureArea.style.left = '0'; 
+                captureArea.style.width = '420px'; // 모바일에 적합한 고정 너비
+                captureArea.style.backgroundColor = '#f8fafc';
+                captureArea.style.padding = '20px';
                 document.body.appendChild(captureArea);
-                let imageFiles = [];
+
+                // 전체 일정 제목 헤더
+                let headerTitle = document.createElement('div');
+                headerTitle.innerHTML = `<h2 style="text-align:center; font-size:22px; font-weight:800; color:#0f172a; margin-bottom:20px; font-family: Pretendard, sans-serif;">✈️ 전체 여행 일정 요약</h2>`;
+                captureArea.appendChild(headerTitle);
+
+                // 모든 Day의 HTML을 한 곳에 이어붙임
                 for (let i = 0; i < tripData.days.length; i++) {
                     let day = tripData.days[i];
                     let dayContainer = document.createElement('div');
                     dayContainer.innerHTML = generateDayHtmlForCapture(day);
                     captureArea.appendChild(dayContainer);
-                    await new Promise(r => setTimeout(r, 200)); 
-                    let canvas = await html2canvas(dayContainer, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
-                    let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    let file = new File([blob], `Okinawa_Day${day.dayNum}.png`, { type: 'image/png' });
-                    imageFiles.push(file);
-                    captureArea.innerHTML = '';
                 }
+
+                // 통합 하단 워터마크
+                let footer = document.createElement('div');
+                footer.innerHTML = `<div style="text-align: center; margin-top: 10px; padding-top: 20px; border-top: 1px dashed #cbd5e1; color: #94a3b8; font-size: 12px; font-weight: bold; font-family: Pretendard, sans-serif;">오키나와 완벽 맞춤형 여행 플래너</div>`;
+                captureArea.appendChild(footer);
+
+                await new Promise(r => setTimeout(r, 600)); 
+                
+                // 하나의 캔버스로 변환
+                let canvas = await html2canvas(captureArea, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
+                let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                let file = new File([blob], `Okinawa_All_Schedule.png`, { type: 'image/png' });
+                
                 document.body.removeChild(captureArea);
 
-                if (navigator.canShare && navigator.canShare({ files: imageFiles })) {
-                    await navigator.share({ title: '오키나와 여행 일정', files: imageFiles });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    // title, text 속성을 완전히 제거하여 오직 이미지만 넘기도록 처리
+                    await navigator.share({ files: [file] });
                 } else {
-                    alert('현재 브라우저에서는 여러 장 동시 공유를 지원하지 않아, 각 일정 이미지를 기기에 다운로드합니다.');
-                    for (let file of imageFiles) {
-                        let url = URL.createObjectURL(file);
-                        let a = document.createElement('a'); a.href = url; a.download = file.name;
-                        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                        await new Promise(r => setTimeout(r, 400));
-                    }
+                    alert('현재 브라우저에서는 공유 기능을 지원하지 않아 이미지를 기기에 다운로드합니다.');
+                    let url = URL.createObjectURL(file);
+                    let a = document.createElement('a'); a.href = url; a.download = file.name;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                 }
             } catch (error) { console.error(error); alert('이미지 생성 또는 공유 중 오류가 발생했습니다.'); } 
             finally { let loaderEl = document.getElementById('share-loader'); if (loaderEl) document.body.removeChild(loaderEl); }
@@ -1983,7 +1996,6 @@ const defaultPlacesData = {
                 incomingMap[t.to.id].push({ from: t.from, amount: t.amount });
             });
 
-            // 요약 헤더 텍스트 업데이트
             const summarySub = document.getElementById('summarySubTitle');
             const summaryBadge = document.getElementById('summaryModeBadge');
             const summaryHeading = document.getElementById('summaryCardsHeading');
@@ -2079,6 +2091,7 @@ const defaultPlacesData = {
             autoSaveExpenseAppData();
         }
 
+        // 경비 정산 내용 캡쳐 후 오직 파일만 공유
         function shareAsImage() {
             const targetElement = document.getElementById('captureArea');
             
@@ -2098,9 +2111,8 @@ const defaultPlacesData = {
                     const file = new File([blob], 'travel-settlement-summary.png', { type: 'image/png' });
                     
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        // title, text 속성을 제외하고 오직 파일만 넘기도록 수정
                         navigator.share({
-                            title: '여행 정산 요약 내역',
-                            text: '여행 정산 및 송금 요약 결과입니다.',
                             files: [file]
                         }).catch(() => {});
                     } else {
@@ -2108,7 +2120,7 @@ const defaultPlacesData = {
                         link.download = '여행정산요약내역.png';
                         link.href = canvas.toDataURL('image/png');
                         link.click();
-                        alert('이미지가 저장되었습니다! 카카오톡 채팅창에 이 이미지를 첨부하여 공유해 주세요.');
+                        alert('이미지가 기기에 저장되었습니다.');
                     }
                 });
             });

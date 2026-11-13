@@ -45,284 +45,44 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             border: 2px solid white;
         }
-        /* 추천된 장소 지도 마커 (적색) 스타일 */
-        .custom-map-marker-red {
-            background: #ef4444 !important;
-            color: white;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            border: 2px solid white;
-        }
-        /* 현재 위치 파란색 마커 스타일 */
-        .current-location-marker {
-            background-color: #3b82f6;
-            border: 3px solid white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-        }
         /* iOS 등에서 화면 확대 방지 */
-        input, select, textarea { font-size: 16px !important; }
+        input, select, textarea { font-size: 14px !important; }
         /* Flatpickr 달력 최상위 노출 */
         .flatpickr-calendar { z-index: 9999 !important; font-family: inherit; }
-
-        /* 체크박스 커스텀 스크롤바 */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 relative">
 
     <!-- Header -->
-    <header class="sticky top-0 z-[60] bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
-        <div class="max-w-[1500px] mx-auto px-3 sm:px-4 py-3 flex flex-row items-center justify-between gap-2">
-            <h1 class="text-[17px] sm:text-2xl font-bold flex items-center gap-1.5 sm:gap-2 shrink-0 truncate">
-                <i class="fa-solid fa-plane-departure hidden sm:inline-block"></i>
-                <span class="truncate">오키나와 플래너</span>
+    <header class="sticky top-0 z-[40] bg-gradient-to-r from-cyan-600 to-blue-700 text-white shadow-md">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col items-center justify-center">
+            <h1 class="text-2xl sm:text-3xl font-bold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-plane-departure"></i> 오키나와 자유여행 플래너
             </h1>
-            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                <div id="header-date-trigger" class="cursor-pointer hover:bg-white/25 transition bg-white/15 px-2.5 py-1.5 rounded-full backdrop-blur-sm text-[12px] sm:text-[14px] font-medium text-cyan-50 flex items-center shadow-inner tracking-tight whitespace-nowrap" title="클릭하여 날짜 변경하기">
-                    <i class="fa-regular fa-calendar-check mr-1 sm:mr-1.5 text-cyan-200"></i>
+            <div class="flex items-center justify-center gap-2 mt-3">
+                <div id="header-date-trigger" class="cursor-pointer hover:bg-white/25 transition bg-white/15 px-3 py-1.5 rounded-full backdrop-blur-sm text-sm sm:text-base font-medium text-cyan-50 flex items-center shadow-inner tracking-tight" title="클릭하여 날짜 변경하기">
+                    <i class="fa-regular fa-calendar-check mr-2 text-cyan-200"></i>
                     <span id="header-date-display">2026. 12. 27. - 2027. 01. 03.</span>
                 </div>
-                <button onclick="openSettingsModal()" class="bg-white/20 hover:bg-white text-white hover:text-cyan-700 w-8 h-8 sm:w-9 sm:h-9 rounded-full transition shadow-sm flex items-center justify-center border border-white/30" title="일정 및 관리 설정">
-                    <i class="fa-solid fa-gear text-[13px] sm:text-base"></i>
+                <button onclick="openSettingsModal()" class="bg-white/20 hover:bg-white text-white hover:text-cyan-700 w-9 h-9 rounded-full transition shadow-sm flex items-center justify-center border border-white/30" title="일정 및 관리 설정">
+                    <i class="fa-solid fa-gear text-lg"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Layout (50:50 비율 적용) -->
-    <main class="max-w-[1500px] mx-auto w-full px-2 sm:px-4 py-4 sm:py-6 flex flex-col md:flex-row gap-4 items-start">
-        
-        <!-- 탭 (전체일정 ~ Day 8) -->
-        <nav id="day-tabs-container" class="w-full md:w-[90px] lg:w-[100px] shrink-0 sticky z-[35] bg-white border border-slate-200 rounded-xl p-1.5 shadow-sm transition-all overflow-hidden md:max-h-[calc(100vh-140px)] md:overflow-y-auto hide-scrollbar">
-            <div id="day-tabs" class="flex flex-row md:flex-col overflow-x-auto gap-1.5 hide-scrollbar w-full items-center md:items-stretch px-1 md:px-0"></div>
-        </nav>
-
-        <!-- 1 & 2. Center Content Wrapper (일정 영역 - 50%) -->
-        <section class="w-full md:flex-1 min-w-0 bg-white rounded-2xl shadow-sm border border-slate-200 relative min-h-[70vh]">
-            <div id="day-content" class="space-y-4 pt-0 relative pb-6"></div>
-        </section>
-
-        <!-- 3. Right Sidebar (우측 장소 추가/경비 패널 - 50%) -->
-        <aside id="right-sidebar" class="w-full md:flex-1 min-w-0 sticky z-[30] h-[calc(100vh-140px)] flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all">
-            
-            <!-- 3-A. 장소 추가 패널 -->
-            <div id="place-add-panel" class="flex flex-col h-full w-full bg-slate-50">
-                <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-4 py-3 flex justify-between items-center text-white shrink-0 gap-2">
-                    <div class="flex-1 min-w-0">
-                        <h3 class="font-bold text-[15px] sm:text-base truncate"><i class="fa-solid fa-map-pin mr-1.5"></i>장소 탐색 및 추가</h3>
-                        <p class="text-[10px] sm:text-[11px] text-cyan-100 mt-0.5 truncate">선택된 일정에 장소가 추가됩니다.</p>
-                    </div>
-                    <div class="flex flex-col gap-1.5 shrink-0">
-                        <button onclick="openCategoryMapModal()" id="categoryMapBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white py-1 px-2.5 rounded-md text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition min-w-[120px]">
-                            <i class="fa-solid fa-map-location-dot"></i> 분류별 지도
-                        </button>
-                        <button onclick="openAddModal()" class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-2.5 rounded-md text-[11px] font-bold shadow-sm flex items-center justify-center gap-1 transition min-w-[120px]">
-                            <i class="fa-solid fa-plus-circle"></i> 장소 직접 입력
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-y-auto flex-1 hide-scrollbar relative flex flex-col">
-                    <div class="sticky top-0 z-20 bg-slate-50 px-4 py-4 border-b border-slate-200 shadow-sm space-y-3">
-                        <div class="flex bg-slate-200/70 p-1 rounded-xl">
-                            <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-[13px] font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
-                            <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-[13px] font-bold transition text-slate-500 hover:text-slate-800">중부</button>
-                            <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-[13px] font-bold transition text-slate-500 hover:text-slate-800">북부</button>
-                        </div>
-
-                        <div class="flex flex-wrap gap-1.5">
-                            <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
-                            <button onclick="switchCategory('식당')" id="cat-식당" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
-                            <button onclick="switchCategory('카페')" id="cat-카페" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
-                            <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
-                            <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
-                            <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
-                        </div>
-                    </div>
-                    <!-- 장소를 2열로 보여주는 Grid 레이아웃 -->
-                    <div id="places-container" class="grid grid-cols-2 gap-2.5 px-4 py-4 relative z-10"></div>
+    <main class="max-w-4xl mx-auto px-0 py-4 sm:py-6">
+        <div class="bg-white sm:rounded-2xl pb-4 sm:pb-6 shadow-sm border-y sm:border border-slate-100 relative">
+            <!-- Day 탭 (Sticky 고정) -->
+            <div id="day-tabs-wrapper" class="sticky z-[35] bg-white/95 backdrop-blur px-4 sm:px-6 py-3 border-b border-slate-200 rounded-t-2xl transition-all">
+                <div class="bg-slate-50 rounded-xl border border-slate-200 p-2 shadow-inner w-full">
+                    <div id="day-tabs" class="flex flex-nowrap overflow-x-auto gap-1.5 w-full hide-scrollbar"></div>
                 </div>
             </div>
 
-            <!-- 3-B. 경비 정산 패널 -->
-            <div id="expense-panel" class="hidden flex-col h-full w-full bg-slate-50">
-                <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-5 py-3.5 flex justify-between items-center text-white shrink-0">
-                    <div>
-                        <h3 id="expenseHeaderTitle" class="font-bold text-lg"><i class="fa-solid fa-won-sign mr-2"></i>여행 정산 & 송금 계산기</h3>
-                        <p class="text-sm text-emerald-100 mt-0.5">개인별 · 부부별 맞춤형 지출 정산 시스템</p>
-                    </div>
-                    <button onclick="toggleRightPanel()" class="text-white/80 hover:text-white" title="장소 추가로 돌아가기"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-
-                <div class="overflow-y-auto flex-1 hide-scrollbar p-4 space-y-4">
-                    
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
-                        <div>
-                            <label class="text-sm text-slate-500 font-bold mb-1.5 block">여행 장소 / 제목</label>
-                            <div class="flex gap-2 items-center">
-                                <input type="text" id="tripTitleInput" placeholder="예: 오키나와 우정 여행" oninput="updateTripTitle()"
-                                    class="flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-emerald-500 text-base font-medium">
-                                <button onclick="saveExpenseAppData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm shrink-0 h-[42px]">
-                                    <span>💾</span> 저장
-                                </button>
-                                <button onclick="shareAsImage()" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm shrink-0 h-[42px]">
-                                    <span>💬</span> 공유
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center border-t border-slate-100 pt-4">
-                            <h3 class="text-base font-bold text-slate-800">참여자 관리</h3>
-                            <span id="participantCount" class="text-sm bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold">4명</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="newParticipantName" placeholder="이름 (예: 찬팅)" 
-                                class="w-[60%] bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-emerald-500 text-base font-medium">
-                            <button onclick="addParticipant()" class="w-[40%] bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-xl text-xs font-bold transition shadow-sm">
-                                참여자 추가
-                            </button>
-                        </div>
-                        <div id="participantTags" class="flex flex-wrap gap-2 pt-1"></div>
-
-                        <!-- 정산 방식 선택 -->
-                        <div class="border-t border-slate-100 pt-4 space-y-3">
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm font-bold text-slate-800">정산 방식 선택</span>
-                                <div class="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                                    <button type="button" id="modeIndividualBtn" onclick="setSettlementMode('individual')"
-                                        class="px-3 py-1.5 rounded-lg text-sm font-bold transition bg-white text-emerald-700 shadow-sm border border-slate-200">
-                                        👤 개인별 정산
-                                    </button>
-                                    <button type="button" id="modeCoupleBtn" onclick="setSettlementMode('couple')"
-                                        class="px-3 py-1.5 rounded-lg text-sm font-bold transition text-slate-500 hover:text-slate-700">
-                                        💑 부부별 정산
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- 부부 그룹 설정 영역 -->
-                            <div id="coupleSetupSection" class="hidden bg-slate-50 border border-emerald-200 rounded-xl p-3.5 space-y-3 shadow-inner">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-sm font-extrabold text-emerald-700">💑 부부 묶기 및 대표자 지정</span>
-                                    <span class="text-xs font-bold text-slate-400">👑 클릭 시 대표 변경</span>
-                                </div>
-
-                                <div id="couplePairCreator" class="space-y-2">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <select id="coupleMember1" class="w-full min-w-0 bg-white border border-slate-300 rounded-lg px-2 py-2 text-slate-800 text-base font-medium outline-none focus:border-emerald-500"></select>
-                                        <select id="coupleMember2" class="w-full min-w-0 bg-white border border-slate-300 rounded-lg px-2 py-2 text-slate-800 text-base font-medium outline-none focus:border-emerald-500"></select>
-                                    </div>
-                                    <button type="button" onclick="addCouplePair()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg text-sm font-bold transition shadow-sm">
-                                        + 선택한 두 명을 부부로 묶기
-                                    </button>
-                                </div>
-                                <div id="coupleListContainer" class="space-y-2 pt-1"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Add Expense Form -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-4">
-                        <h3 class="text-base font-bold text-slate-800">지출 입력</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="text-sm font-bold text-slate-500 mb-1.5 block">지출 항목명</label>
-                                <input type="text" id="expenseTitle" placeholder="예: 숙박, 식사, 택시" 
-                                    class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-emerald-500 text-base">
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-sm font-bold text-slate-500 mb-1.5 block">금액 (원)</label>
-                                    <input type="number" id="expenseAmount" placeholder="0" 
-                                        class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-bold focus:outline-none focus:border-emerald-500 text-base">
-                                </div>
-                                <div>
-                                    <label class="text-sm font-bold text-slate-500 mb-1.5 block">결제자</label>
-                                    <select id="expensePayer" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 font-medium focus:outline-none focus:border-emerald-500 text-base"></select>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-1.5">
-                                    <label class="text-sm font-bold text-slate-500 block">지출 참여 인원 (체크된 사람 1/N)</label>
-                                </div>
-                                <div id="expenseParticipants" class="flex flex-wrap gap-2 pt-1 bg-slate-50 p-3 rounded-xl border border-slate-200"></div>
-                            </div>
-                            <button onclick="addExpense()" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm mt-2">
-                                지출 내역 추가
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Expense List -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-                        <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleExpenseList()">
-                            <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
-                                지출 내역 목록 <span class="text-xs text-emerald-600 font-normal">(클릭하여 펼치기/접기)</span>
-                            </h3>
-                            <span id="totalExpenseSummary" class="text-sm text-emerald-700 font-extrabold">총 지출: 0원</span>
-                        </div>
-                        <div id="expenseListContainer" class="space-y-3 hidden">
-                            <p class="text-sm text-slate-400 text-center py-4 font-medium">등록된 지출 내역이 없습니다.</p>
-                        </div>
-                    </div>
-
-                    <!-- Calculate Button -->
-                    <button onclick="calculateSettlement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl text-base transition shadow-sm flex items-center justify-center gap-2">
-                        <span>🧮</span> 정산하기 (자동 계산)
-                    </button>
-
-                    <!-- Settlement Results -->
-                    <div id="settlementResultSection" class="space-y-4 hidden">
-                        <div id="captureArea" class="bg-slate-100 p-4 space-y-4 rounded-2xl border border-slate-200">
-                            
-                            <div class="border-b border-slate-300 pb-3 flex justify-between items-center">
-                                <div>
-                                    <h3 id="summaryMainTitle" class="text-lg font-extrabold text-slate-800">여행 정산 및 송금 요약</h3>
-                                    <p id="summarySubTitle" class="text-sm font-bold text-slate-500">지출 내역 및 개인별 정산 결과</p>
-                                </div>
-                                <span id="summaryModeBadge" class="text-sm bg-emerald-200 text-emerald-800 px-3 py-1 rounded-full font-bold shadow-sm">개인별 정산</span>
-                            </div>
-
-                            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
-                                <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleSummaryExpenseList()">
-                                    <h4 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
-                                        전체 지출 내역 <span class="text-xs text-emerald-600 font-normal">(클릭하여 펼치기/접기)</span>
-                                    </h4>
-                                    <span id="summaryTotalExpense" class="text-sm text-emerald-700 font-extrabold">총 지출: 0원</span>
-                                </div>
-                                <div id="summaryExpenseListContainer" class="space-y-3 hidden"></div>
-                            </div>
-
-                            <div class="space-y-3">
-                                <h4 id="summaryCardsHeading" class="text-base font-extrabold text-slate-800 pt-1 px-1">개인별 정산 카드</h4>
-                                <div id="personalSummaries" class="space-y-4"></div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </aside>
+            <!-- 메인 컨텐츠 영역 -->
+            <div id="day-content" class="space-y-4 pt-2 relative"></div>
+        </div>
     </main>
 
     <!-- 설정 모달 -->
@@ -347,7 +107,10 @@
                     <h4 class="text-xs font-bold text-slate-500 mb-2"><i class="fa-solid fa-map-pin mr-1"></i>나만의 장소 직접 추가 및 관리</h4>
                     <div class="flex gap-2 mb-2 w-full">
                         <button onclick="closeSettingsModal(); openAddModal();" class="flex-1 min-w-0 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg font-bold text-[14px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-plus-circle"></i> 직접 등록
+                            <i class="fa-solid fa-plus-circle"></i> 직접 추가
+                        </button>
+                        <button onclick="openSettingsTimelineAdd()" class="flex-1 min-w-0 bg-violet-500 hover:bg-violet-600 text-white py-2 rounded-lg font-bold text-[14px] sm:text-sm transition shadow-sm flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-list-check"></i> 추가된 장소
                         </button>
                     </div>
                 </div>
@@ -372,11 +135,12 @@
                         <button onclick="openBackupModal()" class="flex-1 min-w-0 bg-sky-500 hover:bg-sky-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
                             <i class="fa-solid fa-download"></i> 백업
                         </button>
-                        <button onclick="openRestoreModal()" class="flex-1 min-w-0 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
+                        <label class="flex-1 min-w-0 bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg font-bold text-[13px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1 cursor-pointer m-0">
                             <i class="fa-solid fa-upload"></i> 복구
-                        </button>
+                            <input type="file" accept=".json" onchange="previewImportBackup(event)" class="hidden">
+                        </label>
                         <button onclick="shareFromSettings()" class="flex-1 min-w-0 bg-[#FEE500] hover:bg-[#FADA0A] text-[#191919] py-2 rounded-lg font-bold text-[13px] sm:text-xs transition shadow-sm flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-image"></i> 이미지공유
+                            <i class="fa-solid fa-image"></i> 전체공유
                         </button>
                     </div>
                 </div>
@@ -384,142 +148,151 @@
         </div>
     </div>
 
-    <!-- 백업 항목 선택 모달 -->
-    <div id="backupModal" class="hidden fixed inset-0 z-[90] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="bg-[#0088cc] px-5 py-4 flex justify-between items-center text-white shrink-0">
+    <!-- 맞춤 백업 선택 모달 -->
+    <div id="backupModal" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-sky-600 px-5 py-4 flex justify-between items-center text-white shrink-0">
                 <h3 class="font-bold text-base"><i class="fa-solid fa-download mr-2"></i>백업 항목 선택</h3>
                 <button onclick="closeBackupModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
-            <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-                <p class="text-sm text-slate-600 mb-2">백업할 항목을 세부적으로 선택하세요. (경비 데이터는 항상 포함됩니다)</p>
+            <div class="p-5 space-y-4 overflow-y-auto hide-scrollbar flex-1 text-xs">
+                <p class="text-slate-500 font-medium">백업할 항목을 세부적으로 선택하세요. (경비 데이터는 항상 포함됩니다)</p>
+                
+                <!-- 기본 설정 및 기간 -->
+                <label class="flex items-center gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100">
+                    <input type="checkbox" id="bk_meta" checked class="w-4 h-4 accent-cyan-600">
+                    <span class="font-bold text-slate-800 text-sm">여행 기간 및 메타 설정 (출발일/귀국일)</span>
+                </label>
 
-                <!-- 기본 설정 -->
-                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 shadow-sm cursor-pointer hover:bg-slate-100 transition" onclick="toggleCheckbox('backup_meta')">
-                    <label class="flex items-center gap-2 cursor-pointer w-full font-bold text-slate-800 text-[15px]">
-                        <input type="checkbox" id="backup_meta" checked class="w-5 h-5 accent-[#0088cc] rounded pointer-events-none" onclick="event.stopPropagation()">
-                        여행 기간 및 메타 설정 (출발일/귀국일)
-                    </label>
-                </div>
-
-                <!-- 일자별 일정 -->
-                <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col max-h-[250px]">
-                    <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center shrink-0">
-                        <span class="font-bold text-slate-700 text-sm">일자별 일정 선택</span>
-                        <div class="flex gap-2 text-xs">
-                            <button onclick="checkAllClass('backup-day-chk', true)" class="text-[#0088cc] font-bold">전체선택</button>
-                            <button onclick="checkAllClass('backup-day-chk', false)" class="text-slate-400 font-bold">해제</button>
+                <!-- 일자별 일정 백업 체크박스 목록 -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="font-bold text-slate-700">일자별 일정 선택</span>
+                        <div class="space-x-2">
+                            <button type="button" onclick="toggleAllDaysBk(true)" class="text-cyan-600 font-bold hover:underline">전체선택</button>
+                            <button type="button" onclick="toggleAllDaysBk(false)" class="text-slate-400 font-bold hover:underline">해제</button>
                         </div>
                     </div>
-                    <div class="p-3 space-y-2 overflow-y-auto custom-scrollbar" id="backup-days-container">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="backupDaysContainer" class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
 
-                <!-- 지역/분류별 장소 -->
-                <div class="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden flex flex-col max-h-[250px]">
-                    <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center shrink-0">
-                        <span class="font-bold text-slate-700 text-sm">지역·분류별 장소(커스텀) 선택</span>
-                        <div class="flex gap-2 text-xs">
-                            <button onclick="checkAllClass('backup-place-chk', true)" class="text-[#0088cc] font-bold">전체선택</button>
-                            <button onclick="checkAllClass('backup-place-chk', false)" class="text-slate-400 font-bold">해제</button>
+                <!-- 지역·분류별 장소 백업 체크박스 목록 -->
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="font-bold text-slate-700">지역·분류별 장소(커스텀) 선택</span>
+                        <div class="space-x-2">
+                            <button type="button" onclick="toggleAllPlacesBk(true)" class="text-cyan-600 font-bold hover:underline">전체선택</button>
+                            <button type="button" onclick="toggleAllPlacesBk(false)" class="text-slate-400 font-bold hover:underline">해제</button>
                         </div>
                     </div>
-                    <div class="p-3 space-y-2 overflow-y-auto custom-scrollbar" id="backup-places-container">
-                        <!-- 동적 생성 -->
-                    </div>
+                    <div id="backupPlacesContainer" class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
 
-            </div>
-            <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                <button onclick="executeBackup()" class="w-full bg-[#0088cc] hover:bg-[#0077b3] text-white py-3 rounded-xl font-bold text-[15px] transition shadow-md">
+                <button onclick="executeBackup()" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm mt-2">
                     선택 항목 백업 파일(.json) 다운로드
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 복구 항목 선택 모달 -->
-    <div id="restoreModal" class="hidden fixed inset-0 z-[90] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-            <div class="bg-amber-500 px-5 py-4 flex justify-between items-center text-white shrink-0">
-                <h3 class="font-bold text-base"><i class="fa-solid fa-upload mr-2"></i>복구할 파일 및 항목 선택</h3>
+    <!-- 복구 항목 검토 및 선택 모달 -->
+    <div id="restoreModal" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-amber-600 px-5 py-4 flex justify-between items-center text-white shrink-0">
+                <h3 class="font-bold text-base"><i class="fa-solid fa-upload mr-2"></i>복구 항목 검토 및 선택</h3>
                 <button onclick="closeRestoreModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            
-            <div class="p-5 flex-1 flex flex-col min-h-0">
-                <div class="mb-4 shrink-0">
-                    <label class="block w-full border-2 border-dashed border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-700 text-center py-6 rounded-xl cursor-pointer transition font-bold text-sm">
-                        <i class="fa-solid fa-file-import text-2xl mb-2 block text-amber-500"></i>
-                        여기를 클릭하여 백업 파일(.json) 선택
-                        <input type="file" accept=".json" id="restoreFileInput" class="hidden" onchange="handleRestoreFileSelect(event)">
+            <div class="p-5 space-y-4 overflow-y-auto hide-scrollbar flex-1 text-xs">
+                <p class="text-slate-500 font-medium">백업 파일에 포함된 항목입니다. 복구하지 않을 항목은 체크를 해제하세요.</p>
+                
+                <!-- 기본 설정 및 기간 -->
+                <div id="restoreMetaWrapper">
+                    <label class="flex items-center gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100">
+                        <input type="checkbox" id="rt_meta" checked class="w-4 h-4 accent-amber-600">
+                        <span class="font-bold text-slate-800 text-sm">여행 기간 및 메타 설정</span>
                     </label>
-                    <p id="restoreFileName" class="text-xs text-slate-500 text-center mt-2 font-medium break-all"></p>
                 </div>
 
-                <div id="restoreOptionsContainer" class="hidden flex-1 min-h-0 flex flex-col overflow-hidden">
-                    <p class="text-sm text-slate-600 mb-2 shrink-0">파일에서 덮어쓸 항목을 선택하세요.</p>
-                    
-                    <div class="overflow-y-auto custom-scrollbar space-y-4 pr-1 pb-2">
-                        <!-- 기본 설정 -->
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 shadow-sm cursor-pointer hover:bg-slate-100 transition" onclick="toggleCheckbox('restore_meta')">
-                            <label class="flex items-center gap-2 cursor-pointer w-full font-bold text-slate-800 text-[15px]">
-                                <input type="checkbox" id="restore_meta" checked class="w-5 h-5 accent-amber-500 rounded pointer-events-none" onclick="event.stopPropagation()">
-                                여행 기간 및 메타 설정 복구
-                            </label>
-                        </div>
-                        <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 shadow-sm cursor-pointer hover:bg-slate-100 transition" onclick="toggleCheckbox('restore_expense')">
-                            <label class="flex items-center gap-2 cursor-pointer w-full font-bold text-slate-800 text-[15px]">
-                                <input type="checkbox" id="restore_expense" checked class="w-5 h-5 accent-amber-500 rounded pointer-events-none" onclick="event.stopPropagation()">
-                                경비 정산 데이터 복구
-                            </label>
-                        </div>
-
-                        <!-- 일자별 일정 -->
-                        <div class="border border-slate-200 rounded-xl bg-white shadow-sm flex flex-col">
-                            <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center">
-                                <span class="font-bold text-slate-700 text-sm">일자별 일정 복구</span>
-                                <div class="flex gap-2 text-xs">
-                                    <button onclick="checkAllClass('restore-day-chk', true)" class="text-amber-600 font-bold">전체선택</button>
-                                    <button onclick="checkAllClass('restore-day-chk', false)" class="text-slate-400 font-bold">해제</button>
-                                </div>
-                            </div>
-                            <div class="p-3 space-y-2" id="restore-days-container"></div>
-                        </div>
-
-                        <!-- 지역/분류별 장소 -->
-                        <div class="border border-slate-200 rounded-xl bg-white shadow-sm flex flex-col">
-                            <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex justify-between items-center">
-                                <span class="font-bold text-slate-700 text-sm">커스텀 장소 복구</span>
-                                <div class="flex gap-2 text-xs">
-                                    <button onclick="checkAllClass('restore-place-chk', true)" class="text-amber-600 font-bold">전체선택</button>
-                                    <button onclick="checkAllClass('restore-place-chk', false)" class="text-slate-400 font-bold">해제</button>
-                                </div>
-                            </div>
-                            <div class="p-3 space-y-2" id="restore-places-container"></div>
-                        </div>
-                    </div>
+                <!-- 일자별 일정 복구 체크박스 목록 -->
+                <div class="space-y-1.5" id="restoreDaysWrapper">
+                    <span class="font-bold text-slate-700 px-1">일자별 일정 복구</span>
+                    <div id="restoreDaysContainer" class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
 
-            </div>
-            <div class="p-4 bg-white border-t border-slate-100 shrink-0">
-                <button id="executeRestoreBtn" onclick="executeRestore()" disabled class="w-full bg-slate-300 text-slate-500 py-3 rounded-xl font-bold text-[15px] transition shadow-md cursor-not-allowed">
-                    파일을 먼저 선택해주세요
+                <!-- 지역·분류별 장소 복구 체크박스 목록 -->
+                <div class="space-y-1.5" id="restorePlacesWrapper">
+                    <span class="font-bold text-slate-700 px-1">지역·분류별 장소 복구</span>
+                    <div id="restorePlacesContainer" class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2 max-h-40 overflow-y-auto"></div>
+                </div>
+
+                <!-- 경비 (항상 포함) -->
+                <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800 font-bold">
+                    <span>💰 경비 데이터 (항상 복구 포함)</span>
+                    <span class="text-[10px] bg-emerald-200 px-2 py-0.5 rounded">필수</span>
+                </div>
+
+                <button onclick="executeRestore()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm mt-2">
+                    선택한 항목만 복구 적용하기
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 전체/카테고리 위치 지도 모달 (태블릿 맞춤형 대형 사이즈) -->
+    <!-- 전체/카테고리 위치 지도 모달 -->
     <div id="mapModal" class="hidden fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6">
-        <div class="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col h-[90vh]">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col h-[85vh]">
             <div class="bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
                 <h3 id="map-modal-title" class="font-bold text-base"><i class="fa-solid fa-map-location-dot mr-2"></i>지도보기</h3>
-                <button onclick="closeMapModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+                <button onclick="closeMapModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-            <div class="p-4 flex-1 bg-slate-100 flex flex-col min-h-0">
-                <div id="dayMapContainer" class="w-full h-full rounded-xl shadow-inner border border-slate-300 z-10"></div>
+            <div class="p-0 flex-1 bg-slate-100 flex flex-col relative">
+                <div id="dayMapContainer" class="w-full h-full z-10"></div>
+                <!-- 현재 위치 보기 플로팅 버튼 -->
+                <button onclick="locateCurrentPosition()" class="absolute bottom-6 right-4 z-[400] bg-white text-emerald-600 w-12 h-12 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-slate-200 flex items-center justify-center text-xl hover:bg-emerald-50 transition" title="내 위치 보기">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Add Modal -->
+    <div id="timelineAddModal" class="hidden fixed inset-0 z-[50] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col h-[92vh]">
+            <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
+                <h3 id="modal-title" class="font-bold text-lg"><i class="fa-solid fa-calendar-plus mr-2"></i>방문 순서에 장소 추가</h3>
+                <button onclick="closeTimelineAddModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+
+            <div class="overflow-y-auto bg-slate-50 flex-1 hide-scrollbar relative flex flex-col">
+                <!-- 지역 탭 & 카테고리 탭 -->
+                <div class="sticky top-0 z-20 bg-slate-50 px-5 sm:px-6 py-4 border-b border-slate-200 shadow-sm space-y-3">
+                    <div class="flex bg-slate-200/70 p-1 rounded-xl">
+                        <button onclick="switchRegion('south')" id="btn-south" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm">남부</button>
+                        <button onclick="switchRegion('central')" id="btn-central" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">중부</button>
+                        <button onclick="switchRegion('north')" id="btn-north" class="flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800">북부</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="switchCategory('관광지')" id="cat-관광지" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm">관광지</button>
+                        <button onclick="switchCategory('식당')" id="cat-식당" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">식당</button>
+                        <button onclick="switchCategory('카페')" id="cat-카페" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">카페</button>
+                        <button onclick="switchCategory('쇼핑')" id="cat-쇼핑" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">쇼핑</button>
+                        <button onclick="switchCategory('액티비티')" id="cat-액티비티" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">액티비티</button>
+                        <button onclick="switchCategory('호텔')" id="cat-호텔" class="px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100">호텔</button>
+                    </div>
+
+                    <div class="flex gap-2 w-full">
+                        <button onclick="openCategoryMapModal()" id="categoryMapBtn" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg text-[14px] sm:text-sm font-bold shadow-sm flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-map-location-dot"></i> 현재 분류 지도보기
+                        </button>
+                        <button onclick="openAddModal()" class="flex-1 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-lg text-[14px] sm:text-sm font-bold shadow-sm flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-plus-circle"></i> 장소 직접 추가
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 장소 카드 목록 -->
+                <div id="places-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4 px-5 sm:px-6 py-5 relative z-10"></div>
             </div>
         </div>
     </div>
@@ -531,19 +304,19 @@
                 <h3 id="custom-modal-title" class="font-bold text-base"><i class="fa-solid fa-plus-circle mr-2"></i>새로운 장소 / 호텔 직접 등록</h3>
                 <button onclick="closeAddModal()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div class="p-5 space-y-4 h-[75vh] sm:h-auto overflow-y-auto custom-scrollbar">
+            <div class="p-5 space-y-4 max-h-[85vh] overflow-y-auto">
                 <input type="hidden" id="editingPlaceId" value="">
+                
                 <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="block text-xs font-bold text-slate-700">장소명 / 숙소명</label>
-                    </div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">장소명 / 숙소명</label>
                     <div class="flex gap-2">
-                        <input type="text" id="customPlaceName" placeholder="예: 블루씰 아이스크림" class="flex-1 min-w-0 box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm">
-                        <button type="button" onclick="fetchCoordsByName()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm transition flex items-center justify-center gap-1 shrink-0 h-[38px]">
+                        <input type="text" id="customPlaceName" placeholder="예: 블루씰 아이스크림" class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm">
+                        <button type="button" onclick="fetchCoordsByName()" class="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] sm:text-[13px] font-bold px-3 py-2 rounded-lg shadow-sm transition flex items-center gap-1">
                             <i class="fa-solid fa-location-crosshairs"></i> 위도·경도 불러오기
                         </button>
                     </div>
                 </div>
+
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">지역</label>
@@ -565,14 +338,18 @@
                         </select>
                     </div>
                 </div>
+
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">장소 설명 (선택)</label>
                     <textarea id="customPlaceDesc" rows="2" placeholder="구글맵에서 확인한 설명이나 메모를 입력하세요." class="w-full box-border border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm"></textarea>
                 </div>
+
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">
-                        <i class="fa-solid fa-map-pin mr-1 text-rose-500"></i>위도 / 경도 좌표 (선택 입력)
-                    </label>
+                    <div class="mb-1">
+                        <label class="block text-xs font-bold text-slate-700">
+                            <i class="fa-solid fa-map-pin mr-1 text-rose-500"></i>위도 / 경도 좌표 (선택 입력)
+                        </label>
+                    </div>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="customLat" placeholder="위도 (예: 26.1738)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm" oninput="handleCustomCoordPaste(event)">
                         <input type="text" id="customLng" placeholder="경도 (예: 127.6429)" class="border box-border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-[16px] sm:text-sm" oninput="handleCustomCoordPaste(event)">
@@ -580,8 +357,8 @@
                 </div>
                 
                 <div class="pt-3 flex gap-2">
-                    <button type="button" onclick="searchPlaceInGoogleMaps()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2.5 px-3 rounded-lg text-sm transition shadow-sm shrink-0 flex items-center justify-center" title="구글 맵 검색">
-                        <i class="fa-solid fa-magnifying-glass mr-1"></i> 구글맵
+                    <button type="button" onclick="openGoogleMapsForCustomPlace()" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg font-bold text-sm sm:text-base transition shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-map"></i> 구글맵 검색
                     </button>
                     <button onclick="registerCustomPlace()" id="customAddBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-lg font-bold text-sm sm:text-base transition shadow-sm">
                         등록하기
@@ -591,8 +368,171 @@
         </div>
     </div>
 
+    <!-- 밝은 테마로 개편된 경비 정산 및 송금 계산기 모달 -->
+    <div id="expenseModal" class="hidden fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col h-[92vh]">
+            
+            <!-- 모달 상단 헤더 -->
+            <div class="bg-gradient-to-r from-cyan-600 to-blue-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
+                <div class="space-y-0.5">
+                    <h2 id="expenseHeaderTitle" class="text-lg font-bold text-white">
+                        <i class="fa-solid fa-won-sign mr-1"></i>여행 정산 & 송금 계산기
+                    </h2>
+                    <p class="text-[11px] text-cyan-100">개인별 · 부부별 맞춤형 지출 정산 시스템</p>
+                </div>
+                <button onclick="closeExpenseModal()" class="text-white/80 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+
+            <!-- 모달 내부 스크롤 콘텐츠 영역 -->
+            <div class="bg-slate-50 flex-1 p-4 space-y-4 overflow-y-auto hide-scrollbar">
+                
+                <!-- Participants Management & Trip Title -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+                    <div>
+                        <label class="text-xs text-slate-600 font-bold mb-1 block">여행 장소 / 제목</label>
+                        <div class="flex gap-2 items-center">
+                            <input type="text" id="tripTitleInput" placeholder="예: 오키나와 우정 여행" oninput="updateTripTitle()"
+                                class="flex-1 min-w-0 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-cyan-500">
+                            <button onclick="saveExpenseAppData()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm shrink-0 h-[38px]">
+                                <i class="fa-solid fa-floppy-disk"></i> 저장
+                            </button>
+                            <button onclick="shareAsImage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm shrink-0 h-[38px]">
+                                <i class="fa-solid fa-share-nodes"></i> 공유
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-center border-t border-slate-100 pt-3">
+                        <h3 class="text-sm font-bold text-slate-800">참여자 관리</h3>
+                        <span id="participantCount" class="text-xs bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full font-bold">4명</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="newParticipantName" placeholder="이름 입력 (예: 찬팅)" 
+                            class="w-[62%] bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-slate-800 focus:outline-none focus:border-cyan-500 text-sm">
+                        <button onclick="addParticipant()" class="w-[38%] bg-cyan-600 hover:bg-cyan-700 text-white py-1.5 px-3 rounded-xl text-xs font-bold transition shadow-sm">
+                            참여자 추가
+                        </button>
+                    </div>
+                    <div id="participantTags" class="flex flex-wrap gap-1.5 pt-1"></div>
+
+                    <div class="border-t border-slate-100 pt-3 space-y-2.5">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-slate-800">정산 방식 선택</span>
+                            <div class="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                <button type="button" id="modeIndividualBtn" onclick="setSettlementMode('individual')"
+                                    class="px-3 py-1 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm">
+                                    👤 개인별 정산
+                                </button>
+                                <button type="button" id="modeCoupleBtn" onclick="setSettlementMode('couple')"
+                                    class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800">
+                                    💑 부부별 정산
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="coupleSetupSection" class="hidden bg-slate-50 border border-cyan-200 rounded-xl p-3 space-y-2.5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-cyan-800">💑 부부 묶기 및 대표자 지정</span>
+                                <span class="text-[10px] text-slate-500">👑 클릭 시 대표 변경</span>
+                            </div>
+                            <div id="couplePairCreator" class="space-y-1.5">
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <select id="coupleMember1" class="w-full min-w-0 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-slate-800 outline-none focus:border-cyan-500"></select>
+                                    <select id="coupleMember2" class="w-full min-w-0 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-slate-800 outline-none focus:border-cyan-500"></select>
+                                </div>
+                                <button type="button" onclick="addCouplePair()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                                    + 선택한 두 명을 부부로 묶기
+                                </button>
+                            </div>
+                            <div id="coupleListContainer" class="space-y-1.5 pt-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Expense Form -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800">지출 입력</h3>
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="text-xs text-slate-600 font-bold mb-1 block">지출 항목명</label>
+                            <input type="text" id="expenseTitle" placeholder="예: 숙박, 식사, 택시" 
+                                class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-cyan-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-xs text-slate-600 font-bold mb-1 block">금액 (원)</label>
+                                <input type="number" id="expenseAmount" placeholder="0" 
+                                    class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-600 font-bold mb-1 block">결제자</label>
+                                <select id="expensePayer" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:border-cyan-500"></select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs text-slate-600 font-bold block">지출 참여 인원 (체크된 인원 1/N 분담)</label>
+                            </div>
+                            <div id="expenseParticipants" class="flex flex-wrap gap-2 pt-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200"></div>
+                        </div>
+                        <button onclick="addExpense()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-sm">
+                            지출 내역 추가
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Expense List -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+                    <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleExpenseList()">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                            지출 내역 목록 <span class="text-[10px] text-cyan-600 font-normal">(클릭하여 펼치기/접기)</span>
+                        </h3>
+                        <span id="totalExpenseSummary" class="text-xs text-cyan-700 font-bold">총 지출: 0원</span>
+                    </div>
+                    <div id="expenseListContainer" class="space-y-2 hidden">
+                        <p class="text-xs text-slate-500 text-center py-4">등록된 지출 내역이 없습니다.</p>
+                    </div>
+                </div>
+
+                <!-- Calculate Button -->
+                <button onclick="calculateSettlement()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-sm transition shadow-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-calculator"></i> 정산하기 (자동 계산)
+                </button>
+
+                <!-- Settlement Results -->
+                <div id="settlementResultSection" class="space-y-4 hidden">
+                    <div id="captureArea" class="bg-slate-50 p-3 space-y-4 rounded-2xl border border-slate-200 shadow-inner">
+                        <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
+                            <div>
+                                <h3 id="summaryMainTitle" class="text-base font-bold text-slate-800">여행 정산 및 송금 요약</h3>
+                                <p id="summarySubTitle" class="text-[11px] text-slate-500">지출 내역 및 개인별 정산 결과</p>
+                            </div>
+                            <span id="summaryModeBadge" class="text-xs bg-cyan-100 text-cyan-800 px-2.5 py-1 rounded-full font-bold">개인별 정산</span>
+                        </div>
+
+                        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+                            <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleSummaryExpenseList()">
+                                <h4 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                    전체 지출 내역 <span class="text-[10px] text-cyan-600 font-normal">(클릭하여 펼치기/접기)</span>
+                                </h4>
+                                <span id="summaryTotalExpense" class="text-xs text-cyan-700 font-bold">총 지출: 0원</span>
+                            </div>
+                            <div id="summaryExpenseListContainer" class="space-y-2 hidden"></div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <h4 id="summaryCardsHeading" class="text-sm font-bold text-slate-800 pt-1">개인별 정산 카드</h4>
+                            <div id="personalSummaries" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
-// 전체 기본 장소 데이터 
+// 전체 기본 장소 데이터 (오키나와 남부·중부·북부 각 50개 장소 반영)
 const defaultPlacesData = {
     south: [
         { id: 's_att1', group: '관광지', name: '슈리성', category: '역사유적', desc: '류큐왕국의 왕궁이자 역사 유적', lat: 26.2171, lng: 127.7195 },
@@ -658,7 +598,7 @@ const defaultPlacesData = {
         { id: 'c_att9', group: '관광지', name: '도구치 해변', category: '관광지', desc: '잔잔한 바다와 해변 산책 명소', lat: 26.3400, lng: 127.7500 },
         { id: 'c_att10', group: '관광지', name: '도카시키 해변 전망대', category: '관광지', desc: '해안 풍경을 감상하는 전망 장소', lat: 26.3300, lng: 127.7500 },
         { id: 'c_eat1', group: '식당', name: '스테이크하우스 88 차탄점', category: '식당', desc: '오키나와 대표 스테이크 전문점', lat: 26.3150, lng: 127.7560 },
-        { id: 'c_eat2', group: '식당', name: '블루씰 아이스크림', category: '식당', desc: '오키나와 대표 아이스크림 브랜드', lat: 26.3170, lng: 127.7570 },
+        { id: 'c_eat2', group: '식당', name: '블루씰 아이스크림', category: '식당', desc: '오키나와 대표 아이스크림 정통 브랜드', lat: 26.3170, lng: 127.7570 },
         { id: 'c_eat3', group: '식당', name: '차탄 하버 브루어리', category: '식당', desc: '항구 전망과 다양한 요리', lat: 26.3150, lng: 127.7460 },
         { id: 'c_eat4', group: '식당', name: '지바고 커피 주변 레스토랑', category: '식당', desc: '미국식 브런치와 해변 식사 공간', lat: 26.3180, lng: 127.7570 },
         { id: 'c_eat5', group: '식당', name: '하마노야', category: '식당', desc: '오키나와 전통 음식과 소바', lat: 26.4450, lng: 127.8060 },
@@ -711,7 +651,7 @@ const defaultPlacesData = {
         { id: 'n_att10', group: '관광지', name: '다이세키린잔', category: '관광지', desc: '독특한 석회암 바위와 아열대 숲', lat: 26.8500, lng: 128.2550 },
         { id: 'n_eat1', group: '식당', name: '플리퍼 스테이크 하우스', category: '식당', desc: '나고 지역의 유명 스테이크 전문점', lat: 26.5970, lng: 127.9790 },
         { id: 'n_eat2', group: '식당', name: '키시모토 식당', category: '식당', desc: '전통 오키나와 소바 전문점', lat: 26.6600, lng: 127.8910 },
-        { id: 'n_eat3', group: '식당', name: '카이호우마루', category: '식당', desc: '해산물 요리를 즐기기 정장 식당', lat: 26.6850, lng: 127.8840 },
+        { id: 'n_eat3', group: '식당', name: '카이호우마루', category: '식당', desc: '해산물 요리를 즐기기 좋은 식당', lat: 26.6850, lng: 127.8840 },
         { id: 'n_eat4', group: '식당', name: '코우리 오션 타워 레스토랑', category: '식당', desc: '바다 전망을 즐기는 레스토랑', lat: 26.6970, lng: 128.0170 },
         { id: 'n_eat5', group: '식당', name: '야마하라 소바', category: '식당', desc: '현지 스타일의 오키나와 소바', lat: 26.5910, lng: 127.9770 },
         { id: 'n_eat6', group: '식당', name: '나고 파인애플 파크 레스토랑', category: '식당', desc: '파인애플을 활용한 디저트와 음식', lat: 26.6110, lng: 127.9580 },
@@ -760,10 +700,7 @@ const defaultPlacesData = {
                 ['south', 'central', 'north'].forEach(region => {
                     if (parsed[region]) {
                         parsed[region].forEach(customPlace => {
-                            let target = placesData[region].find(p => p.id === customPlace.id);
-                            if (target) {
-                                target.recommended = customPlace.recommended;
-                            } else if (customPlace.id && customPlace.id.startsWith('custom-')) {
+                            if (customPlace.id && customPlace.id.startsWith('custom-')) {
                                 placesData[region].push(customPlace);
                             }
                         });
@@ -781,16 +718,16 @@ const defaultPlacesData = {
         let currentRegion = 'south'; 
         let currentCategory = '관광지';
         let addMode = 'place'; 
-        let rightPanelMode = 'place'; // 'place' or 'expense'
+        let targetAddDayIdx = 0; 
         let leafletMap = null; 
         let userLocationMarker = null;
 
         let headerFp = null;
         let settingsFp = null;
+        let importedBackupJson = null; // 복구용 임시 저장 객체
 
-        // 경비 정산 변수
         let participants = ["찬팅", "미르", "마스터", "샤인"];
-        let settlementMode = "individual"; 
+        let settlementMode = "individual";
         let couples = [
             { id: 1, member1: "찬팅", member2: "미르", rep: "찬팅" },
             { id: 2, member1: "마스터", member2: "샤인", rep: "마스터" }
@@ -820,56 +757,39 @@ const defaultPlacesData = {
             }
         } catch(e) { console.error('경비 데이터 로드 실패'); }
 
-        function saveExpenseAppData() {
-            const tripTitle = document.getElementById('tripTitleInput') ? document.getElementById('tripTitleInput').value : '';
-            const expensePayload = {
-                tripTitle: tripTitle,
-                participants: participants,
-                settlementMode: settlementMode,
-                couples: couples,
-                expenses: expenses
-            };
-            localStorage.setItem('okinawa_expenseAppData', JSON.stringify(expensePayload));
-            alert('경비 데이터가 로컬스토리지에 안전하게 저장되었습니다!');
+        function locateCurrentPosition() {
+            if (!leafletMap) return;
+            leafletMap.locate({setView: true, maxZoom: 15});
+            leafletMap.off('locationfound'); 
+            leafletMap.off('locationerror');
+
+            leafletMap.on('locationfound', function(e) {
+                if (userLocationMarker) leafletMap.removeLayer(userLocationMarker);
+                userLocationMarker = L.marker(e.latlng, {
+                    icon: L.divIcon({
+                        className: 'custom-user-marker',
+                        html: `<div style="background-color: #2563eb; border: 2px solid white; width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+                        iconSize: [16, 16], iconAnchor: [8, 8]
+                    })
+                }).addTo(leafletMap).bindPopup("<div style='font-size:12px;font-weight:bold;text-align:center;'>현재 내 위치</div>").openPopup();
+            });
+            leafletMap.on('locationerror', function(e) { alert("현재 위치를 가져올 수 없습니다."); });
         }
 
-        function autoSaveExpenseAppData() {
+        function saveExpenseAppData() {
             const tripTitle = document.getElementById('tripTitleInput') ? document.getElementById('tripTitleInput').value : '';
-            const expensePayload = {
-                tripTitle: tripTitle,
-                participants: participants,
-                settlementMode: settlementMode,
-                couples: couples,
-                expenses: expenses
-            };
+            const expensePayload = { tripTitle: tripTitle, participants: participants, settlementMode: settlementMode, couples: couples, expenses: expenses };
             localStorage.setItem('okinawa_expenseAppData', JSON.stringify(expensePayload));
         }
 
         function updateStickyPositions() {
             const header = document.querySelector('header');
-            const dayTabsContainer = document.getElementById('day-tabs-container');
-            const rightSidebar = document.getElementById('right-sidebar');
-            if(header) {
+            const tabsWrapper = document.getElementById('day-tabs-wrapper');
+            if(header && tabsWrapper) {
                 const hHeight = header.offsetHeight;
-                
-                if (window.innerWidth >= 768) {
-                    if(dayTabsContainer) dayTabsContainer.style.top = (hHeight + 16) + 'px';
-                    if(rightSidebar) rightSidebar.style.top = (hHeight + 16) + 'px';
-                } else {
-                    if(dayTabsContainer) dayTabsContainer.style.top = hHeight + 'px';
-                }
-                
-                let tabsOffset = 0;
-                let topMargin = window.innerWidth >= 768 ? 16 : 0;
-                
-                if (window.innerWidth < 768 && dayTabsContainer) {
-                    tabsOffset = dayTabsContainer.offsetHeight + 12;
-                }
-                
+                tabsWrapper.style.top = hHeight + 'px';
                 const dayHeaders = document.querySelectorAll('.day-header-sticky');
-                dayHeaders.forEach(el => {
-                    el.style.top = (hHeight + topMargin + tabsOffset) + 'px';
-                });
+                dayHeaders.forEach(el => { el.style.top = (hHeight + tabsWrapper.offsetHeight - 1) + 'px'; });
             }
         }
         window.addEventListener('resize', updateStickyPositions);
@@ -878,8 +798,7 @@ const defaultPlacesData = {
             const fpOptions = {
                 mode: "range", locale: "ko", dateFormat: "Y-m-d",
                 defaultDate: [tripData.startDate, tripData.endDate],
-                showMonths: window.innerWidth > 640 ? 2 : 1, 
-                disableMobile: true
+                showMonths: window.innerWidth > 640 ? 2 : 1, disableMobile: true
             };
 
             headerFp = flatpickr("#header-date-trigger", {
@@ -891,9 +810,7 @@ const defaultPlacesData = {
                         tripData.endDate = format(selectedDates[1], "Y-m-d");
                         if (settingsFp) settingsFp.setDate(selectedDates); 
                         generateDaysFromDates(); updateHeaderDateDisplay(); renderPlanner(); saveDataToLocalStorage();
-                    } else {
-                        headerFp.setDate([tripData.startDate, tripData.endDate]);
-                    }
+                    } else { headerFp.setDate([tripData.startDate, tripData.endDate]); }
                 }
             });
 
@@ -906,37 +823,6 @@ const defaultPlacesData = {
             initExpenseApp();
         };
 
-        function toggleRightPanel(forceMode = null) {
-            if (forceMode) {
-                if(rightPanelMode === forceMode) return;
-                rightPanelMode = forceMode;
-            } else {
-                rightPanelMode = rightPanelMode === 'place' ? 'expense' : 'place';
-            }
-            
-            const placePanel = document.getElementById('place-add-panel');
-            const expensePanel = document.getElementById('expense-panel');
-
-            if (rightPanelMode === 'expense') {
-                placePanel.classList.add('hidden');
-                placePanel.classList.remove('flex');
-                expensePanel.classList.remove('hidden');
-                expensePanel.classList.add('flex');
-                initExpenseApp(); 
-                
-                if(window.innerWidth < 768) {
-                    document.getElementById('right-sidebar').scrollIntoView({ behavior: 'smooth' });
-                }
-            } else {
-                expensePanel.classList.add('hidden');
-                expensePanel.classList.remove('flex');
-                placePanel.classList.remove('hidden');
-                placePanel.classList.add('flex');
-            }
-
-            renderPlanner();
-        }
-
         function updateHeaderDateDisplay() {
             const startVal = tripData.startDate || '2026-12-27';
             const endVal = tripData.endDate || '2027-01-03';
@@ -947,11 +833,8 @@ const defaultPlacesData = {
         function toggleCompanions() {
             const container = document.getElementById('day-companions-container');
             const btn = document.getElementById('companionsToggleBtn');
-            if (container.classList.contains('hidden')) {
-                container.classList.remove('hidden'); btn.innerText = '숨기기';
-            } else {
-                container.classList.add('hidden'); btn.innerText = '보이기';
-            }
+            if (container.classList.contains('hidden')) { container.classList.remove('hidden'); btn.innerText = '숨기기'; } 
+            else { container.classList.add('hidden'); btn.innerText = '보이기'; }
         }
 
         function openSettingsModal() { 
@@ -967,9 +850,9 @@ const defaultPlacesData = {
         }
         
         function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
-
         function shareFromSettings() { closeSettingsModal(); shareAllDaysAsImages(); }
-        
+        function openSettingsTimelineAdd() { closeSettingsModal(); let targetDay = tripData.activeDay === -1 ? 0 : tripData.activeDay; openTimelineAddModal('place', targetDay); }
+
         function saveDataToLocalStorage() {
             localStorage.setItem('okinawa_placesData', JSON.stringify(placesData));
             localStorage.setItem('okinawa_tripData', JSON.stringify(tripData));
@@ -977,35 +860,36 @@ const defaultPlacesData = {
 
         function manualSaveData() { saveDataToLocalStorage(); alert('일정이 브라우저에 안전하게 저장되었습니다!'); }
 
-        // --- 백업 / 복구 관련 로직 ---
-        let backupDataPayload = null;
-        let restoreImportedData = null;
+        // --- 백업 모달 로직 ---
+        const regionNamesMap = { south: '남부', central: '중부', north: '북부' };
+        const groupNamesMap = { '관광지': '관광지', '식당': '식당', '카페': '카페', '쇼핑': '쇼핑', '액티비티': '액티비티', '호텔': '호텔' };
 
         function openBackupModal() {
             closeSettingsModal();
-            const daysContainer = document.getElementById('backup-days-container');
+            
+            // Day 목록 렌더링
+            const daysContainer = document.getElementById('backupDaysContainer');
             let daysHtml = '';
-            tripData.days.forEach((d, i) => {
+            tripData.days.forEach((d, idx) => {
                 daysHtml += `
-                    <label class="flex items-center gap-2 cursor-pointer w-full text-slate-700 text-sm hover:bg-slate-50 p-1 rounded transition">
-                        <input type="checkbox" value="${i}" checked class="backup-day-chk w-4 h-4 accent-[#0088cc] rounded">
-                        <span class="font-bold w-[45px]">Day ${d.dayNum}</span>
-                        <span class="text-xs text-slate-500 font-medium">(${d.date})</span>
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded">
+                        <input type="checkbox" name="bk_day" value="${idx}" checked class="w-3.5 h-3.5 accent-sky-600">
+                        <span class="font-bold text-slate-800">Day ${d.dayNum}</span> <span class="text-slate-400">(${d.date})</span>
                     </label>
                 `;
             });
-            daysContainer.innerHTML = daysHtml;
+            daysContainer.innerHTML = daysHtml || '<span class="text-slate-400">일정이 없습니다.</span>';
 
-            const placesContainer = document.getElementById('backup-places-container');
-            const regions = [{k:'south', v:'남부'}, {k:'central', v:'중부'}, {k:'north', v:'북부'}];
-            const groups = ['관광지', '식당', '카페', '쇼핑', '액티비티', '호텔'];
+            // 지역·분류별 장소 목록 렌더링 (커스텀 장소뿐만 아니라 전체 구조 혹은 커스텀 장소 포함 구조 지원)
+            const placesContainer = document.getElementById('backupPlacesContainer');
             let placesHtml = '';
-            regions.forEach(r => {
-                groups.forEach(g => {
+            ['south', 'central', 'north'].forEach(reg => {
+                ['관광지', '식당', '카페', '쇼핑', '액티비티', '호텔'].forEach(grp => {
+                    let key = `${reg}_${grp}`;
                     placesHtml += `
-                        <label class="flex items-center gap-2 cursor-pointer w-full text-slate-700 text-sm hover:bg-slate-50 p-1 rounded transition">
-                            <input type="checkbox" value="${r.k}|${g}" checked class="backup-place-chk w-4 h-4 accent-[#0088cc] rounded">
-                            <span class="font-bold text-slate-600">[${r.v}]</span> ${g}
+                        <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded">
+                            <input type="checkbox" name="bk_place" value="${key}" checked class="w-3.5 h-3.5 accent-sky-600">
+                            <span class="font-bold text-slate-800">[${regionNamesMap[reg]}] ${groupNamesMap[grp]}</span>
                         </label>
                     `;
                 });
@@ -1015,258 +899,210 @@ const defaultPlacesData = {
             document.getElementById('backupModal').classList.remove('hidden');
         }
 
-        function closeBackupModal() {
-            document.getElementById('backupModal').classList.add('hidden');
+        function closeBackupModal() { document.getElementById('backupModal').classList.add('hidden'); }
+
+        function toggleAllDaysBk(check) {
+            document.querySelectorAll('input[name="bk_day"]').forEach(cb => cb.checked = check);
         }
 
-        function checkAllClass(className, isChecked) {
-            document.querySelectorAll('.' + className).forEach(chk => {
-                chk.checked = isChecked;
-            });
+        function toggleAllPlacesBk(check) {
+            document.querySelectorAll('input[name="bk_place"]').forEach(cb => cb.checked = check);
         }
 
         function executeBackup() {
-            const backupMeta = document.getElementById('backup_meta').checked;
-            const dayChks = document.querySelectorAll('.backup-day-chk:checked');
-            const placeChks = document.querySelectorAll('.backup-place-chk:checked');
+            const includeMeta = document.getElementById('bk_meta').checked;
+            const selectedDayIndices = Array.from(document.querySelectorAll('input[name="bk_day"]:checked')).map(cb => parseInt(cb.value));
+            const selectedPlaceKeys = Array.from(document.querySelectorAll('input[name="bk_place"]:checked')).map(cb => cb.value);
 
-            let exportTripData = {
-                startDate: backupMeta ? tripData.startDate : null,
-                endDate: backupMeta ? tripData.endDate : null,
-                activeDay: -1,
-                days: []
-            };
-
-            let selectedDaysIndex = Array.from(dayChks).map(chk => parseInt(chk.value));
-            tripData.days.forEach((d, i) => {
-                if (selectedDaysIndex.includes(i)) {
-                    exportTripData.days.push(JSON.parse(JSON.stringify(d)));
-                } else {
-                    exportTripData.days.push({ dayNum: d.dayNum, date: d.date, events: [], companions: '' });
-                }
-            });
-
-            let exportPlacesData = { south: [], central: [], north: [] };
-            let selectedPlaceKeys = Array.from(placeChks).map(chk => chk.value);
-            
-            ['south', 'central', 'north'].forEach(reg => {
-                if(placesData[reg]) {
-                    placesData[reg].forEach(p => {
-                        let key = `${reg}|${p.group}`;
-                        if (p.recommended || (p.id && p.id.startsWith('custom-')) || selectedPlaceKeys.includes(key)) {
-                            exportPlacesData[reg].push(JSON.parse(JSON.stringify(p)));
-                        }
-                    });
-                }
-            });
-
-            const expensePayload = {
-                tripTitle: document.getElementById('tripTitleInput') ? document.getElementById('tripTitleInput').value : '',
-                participants: participants,
-                settlementMode: settlementMode,
-                couples: couples,
-                expenses: expenses
-            };
-
-            const finalPayload = {
+            let backupPayload = {
                 version: "2.0",
                 exportedAt: new Date().toLocaleString(),
-                tripData: exportTripData,
-                placesData: exportPlacesData,
-                expenseData: expensePayload
+                meta: includeMeta ? { startDate: tripData.startDate, endDate: tripData.endDate } : null,
+                days: selectedDayIndices.map(idx => tripData.days[idx]),
+                placesData: {},
+                expenseData: JSON.parse(localStorage.getItem('okinawa_expenseAppData') || '{}') // 경비 항상 포함
             };
 
-            const jsonStr = JSON.stringify(finalPayload, null, 2);
+            selectedPlaceKeys.forEach(key => {
+                let [reg, grp] = key.split('_');
+                if (placesData[reg]) {
+                    if (!backupPayload.placesData[reg]) backupPayload.placesData[reg] = [];
+                    let filtered = placesData[reg].filter(p => p.group === grp);
+                    backupPayload.placesData[reg].push(...filtered);
+                }
+            });
+
+            const jsonStr = JSON.stringify(backupPayload, null, 2); 
             const blob = new Blob([jsonStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob); 
             const downloadAnchor = document.createElement('a');
-            downloadAnchor.href = url;
+            downloadAnchor.href = url; 
             downloadAnchor.download = `okinawa_custom_backup_${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(downloadAnchor); downloadAnchor.click(); document.body.removeChild(downloadAnchor);
+            document.body.appendChild(downloadAnchor); 
+            downloadAnchor.click(); 
+            document.body.removeChild(downloadAnchor);
             setTimeout(() => URL.revokeObjectURL(url), 100);
-            
             closeBackupModal();
+            alert('선택한 항목이 안전하게 백업되었습니다!');
+        }
+
+        // --- 복구 모달 로직 ---
+        function previewImportBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    importedBackupJson = JSON.parse(e.target.result);
+                    openRestoreModal();
+                } catch (err) { alert('백업 파일을 읽는 중 오류가 발생했습니다.'); }
+                event.target.value = ''; 
+            };
+            reader.readAsText(file);
         }
 
         function openRestoreModal() {
-            closeSettingsModal();
-            document.getElementById('restoreFileInput').value = '';
-            document.getElementById('restoreFileName').innerText = '';
-            document.getElementById('restoreOptionsContainer').classList.add('hidden');
-            document.getElementById('executeRestoreBtn').disabled = true;
-            document.getElementById('executeRestoreBtn').classList.remove('bg-amber-500', 'hover:bg-amber-600', 'text-white');
-            document.getElementById('executeRestoreBtn').classList.add('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
-            document.getElementById('executeRestoreBtn').innerText = '파일을 먼저 선택해주세요';
-            restoreImportedData = null;
+            if (!importedBackupJson) return;
+
+            // 메타 설정 유무 확인
+            const metaWrapper = document.getElementById('restoreMetaWrapper');
+            if (importedBackupJson.meta) {
+                metaWrapper.style.display = 'block';
+                document.getElementById('rt_meta').checked = true;
+            } else {
+                metaWrapper.style.display = 'none';
+            }
+
+            // 일자별 일정 체크박스 렌더링
+            const daysContainer = document.getElementById('restoreDaysContainer');
+            const daysWrapper = document.getElementById('restoreDaysWrapper');
+            if (importedBackupJson.days && importedBackupJson.days.length > 0) {
+                daysWrapper.style.display = 'block';
+                daysContainer.innerHTML = importedBackupJson.days.map((d, idx) => `
+                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded">
+                        <input type="checkbox" name="rt_day" value="${idx}" checked class="w-3.5 h-3.5 accent-amber-600">
+                        <span class="font-bold text-slate-800">Day ${d.dayNum}</span> <span class="text-slate-400">(${d.date})</span>
+                    </label>
+                `).join('');
+            } else {
+                daysWrapper.style.display = 'none';
+            }
+
+            // 지역·분류별 장소 체크박스 렌더링
+            const placesContainer = document.getElementById('restorePlacesContainer');
+            const placesWrapper = document.getElementById('restorePlacesWrapper');
+            let hasPlaces = false;
+            let placesHtml = '';
+            
+            if (importedBackupJson.placesData) {
+                ['south', 'central', 'north'].forEach(reg => {
+                    if (importedBackupJson.placesData[reg]) {
+                        ['관광지', '식당', '카페', '쇼핑', '액티비티', '호텔'].forEach(grp => {
+                            let matches = importedBackupJson.placesData[reg].filter(p => p.group === grp);
+                            if (matches.length > 0) {
+                                hasPlaces = true;
+                                let key = `${reg}_${grp}`;
+                                placesHtml += `
+                                    <label class="flex items-center gap-2 cursor-pointer hover:bg-slate-100 p-1 rounded">
+                                        <input type="checkbox" name="rt_place" value="${key}" checked class="w-3.5 h-3.5 accent-amber-600">
+                                        <span class="font-bold text-slate-800">[${regionNamesMap[reg]}] ${groupNamesMap[grp]} (${matches.length개})</span>
+                                    </label>
+                                `;
+                            }
+                        });
+                    }
+                });
+            }
+
+            if (hasPlaces) {
+                placesWrapper.style.display = 'block';
+                placesContainer.innerHTML = placesHtml;
+            } else {
+                placesWrapper.style.display = 'none';
+            }
 
             document.getElementById('restoreModal').classList.remove('hidden');
         }
 
         function closeRestoreModal() {
             document.getElementById('restoreModal').classList.add('hidden');
-        }
-
-        function handleRestoreFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            document.getElementById('restoreFileName').innerText = `선택된 파일: ${file.name}`;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    restoreImportedData = imported;
-                    
-                    renderRestoreOptions(imported);
-
-                    document.getElementById('restoreOptionsContainer').classList.remove('hidden');
-                    const btn = document.getElementById('executeRestoreBtn');
-                    btn.disabled = false;
-                    btn.classList.remove('bg-slate-300', 'text-slate-500', 'cursor-not-allowed');
-                    btn.classList.add('bg-amber-500', 'hover:bg-amber-600', 'text-white');
-                    btn.innerText = '선택 항목 복구 (현재 데이터 덮어쓰기)';
-
-                } catch (err) {
-                    alert('올바른 백업 파일(.json)이 아닙니다.');
-                    document.getElementById('restoreFileInput').value = '';
-                    document.getElementById('restoreFileName').innerText = '';
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function renderRestoreOptions(data) {
-            let tData = data.tripData || data;
-            
-            const daysContainer = document.getElementById('restore-days-container');
-            let daysHtml = '';
-            if (tData.days && tData.days.length > 0) {
-                tData.days.forEach((d, i) => {
-                    let hasEvents = d.events && d.events.length > 0;
-                    daysHtml += `
-                        <label class="flex items-center gap-2 cursor-pointer w-full text-slate-700 text-sm hover:bg-slate-50 p-1 rounded transition">
-                            <input type="checkbox" value="${i}" ${hasEvents ? 'checked' : ''} class="restore-day-chk w-4 h-4 accent-amber-500 rounded">
-                            <span class="font-bold w-[45px]">Day ${d.dayNum}</span>
-                            <span class="text-xs text-slate-500 font-medium">(${d.date}) ${hasEvents ? `<span class="text-amber-600 ml-1">일정 ${d.events.length}개</span>` : '일정 없음'}</span>
-                        </label>
-                    `;
-                });
-            } else {
-                daysHtml = '<div class="text-sm text-slate-400">파일에 일정 데이터가 없습니다.</div>';
-            }
-            daysContainer.innerHTML = daysHtml;
-
-            const placesContainer = document.getElementById('restore-places-container');
-            let pData = data.placesData || {south:[], central:[], north:[]};
-            const regions = [{k:'south', v:'남부'}, {k:'central', v:'중부'}, {k:'north', v:'북부'}];
-            
-            let existingPlaceKeys = {};
-            regions.forEach(r => {
-                if(pData[r.k]) {
-                    pData[r.k].forEach(p => {
-                        let key = `${r.k}|${p.group}`;
-                        existingPlaceKeys[key] = (existingPlaceKeys[key] || 0) + 1;
-                    });
-                }
-            });
-
-            let placesHtml = '';
-            let placeCount = 0;
-            for (const [key, count] of Object.entries(existingPlaceKeys)) {
-                let [reg, grp] = key.split('|');
-                let regName = reg === 'south' ? '남부' : (reg === 'central' ? '중부' : '북부');
-                placesHtml += `
-                    <label class="flex items-center gap-2 cursor-pointer w-full text-slate-700 text-sm hover:bg-slate-50 p-1 rounded transition">
-                        <input type="checkbox" value="${key}" checked class="restore-place-chk w-4 h-4 accent-amber-500 rounded">
-                        <span class="font-bold text-slate-600">[${regName}]</span> ${grp} <span class="text-xs text-amber-600 ml-1">(${count}개)</span>
-                    </label>
-                `;
-                placeCount++;
-            }
-            if (placeCount === 0) {
-                placesHtml = '<div class="text-sm text-slate-400">파일에 장소 데이터가 없습니다.</div>';
-            }
-            placesContainer.innerHTML = placesHtml;
-        }
-
-        function toggleCheckbox(id) {
-            const cb = document.getElementById(id);
-            cb.checked = !cb.checked;
+            importedBackupJson = null;
         }
 
         function executeRestore() {
-            if (!restoreImportedData) return;
-            
-            const restoreMeta = document.getElementById('restore_meta').checked;
-            const restoreExp = document.getElementById('restore_expense').checked;
-            const dayChks = document.querySelectorAll('.restore-day-chk:checked');
-            const placeChks = document.querySelectorAll('.restore-place-chk:checked');
+            if (!importedBackupJson) return;
 
-            let impTrip = restoreImportedData.tripData || restoreImportedData;
-            let impPlaces = restoreImportedData.placesData || {south:[], central:[], north:[]};
-            let impExp = restoreImportedData.expenseData || null;
+            const restoreMeta = document.getElementById('rt_meta').checked && importedBackupJson.meta;
+            const selectedDayIndices = Array.from(document.querySelectorAll('input[name="rt_day"]:checked')).map(cb => parseInt(cb.value));
+            const selectedPlaceKeys = Array.from(document.querySelectorAll('input[name="rt_place"]:checked')).map(cb => cb.value);
 
-            if (restoreMeta && impTrip.startDate && impTrip.endDate) {
-                tripData.startDate = impTrip.startDate;
-                tripData.endDate = impTrip.endDate;
+            // 1. 메타 복구
+            if (restoreMeta) {
+                tripData.startDate = importedBackupJson.meta.startDate;
+                tripData.endDate = importedBackupJson.meta.endDate;
                 if (headerFp) headerFp.setDate([tripData.startDate, tripData.endDate]);
                 if (settingsFp) settingsFp.setDate([tripData.startDate, tripData.endDate]);
-                updateHeaderDateDisplay();
             }
 
-            generateDaysFromDates(); 
-
-            let selectedDaysIndex = Array.from(dayChks).map(chk => parseInt(chk.value));
-            selectedDaysIndex.forEach(idx => {
-                if (impTrip.days[idx] && tripData.days[idx]) {
-                    tripData.days[idx].events = JSON.parse(JSON.stringify(impTrip.days[idx].events));
-                    tripData.days[idx].companions = impTrip.days[idx].companions;
-                }
-            });
-
-            let selectedPlaceKeys = Array.from(placeChks).map(chk => chk.value);
-            selectedPlaceKeys.forEach(key => {
-                let [reg, grp] = key.split('|');
-                if(impPlaces[reg]) {
-                    let matched = impPlaces[reg].filter(p => p.group === grp);
-                    matched.forEach(impP => {
-                        let existing = placesData[reg].find(p => p.id === impP.id);
-                        if (existing) {
-                            existing.recommended = impP.recommended;
-                            existing.desc = impP.desc;
-                            existing.lat = impP.lat;
-                            existing.lng = impP.lng;
+            // 2. 일자별 일정 복구 (선택된 Day만 기존 데이터에 덮어쓰거나 추가)
+            if (importedBackupJson.days && selectedDayIndices.length > 0) {
+                if (!tripData.days) tripData.days = [];
+                selectedDayIndices.forEach(idx => {
+                    let importedDay = importedBackupJson.days[idx];
+                    if (importedDay) {
+                        let existingIdx = tripData.days.findIndex(d => d.dayNum === importedDay.dayNum);
+                        if (existingIdx !== -1) {
+                            tripData.days[existingIdx] = importedDay;
                         } else {
-                            placesData[reg].push(JSON.parse(JSON.stringify(impP)));
+                            tripData.days.push(importedDay);
                         }
-                    });
-                }
-            });
-
-            if (restoreExp && impExp) {
-                if (impExp.participants) participants = impExp.participants;
-                if (impExp.expenses) expenses = impExp.expenses;
-                if (impExp.settlementMode) settlementMode = impExp.settlementMode;
-                if (Array.isArray(impExp.couples)) couples = impExp.couples;
-                if (impExp.tripTitle !== undefined) {
-                    const titleInput = document.getElementById('tripTitleInput');
-                    if(titleInput) {
-                        titleInput.value = impExp.tripTitle;
-                        updateTripTitle();
                     }
+                });
+                tripData.days.sort((a, b) => a.dayNum - b.dayNum);
+            }
+
+            // 3. 지역·분류별 장소 복구
+            if (importedBackupJson.placesData) {
+                selectedPlaceKeys.forEach(key => {
+                    let [reg, grp] = key.split('_');
+                    if (importedBackupJson.placesData[reg]) {
+                        let matches = importedBackupJson.placesData[reg].filter(p => p.group === grp);
+                        if (!placesData[reg]) placesData[reg] = [];
+                        matches.forEach(item => {
+                            let existIdx = placesData[reg].findIndex(p => p.id === item.id);
+                            if (existIdx !== -1) placesData[reg][existIdx] = item;
+                            else placesData[reg].push(item);
+                        });
+                    }
+                });
+            }
+
+            // 4. 경비 데이터 항상 복구
+            if (importedBackupJson.expenseData && Object.keys(importedBackupJson.expenseData).length > 0) {
+                localStorage.setItem('okinawa_expenseAppData', JSON.stringify(importedBackupJson.expenseData));
+                const parsedExp = importedBackupJson.expenseData;
+                if (parsedExp.participants) participants = parsedExp.participants;
+                if (parsedExp.expenses) expenses = parsedExp.expenses;
+                if (parsedExp.settlementMode) settlementMode = parsedExp.settlementMode;
+                if (Array.isArray(parsedExp.couples)) couples = parsedExp.couples;
+                if (parsedExp.tripTitle !== undefined) {
+                    const titleInput = document.getElementById('tripTitleInput');
+                    if (titleInput) { titleInput.value = parsedExp.tripTitle; updateTripTitle(); }
                 }
-                autoSaveExpenseAppData();
-                initExpenseApp(); 
             }
 
             saveDataToLocalStorage();
-            renderPlaces(); 
+            generateDaysFromDates();
+            updateHeaderDateDisplay();
+            renderPlaces();
             renderPlanner();
-            
-            alert('선택한 항목의 복구가 완료되었습니다!');
+            initExpenseApp();
+
             closeRestoreModal();
+            alert('선택하신 항목이 성공적으로 복구되었습니다!');
         }
 
+        // --- 기존 기능 유지 ---
         function generateDaysFromDates() {
             const startVal = tripData.startDate || '2026-12-27'; const endVal = tripData.endDate || '2027-01-03';
             const start = new Date(startVal.replace(/-/g, '/')); const end = new Date(endVal.replace(/-/g, '/'));
@@ -1308,6 +1144,15 @@ const defaultPlacesData = {
             }
         }
 
+        function openGoogleMapsForCustomPlace() {
+            const nameInput = document.getElementById('customPlaceName').value.trim();
+            if (!nameInput) { window.open('https://www.google.com/maps/search/오키나와', '_blank'); } 
+            else {
+                const queryName = nameInput.includes('오키나와') ? nameInput : `${nameInput} 오키나와`;
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`, '_blank');
+            }
+        }
+
         async function fetchCoordsByName() {
             const nameInput = document.getElementById('customPlaceName').value.trim();
             if (!nameInput) { alert('먼저 장소명을 입력해주세요.'); document.getElementById('customPlaceName').focus(); return; }
@@ -1323,28 +1168,17 @@ const defaultPlacesData = {
                     alert(`[${nameInput}]의 위치를 찾았습니다!\n위도: ${lat}, 경도: ${lon}`);
                 } else {
                     if (confirm(`자동 검색 결과가 없습니다.\n구글 맵에서 직접 [${nameInput}]의 좌표를 복사하시겠습니까?`)) {
-                        searchPlaceInGoogleMaps();
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`, '_blank');
                     }
                 }
             } catch (err) { console.error(err); alert('위치 정보를 불러오는 중 오류가 발생했습니다.'); } 
             finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
-        function searchPlaceInGoogleMaps() {
-            const nameInput = document.getElementById('customPlaceName').value.trim();
-            if (!nameInput) {
-                alert('장소명을 입력해주세요.');
-                document.getElementById('customPlaceName').focus();
-                return;
-            }
-            const queryName = nameInput.includes('오키나와') ? nameInput : `${nameInput} 오키나와`;
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryName)}`, '_blank');
-        }
-
         function switchRegion(region) {
             currentRegion = region;
-            const activeClass = 'flex-1 py-2 rounded-lg text-[13px] font-bold transition bg-white text-cyan-700 shadow-sm';
-            const inactiveClass = 'flex-1 py-2 rounded-lg text-[13px] font-bold transition text-slate-500 hover:text-slate-800';
+            const activeClass = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition bg-white text-cyan-700 shadow-sm';
+            const inactiveClass = 'flex-1 py-2 rounded-lg text-xs sm:text-sm font-bold transition text-slate-500 hover:text-slate-800';
             document.getElementById('btn-south').className = region === 'south' ? activeClass : inactiveClass;
             document.getElementById('btn-central').className = region === 'central' ? activeClass : inactiveClass;
             document.getElementById('btn-north').className = region === 'north' ? activeClass : inactiveClass;
@@ -1353,22 +1187,11 @@ const defaultPlacesData = {
 
         function switchCategory(category) {
             currentCategory = category;
-            addMode = (category === '호텔') ? 'hotel' : 'place';
-
             ['관광지', '식당', '카페', '쇼핑', '액티비티', '호텔'].forEach(cat => {
                 const btn = document.getElementById(`cat-${cat}`);
-                if (btn) btn.className = (cat === category) ? 'px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-cyan-600 text-white shadow-sm' : 'px-3 py-1.5 rounded-lg text-[12px] font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
+                if (btn) btn.className = (cat === category) ? 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-sm' : 'px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition bg-white border border-slate-200 text-slate-600 hover:bg-slate-100';
             });
             renderPlaces();
-        }
-
-        function togglePlaceRecommended(placeId) {
-            let place = (placesData[currentRegion] || []).find(p => p.id === placeId);
-            if (place) {
-                place.recommended = !place.recommended;
-                renderPlaces();
-                saveDataToLocalStorage();
-            }
         }
 
         function renderPlaces() {
@@ -1376,42 +1199,33 @@ const defaultPlacesData = {
             const places = placesData[currentRegion] || [];
             const filteredPlaces = places.filter(p => p.group === currentCategory);
             
-            const catMapBtn = document.getElementById('categoryMapBtn');
-            if(catMapBtn) catMapBtn.innerHTML = `<i class="fa-solid fa-map-location-dot"></i> 분류(${currentCategory}) 지도`;
-
             let html = '';
             if (filteredPlaces.length === 0) {
-                html = `<div class="col-span-2 text-center py-12 text-slate-400 text-sm">해당 카테고리에 등록된 장소가 없습니다.</div>`;
+                html = `<div class="col-span-1 sm:col-span-2 text-center py-12 text-slate-400 text-sm font-medium">해당 카테고리에 등록된 장소가 없습니다.</div>`;
             } else {
                 filteredPlaces.forEach((p, idx) => {
                     let singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ' 오키나와')}`;
-                    let badgeBg = p.recommended ? 'bg-rose-500 text-white' : 'bg-emerald-100 text-emerald-800';
-                    let numBadge = `<span class="${badgeBg} text-[10px] px-1.5 py-0.5 rounded font-extrabold mr-1.5 shrink-0 mt-[2px]">${idx + 1}</span>`;
+                    let numBadge = `<span class="bg-emerald-100 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded font-extrabold mr-1.5 shrink-0 mt-[3px]">${idx + 1}</span>`;
                     
-                    let recBtnClass = p.recommended ? 'text-rose-500 bg-rose-50' : 'text-slate-400 hover:bg-slate-100';
-                    let recCheckBtn = `<button onclick="togglePlaceRecommended('${p.id}')" class="${recBtnClass} p-1.5 rounded transition" title="${p.recommended ? '추천 해제' : '추천하기'}"><i class="fa-solid fa-heart"></i></button>`;
-
                     html += `
-                    <div class="min-w-0 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-3 hover:border-cyan-300 transition relative w-full h-full overflow-hidden">
-                        <div class="flex items-start mb-1.5 w-full min-w-0">
-                            ${numBadge}
-                            <h4 class="font-bold text-[13px] sm:text-[14px] text-slate-900 leading-tight break-words flex-1 min-w-0">
-                                <span class="line-clamp-2">${p.name}</span>
-                            </h4>
-                        </div>
-                        <p class="text-[11px] text-slate-500 leading-relaxed break-words line-clamp-2 w-full min-w-0 flex-1 mb-2">${p.desc}</p>
-                        
-                        <div class="mt-auto flex items-center justify-between border-t border-slate-100 pt-2 gap-1 w-full">
-                            <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-[11px] font-bold py-1.5 px-2 rounded transition shadow-sm whitespace-nowrap">
-                                <i class="fa-solid fa-plus mr-0.5"></i>추가
-                            </button>
-                            <div class="flex items-center gap-0.5 shrink-0 justify-end">
-                                ${recCheckBtn}
+                    <div class="min-w-0 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col p-4 hover:border-cyan-300 transition relative w-full h-full overflow-hidden">
+                        <div class="flex justify-between items-start mb-2 gap-2 w-full min-w-0">
+                            <div class="flex items-start flex-1 min-w-0">
+                                <button onclick="addPlaceFromBrowser('${p.id}')" class="shrink-0 bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-2 rounded transition shadow-sm mr-2 whitespace-nowrap" title="선택">
+                                    <i class="fa-solid fa-plus"></i> 추가
+                                </button>
+                                <h4 class="font-bold text-sm text-slate-900 leading-tight pt-0.5 break-words flex-1 min-w-0 flex items-start">
+                                    ${numBadge}
+                                    <span class="line-clamp-2">${p.name}</span>
+                                </h4>
+                            </div>
+                            <div class="flex items-center gap-1 shrink-0 ml-1">
                                 <button onclick="openEditPlaceModal('${currentRegion}', '${p.id}')" class="text-amber-500 hover:bg-amber-50 p-1.5 rounded transition" title="장소 정보 수정"><i class="fa-solid fa-pen-to-square"></i></button>
                                 <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 p-1.5 rounded-full transition" title="구글 맵 보기"><i class="fa-solid fa-map-location-dot"></i></a>
                                 <button onclick="removePlaceItem('${p.id}')" class="text-rose-400 hover:text-rose-600 p-1.5 rounded transition" title="장소 삭제"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </div>
+                        <p class="text-xs text-slate-500 leading-relaxed break-words line-clamp-2 w-full min-w-0">${p.desc}</p>
                     </div>
                     `;
                 });
@@ -1420,7 +1234,7 @@ const defaultPlacesData = {
         }
 
         function removePlaceItem(placeId) {
-            if (confirm('이 장소를 목록에서 삭제하시겠습니까?\n(일정표에 이미 추가된 장소는 유지됩니다)')) {
+            if (confirm('이 장소를 목록에서 삭제하시겠습니까?')) {
                 if (placesData[currentRegion]) {
                     placesData[currentRegion] = placesData[currentRegion].filter(p => p.id !== placeId);
                     renderPlaces(); saveDataToLocalStorage();
@@ -1429,11 +1243,6 @@ const defaultPlacesData = {
         }
 
         function addPlaceFromBrowser(placeId) {
-            if (tripData.activeDay === -1) {
-                alert('가운데 영역에서 세부 일정(Day 1 등)을 먼저 선택한 후 장소를 추가해주세요.');
-                return;
-            }
-
             let targetPlace = Object.values(placesData).flat().find(p => p.id === placeId);
             if(targetPlace) {
                 let eventObj = JSON.parse(JSON.stringify(targetPlace));
@@ -1441,7 +1250,7 @@ const defaultPlacesData = {
                 eventObj.transport = '운전';
                 eventObj.memo = ''; 
                 
-                let targetDay = tripData.days[tripData.activeDay];
+                let targetDay = tripData.days[targetAddDayIdx];
 
                 if (addMode === 'hotel') {
                     if (targetDay.events.length > 0 && (targetDay.events[0].type === 'hotel' || targetDay.events[0].group === '호텔')) {
@@ -1450,15 +1259,10 @@ const defaultPlacesData = {
                     alert(`[${targetPlace.name}] 숙소가 Day ${targetDay.dayNum} 일정에 등록되었습니다!`);
                 } else {
                     targetDay.events.push(eventObj);
+                    alert(`[${targetPlace.name}] 장소가 방문 순서에 추가되었습니다!`);
                 }
                 
-                renderPlanner(); saveDataToLocalStorage(); 
-                
-                const dayContent = document.getElementById('day-content');
-                if(dayContent) {
-                    dayContent.classList.add('opacity-50');
-                    setTimeout(() => dayContent.classList.remove('opacity-50'), 150);
-                }
+                renderPlanner(); saveDataToLocalStorage(); closeTimelineAddModal();
             }
         }
 
@@ -1494,19 +1298,19 @@ const defaultPlacesData = {
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
-                let hotelDeleteBtn = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>`;
-                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
+                let hotelDeleteBtn = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
+                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[11px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
 
                 eventsHtml += `
-                    <div class="px-3 sm:px-4 py-1">
-                        <div class="flex flex-col bg-indigo-50/60 border border-indigo-100 rounded-xl shadow-sm py-2 px-3 gap-1.5">
+                    <div class="px-3 sm:px-4 py-1.5">
+                        <div class="flex flex-col bg-indigo-50/60 border border-indigo-100 rounded-2xl shadow-sm py-3 px-4 gap-2">
                             <div class="flex items-center justify-between w-full">
                                 <div class="flex items-center gap-3 flex-1 min-w-0">
-                                    <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0"><i class="fa-solid fa-bed"></i></span>
-                                    <h4 class="font-bold text-[15px] sm:text-[16px] text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
+                                    <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-[9px] shadow-sm shrink-0"><i class="fa-solid fa-bed"></i></span>
+                                    <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${firstEvt.name}</h4>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-indigo-200/60">
-                                    <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
+                                    <a href="${hotelMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
                                     ${hotelDeleteBtn}
                                 </div>
                             </div>
@@ -1516,8 +1320,8 @@ const defaultPlacesData = {
                 `;
             } else {
                 if (!isAllView) {
-                    eventsHtml += `<div class="px-3 sm:px-4 py-1.5 bg-white">
-                        <button onclick="openTimelineAddModal('hotel', ${dayIdx})" class="w-full bg-slate-50 text-indigo-600 py-2 px-2 rounded-xl font-bold text-[13px] sm:text-[14px] transition border border-dashed border-indigo-300 flex items-center justify-center gap-1.5 shadow-sm hover:bg-indigo-50"><i class="fa-solid fa-bed"></i> Day ${currentDayObj.dayNum} 숙소 추가</button>
+                    eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
+                        <button onclick="openTimelineAddModal('hotel', ${dayIdx})" class="w-full bg-slate-50 text-indigo-600 py-2.5 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-indigo-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> Day ${currentDayObj.dayNum} 숙소 추가</button>
                     </div>`;
                 }
             }
@@ -1526,7 +1330,7 @@ const defaultPlacesData = {
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                let emptyAddBtn = isAllView ? '' : `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm transition">우측에서 장소 찾아 추가하기</button>`;
+                let emptyAddBtn = isAllView ? '' : `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button>`;
                 eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p>${emptyAddBtn}</div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
@@ -1539,7 +1343,7 @@ const defaultPlacesData = {
                         let travelModeMap = { '운전': 'driving', '대중교통': 'transit', '도보': 'walking', '자전거': 'bicycling' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
-                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" ${isAllView ? 'disabled' : ''} class="bg-white border border-slate-200 rounded-md px-2 py-1 outline-none text-slate-700 font-normal shadow-sm ${isAllView ? 'cursor-default appearance-none' : 'cursor-pointer hover:border-cyan-400'} text-[11px] sm:text-[12px]">
+                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" ${isAllView ? 'disabled' : ''} class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-normal shadow-sm ${isAllView ? 'cursor-default appearance-none' : 'cursor-pointer hover:border-cyan-400'} text-[12px] sm:text-[12px]">
                                 <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                 <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                 <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -1547,14 +1351,12 @@ const defaultPlacesData = {
                             </select>`;
 
                         eventsHtml += `
-                            <div class="my-1 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 bg-slate-100/80 mx-3 sm:mx-4 px-3 py-1.5 rounded-lg border border-slate-200/80 text-[11px] sm:text-[12px] text-slate-600 shadow-sm w-[calc(100%-1.5rem)] sm:w-[calc(100%-2rem)]">
-                                <div class="flex items-center gap-2">
-                                    ${transportSelectorHtml}
-                                </div>
-                                <div class="flex items-center gap-2 sm:gap-3 shrink-0 font-normal ml-auto sm:ml-0">
+                            <div class="my-1.5 flex items-center justify-between bg-slate-100/80 mx-3 sm:mx-4 px-4 py-2.5 rounded-xl border border-slate-200/80 text-[14px] sm:text-[14px] text-slate-600 shadow-sm w-[calc(100%-1.5rem)] sm:w-[calc(100%-2rem)]">
+                                <div class="flex items-center gap-2">${transportSelectorHtml}</div>
+                                <div class="flex items-center gap-2 sm:gap-3 shrink-0 font-normal">
                                     <span class="whitespace-nowrap">거리: <strong class="font-normal text-slate-800">${route.distance}</strong></span>
                                     <span class="whitespace-nowrap">소요: <strong class="font-normal text-cyan-600">${route.duration}</strong></span>
-                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1 rounded-md shadow-sm flex items-center gap-1.5 font-normal text-[11px] sm:text-[12px]" title="경로 보기"><i class="fa-solid fa-route"></i></a>
+                                    <a href="${routeUrl}" target="_blank" class="ml-1 bg-white border border-blue-200 text-blue-600 px-2 py-1.5 rounded-lg shadow-sm flex items-center gap-1.5 font-normal text-[14px] sm:text-[14px]" title="경로 보기"><i class="fa-solid fa-route"></i></a>
                                 </div>
                             </div>
                         `;
@@ -1563,34 +1365,32 @@ const defaultPlacesData = {
                     let displayNum = ''; let isMidHotel = (evt.type === 'hotel' || evt.group === '호텔');
                     if (hasCoords) { displayNum = coordIndex++; prevValidEvent = evt; }
                     let iconTheme = isMidHotel ? 'bg-indigo-600' : 'bg-cyan-600'; let displayIcon = isMidHotel ? '<i class="fa-solid fa-bed text-[10px]"></i>' : displayNum;
-                    const numCircle = displayNum ? `<span class="w-6 h-6 ${iconTheme} text-white rounded-full flex items-center justify-center font-extrabold text-[11px] sm:text-[12px] shadow-sm shrink-0">${displayIcon}</span>` : `<span class="w-6 h-6 ${iconTheme} text-white rounded-full flex items-center justify-center font-bold text-[10px] shadow-sm shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
+                    const numCircle = displayNum ? `<span class="w-6 h-6 ${iconTheme} text-white rounded-full flex items-center justify-center font-extrabold text-[11px] sm:text-xs shadow-sm shrink-0">${displayIcon}</span>` : `<span class="w-6 h-6 ${iconTheme} text-white rounded-full flex items-center justify-center font-bold text-[9px] shadow-sm shrink-0"><i class="fa-solid fa-location-dot"></i></span>`;
                     
                     let singleMapUrl = `https://www.google.com/maps/search/?api=1&query=${(evt.lat && evt.lng) ? evt.lat+','+evt.lng : encodeURIComponent(evt.name + ' 오키나와')}`;
                     
-                    let moveUpBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>`;
-                    let moveDownBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>`;
-                    let reorderBoxHtml = isAllView ? '' : `<div class="flex flex-col w-6 h-[32px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
-                    let deleteBtnHtml = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-xs sm:text-sm"></i></button>`;
+                    let moveUpBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-xs"></i></button>`;
+                    let moveDownBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-xs"></i></button>`;
+                    let reorderBoxHtml = isAllView ? '' : `<div class="flex flex-col w-7 h-[38px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
+                    let deleteBtnHtml = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
 
-                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-[11px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
+                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
 
                     eventsHtml += `
-                        <div class="px-3 sm:px-4 py-1">
-                            <div class="flex flex-col bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden py-2 px-3 gap-1.5">
+                        <div class="px-3 sm:px-4 py-1.5">
+                            <div class="flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden py-3 px-4 gap-2">
                                 <div class="flex items-center justify-between w-full">
                                     <div class="flex items-center gap-3 flex-1 min-w-0">
                                         ${numCircle}
-                                        <h4 class="font-bold text-[15px] sm:text-[16px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
+                                        <h4 class="font-bold text-[16px] sm:text-[19px] text-slate-900 break-keep leading-snug line-clamp-2">${evt.name}</h4>
                                     </div>
                                     <div class="flex items-center gap-1.5 shrink-0 pl-2 border-l border-slate-100">
-                                        <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-7 h-7 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-xs sm:text-sm"></i></a>
+                                        <a href="${singleMapUrl}" target="_blank" class="text-blue-500 hover:bg-blue-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="지도보기"><i class="fa-solid fa-map-location-dot text-sm sm:text-base"></i></a>
                                         ${deleteBtnHtml}
                                     </div>
                                 </div>
                                 <div class="flex items-center w-full">
-                                    <div class="flex-1 min-w-0">
-                                        ${memoInputHtml}
-                                    </div>
+                                    <div class="flex-1 min-w-0">${memoInputHtml}</div>
                                     ${reorderBoxHtml}
                                 </div>
                             </div>
@@ -1600,12 +1400,12 @@ const defaultPlacesData = {
 
                 if (!isAllView) {
                     eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
-                        <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-2.5 px-2 rounded-xl font-bold text-[13px] sm:text-[14px] transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm hover:bg-slate-100"><i class="fa-solid fa-arrow-pointer"></i> <span class="tracking-tight">우측에서 장소 찾아 추가하기</span></button>
+                        <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
                     </div>`;
                 }
             }
 
-            let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
+            let dayCompsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
             
             let dayTitleHtml = `
                 <div class="flex-1 min-w-0 pr-2">
@@ -1613,38 +1413,25 @@ const defaultPlacesData = {
                         <span class="font-extrabold text-xl sm:text-2xl text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
                         <span class="text-sm sm:text-base text-cyan-700 font-medium">${currentDayObj.date}</span>
                     </div>
-                    ${dayCompanionsHtml}
+                    ${dayCompsHtml}
                 </div>
             `;
 
             let headerWrapperClass = isAllView ? 
                 "bg-cyan-50/95 border-b border-cyan-200 px-4 sm:px-6 py-3 shadow-sm flex justify-between items-center transition-all" 
                 : 
-                "day-header-sticky rounded-t-2xl sticky bg-cyan-50/95 backdrop-blur-md border-b border-cyan-200 px-4 sm:px-6 py-3 z-[30] shadow-sm flex justify-between items-center transition-all";
+                "day-header-sticky sticky top-0 bg-cyan-50/95 backdrop-blur-md border-b border-cyan-200 px-4 sm:px-6 py-3 z-[30] shadow-sm flex justify-between items-center transition-all";
             
-            let isPlaceMode = rightPanelMode === 'place';
-            let toggleBtnText = isPlaceMode ? '경비' : '장소';
-            let toggleBtnIcon = isPlaceMode ? 'fa-won-sign' : 'fa-map-pin';
-            let toggleBtnBg = isPlaceMode ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-indigo-600 hover:bg-indigo-700';
-
             let actionButtonsHtml = `
-                <button onclick="toggleRightPanel()" class="${toggleBtnBg} text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition" title="${toggleBtnText} 토글"><i class="fa-solid ${toggleBtnIcon} sm:mr-1.5"></i><span class="hidden sm:inline">${toggleBtnText}</span></button>
+                <button onclick="openExpenseModal()" class="bg-emerald-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-700" title="경비"><i class="fa-solid fa-won-sign sm:mr-1.5"></i><span class="hidden sm:inline">경비</span></button>
                 ${isAllView ? '' : `<button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>`}
-                <button onclick="openDayMapModal(${dayIdx})" class="bg-sky-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-sky-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
-            `;
-
-            let topActionHtml = `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">${actionButtonsHtml}</div>`;
-
-            let topSectionHtml = `
-                <div class="${headerWrapperClass}">
-                    ${dayTitleHtml}
-                    ${topActionHtml}
-                </div>
+                <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
+                ${isAllView ? '' : `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>`}
             `;
 
             return `
                 <div class="${isAllView ? 'bg-cyan-50/30 border-y border-cyan-100/60 shadow-sm overflow-hidden mb-6' : 'bg-transparent pb-6'}">
-                    ${topSectionHtml}
+                    <div class="${headerWrapperClass}">${dayTitleHtml}<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">${actionButtonsHtml}</div></div>
                     <div class="space-y-0 px-0">${eventsHtml}</div>
                 </div>
             `;
@@ -1652,11 +1439,10 @@ const defaultPlacesData = {
 
         function renderPlanner() {
             const days = tripData.days || [];
-            
-            let tabsHtml = `<button onclick="setActiveDay(-1)" class="w-auto md:w-full shrink-0 px-3.5 py-2 md:px-2 md:py-3 rounded-lg text-[13px] md:text-sm font-bold transition text-center whitespace-nowrap border ${tripData.activeDay === -1 ? 'bg-cyan-600 border-cyan-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">전체일정</button>`;
+            let tabsHtml = `<button onclick="setActiveDay(-1)" class="flex-1 min-w-[72px] px-2 py-2.5 rounded-lg text-sm sm:text-base font-bold transition whitespace-nowrap border ${tripData.activeDay === -1 ? 'bg-cyan-600 border-cyan-600 text-white shadow-md' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">전체일정</button>`;
             
             tabsHtml += days.map((d, idx) => `
-                <button onclick="setActiveDay(${idx})" class="w-auto md:w-full shrink-0 px-3.5 py-2 md:px-2 md:py-3 rounded-lg text-[13px] md:text-[15px] font-bold transition text-center whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
+                <button onclick="setActiveDay(${idx})" class="flex-1 min-w-[64px] px-2 py-2.5 rounded-lg text-sm sm:text-base font-bold transition whitespace-nowrap border ${idx === tripData.activeDay ? 'bg-cyan-50 border-cyan-400 text-cyan-800 shadow-sm' : 'bg-white border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-50'}">
                     Day ${d.dayNum}
                 </button>
             `).join('');
@@ -1665,53 +1451,23 @@ const defaultPlacesData = {
 
             const contentContainer = document.getElementById('day-content');
             if (tripData.activeDay === -1) {
-                let allHtml = days.map((d, i) => renderDayContent(i, true)).join('');
-                contentContainer.innerHTML = allHtml;
+                contentContainer.innerHTML = days.map((d, i) => renderDayContent(i, true)).join('');
             } else {
-                if (days[tripData.activeDay]) {
-                    contentContainer.innerHTML = renderDayContent(tripData.activeDay, false);
-                }
+                if (days[tripData.activeDay]) contentContainer.innerHTML = renderDayContent(tripData.activeDay, false);
             }
             setTimeout(updateStickyPositions, 50);
         }
         
         function updateEventMemo(dayIdx, evtIdx, val) { tripData.days[dayIdx].events[evtIdx].memo = val; saveDataToLocalStorage(); }
 
-        function addCurrentLocationToMap(map, boundsArray) {
-            if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        const locIcon = L.divIcon({
-                            className: 'custom-marker-container',
-                            html: `<div class="current-location-marker"></div>`,
-                            iconSize: [18, 18],
-                            iconAnchor: [9, 9]
-                        });
-                        
-                        userLocationMarker = L.marker([lat, lng], {icon: locIcon, zIndexOffset: 1000})
-                            .addTo(map)
-                            .bindPopup('<div style="font-size:12px; font-weight:bold; color:#1e40af; text-align:center;">나의 현재 위치</div>');
-                            
-                    },
-                    function(error) {
-                        console.warn("현재 위치를 가져올 수 없습니다.", error);
-                    },
-                    { timeout: 10000, enableHighAccuracy: true }
-                );
-            }
-        }
-
         function openDayMapModal(dayIdx) {
             const dayObj = tripData.days[dayIdx];
-            if (!dayObj || !dayObj.events || dayObj.events.length === 0) { alert('지도에 표시할 일정이 없습니다. 장소를 먼저 추가해주세요.'); return; }
+            if (!dayObj || !dayObj.events || dayObj.events.length === 0) { alert('지도에 표시할 일정이 없습니다.'); return; }
             const firstEvt = dayObj.events[0];
             const hasHotel = firstEvt && (firstEvt.type === 'hotel' || firstEvt.group === '호텔');
             const routeEvents = hasHotel ? dayObj.events.slice(1) : dayObj.events;
             let validEvents = routeEvents.filter(e => e.lat && e.lng);
-            if (validEvents.length === 0) { alert('지도에 표시할 위치(위도/경도)가 등록된 장소가 없습니다.'); return; }
+            if (validEvents.length === 0) { alert('지도에 표시할 위치가 등록된 장소가 없습니다.'); return; }
 
             document.getElementById('map-modal-title').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>Day ${dayObj.dayNum} 전체위치 (${validEvents.length}개소)`;
             document.getElementById('mapModal').classList.remove('hidden');
@@ -1719,40 +1475,30 @@ const defaultPlacesData = {
             setTimeout(() => {
                 if (leafletMap) { leafletMap.remove(); leafletMap = null; }
                 leafletMap = L.map('dayMapContainer', { zoomControl: false }).setView([26.3, 127.8], 10);
-
                 L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ko&x={x}&y={y}&z={z}', { subdomains: ['0', '1', '2', '3'], maxZoom: 20, attribution: '&copy; Google Maps' }).addTo(leafletMap);
                 let bounds = [];
 
                 validEvents.forEach((evt, idx) => {
                     let lat = parseFloat(evt.lat); let lng = parseFloat(evt.lng); bounds.push([lat, lng]);
                     let numberIcon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-map-marker">${idx + 1}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
-                    let popupContent = `<div style="padding: 4px; min-width: 150px;">
-                        <span style="background: #0891b2; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소</span>
-                        <h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4>
-                        <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a>
-                    </div>`;
+                    let popupContent = `<div style="padding: 4px; min-width: 150px;"><span style="background: #0891b2; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소</span><h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4><p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p><a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a></div>`;
                     L.marker([lat, lng], { icon: numberIcon }).addTo(leafletMap).bindPopup(popupContent);
                 });
-                
                 if (bounds.length > 0) leafletMap.fitBounds(bounds, { padding: [50, 50] });
-                addCurrentLocationToMap(leafletMap, bounds);
             }, 100);
         }
 
         function openCategoryMapModal() {
             const places = placesData[currentRegion] || [];
             const filteredPlaces = places.filter(p => p.group === currentCategory);
-            
             if (filteredPlaces.length === 0) { alert('지도에 표시할 장소가 없습니다.'); return; }
 
-            const regionName = currentRegion === 'south' ? '남부' : (currentRegion === 'central' ? '중부' : '북부');
+            const regionName = regionNamesMap[currentRegion];
             document.getElementById('map-modal-title').innerHTML = `<i class="fa-solid fa-map-location-dot mr-2"></i>[${regionName}] ${currentCategory} 장소 보기`;
             document.getElementById('mapModal').classList.remove('hidden');
 
             setTimeout(() => {
                 if (leafletMap) { leafletMap.remove(); leafletMap = null; }
-
                 leafletMap = L.map('dayMapContainer', { zoomControl: false });
                 L.tileLayer('https://mt{s}.google.com/vt/lyrs=m&hl=ko&x={x}&y={y}&z={z}', { subdomains: ['0', '1', '2', '3'], maxZoom: 20, attribution: '&copy; Google Maps' }).addTo(leafletMap);
                 let bounds = [];
@@ -1761,35 +1507,20 @@ const defaultPlacesData = {
                     let lat = parseFloat(evt.lat); let lng = parseFloat(evt.lng);
                     if(isNaN(lat) || isNaN(lng)) return;
                     bounds.push([lat, lng]);
-                    
-                    let markerClass = evt.recommended ? 'custom-map-marker-red' : 'custom-map-marker';
-                    let markerBgColor = evt.recommended ? '#ef4444' : '#10b981';
-
-                    let numberIcon = L.divIcon({ className: 'custom-marker-container', html: `<div class="${markerClass}" style="background:${markerBgColor};">${idx + 1}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
-                    let popupContent = `<div style="padding: 4px; min-width: 150px;">
-                        <span style="background: ${markerBgColor}; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소 ${evt.recommended ? '(추천)' : ''}</span>
-                        <h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4>
-                        <p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a>
-                    </div>`;
+                    let numberIcon = L.divIcon({ className: 'custom-marker-container', html: `<div class="custom-map-marker" style="background:#10b981;">${idx + 1}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+                    let popupContent = `<div style="padding: 4px; min-width: 150px;"><span style="background: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;">${idx + 1}번 장소</span><h4 style="font-weight: bold; font-size: 14px; margin: 6px 0 4px 0; color: #0f172a;">${evt.name}</h4><p style="font-size: 12px; color: #64748b; margin-bottom: 8px;">${evt.desc || '설명 없음'}</p><a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" style="display: block; background: #2563eb; color: white; text-align: center; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none;">구글 맵 보기</a></div>`;
                     L.marker([lat, lng], { icon: numberIcon }).addTo(leafletMap).bindPopup(popupContent);
                 });
-                
                 if (bounds.length > 0) leafletMap.fitBounds(bounds, { padding: [50, 50] });
                 else leafletMap.setView([26.3, 127.8], 10);
-                
-                addCurrentLocationToMap(leafletMap, bounds);
             }, 100);
         }
 
-        function closeMapModal() { 
-            document.getElementById('mapModal').classList.add('hidden'); 
-            if (leafletMap) { leafletMap.remove(); leafletMap = null; userLocationMarker = null; } 
-        }
+        function closeMapModal() { document.getElementById('mapModal').classList.add('hidden'); if (leafletMap) { leafletMap.remove(); leafletMap = null; } }
 
         function generateDayHtmlForCapture(day) {
             let eventsHtml = '';
-            if (!day.events || day.events.length === 0) { eventsHtml = `<div style="text-align: center; color: #94a3b8; padding: 40px 0;">등록된 일정이 없습니다.</div>`; }
+            if (!day.events || day.events.length === 0) { eventsHtml = `<div style="text-align: center; color: #94a3b8; padding: 30px 0;">등록된 일정이 없습니다.</div>`; }
             else {
                 day.events.forEach((evt, i) => {
                     let isHotel = (evt.type === 'hotel' || evt.group === '호텔');
@@ -1797,70 +1528,53 @@ const defaultPlacesData = {
                     let trans = evt.transport ? `<span style="color: #0891b2; font-weight: bold; font-size: 13px; margin-left: 8px;">🚗 ${evt.transport}</span>` : '';
                     let memoHtml = evt.memo ? `<div style="font-size: 13px; color: #475569; margin-top: 6px; background: #f1f5f9; padding: 6px 10px; border-radius: 6px;">📝 ${evt.memo}</div>` : '';
 
-                    eventsHtml += `
-                    <div style="display: flex; flex-direction: column; background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                        <div style="display: flex; align-items: center;">
-                            <div style="background: ${isHotel ? '#4f46e5' : '#0891b2'}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 14px; flex-shrink: 0;">${isHotel ? 'H' : i+1}</div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 12px; color: ${isHotel ? '#4f46e5' : '#64748b'}; font-weight: bold; margin-bottom: 4px;">${icon}${trans}</div>
-                                <div style="font-size: 19px; color: #0f172a; font-weight: bold; line-height: 1.4;">${evt.name}</div>
-                            </div>
-                        </div>
-                        ${memoHtml}
-                    </div>`;
+                    eventsHtml += `<div style="display: flex; flex-direction: column; background: white; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"><div style="display: flex; align-items: center;"><div style="background: ${isHotel ? '#4f46e5' : '#0891b2'}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 14px; margin-right: 14px; flex-shrink: 0;">${isHotel ? 'H' : i+1}</div><div style="flex: 1;"><div style="font-size: 12px; color: ${isHotel ? '#4f46e5' : '#64748b'}; font-weight: bold; margin-bottom: 4px;">${icon}${trans}</div><div style="font-size: 19px; color: #0f172a; font-weight: bold; line-height: 1.4;">${evt.name}</div></div></div>${memoHtml}</div>`;
                 });
             }
-            
             let dayCompsHtml = day.companions ? `<div style="font-size: 14px; font-weight: bold; color: #0891b2; margin-top: 6px; background: white; display: inline-block; padding: 4px 10px; border-radius: 20px;">👥 동행자: ${day.companions}</div>` : '';
-
-            return `<div style="background: #f8fafc; padding: 24px; font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, sans-serif;">
-                <div style="background: linear-gradient(to right, #0891b2, #1d4ed8); border-radius: 16px; padding: 20px; color: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">Day ${day.dayNum}</div>
-                    <div style="font-size: 16px; font-weight: 500; opacity: 0.9;">${day.date}</div>
-                    ${dayCompsHtml}
-                </div>
-                <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">${eventsHtml}</div>
-                <div style="text-align: center; margin-top: 16px; color: #94a3b8; font-size: 12px; font-weight: bold;">오키나와 완벽 맞춤형 여행 플래너</div>
-            </div>`;
+            return `<div style="margin-bottom: 24px; font-family: 'Pretendard Variable', Pretendard, sans-serif;"><div style="background: linear-gradient(to right, #0891b2, #1d4ed8); border-radius: 16px; padding: 16px 20px; color: white; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"><div style="font-size: 24px; font-weight: 800; margin-bottom: 4px;">Day ${day.dayNum}</div><div style="font-size: 15px; font-weight: 500; opacity: 0.9;">${day.date}</div>${dayCompsHtml}</div><div style="background: white; border-radius: 16px; padding: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">${eventsHtml}</div></div>`;
         }
 
         async function shareAllDaysAsImages() {
             if (tripData.days.length === 0) { alert('공유할 일정이 없습니다.'); return; }
             let loader = document.createElement('div');
             loader.id = 'share-loader';
-            loader.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-spinner fa-spin text-4xl text-white mb-3"></i><p class="text-white font-bold text-sm mt-2">일정 이미지를 생성 중입니다...</p><p class="text-white/70 text-[11px] mt-1">잠시만 기다려주세요 (약 3~5초 소요)</p></div>';
+            loader.innerHTML = '<div class="flex flex-col items-center"><i class="fa-solid fa-spinner fa-spin text-4xl text-white mb-3"></i><p class="text-white font-bold text-sm mt-2">전체 일정을 하나의 이미지로 생성 중입니다...</p></div>';
             loader.className = 'fixed inset-0 z-[100] bg-slate-900/80 flex items-center justify-center';
             document.body.appendChild(loader);
 
             try {
                 let captureArea = document.createElement('div');
-                captureArea.style.position = 'absolute'; captureArea.style.top = '-9999px'; captureArea.style.left = '0'; captureArea.style.width = '400px'; 
+                captureArea.style.position = 'absolute'; captureArea.style.top = '-99999px'; captureArea.style.left = '0'; 
+                captureArea.style.width = '420px'; captureArea.style.backgroundColor = '#f8fafc'; captureArea.style.padding = '20px';
                 document.body.appendChild(captureArea);
-                let imageFiles = [];
+
+                let headerTitle = document.createElement('div');
+                headerTitle.innerHTML = `<h2 style="text-align:center; font-size:22px; font-weight:800; color:#0f172a; margin-bottom:20px; font-family: Pretendard, sans-serif;">✈️ 전체 여행 일정 요약</h2>`;
+                captureArea.appendChild(headerTitle);
+
                 for (let i = 0; i < tripData.days.length; i++) {
-                    let day = tripData.days[i];
                     let dayContainer = document.createElement('div');
-                    dayContainer.innerHTML = generateDayHtmlForCapture(day);
+                    dayContainer.innerHTML = generateDayHtmlForCapture(tripData.days[i]);
                     captureArea.appendChild(dayContainer);
-                    await new Promise(r => setTimeout(r, 200)); 
-                    let canvas = await html2canvas(dayContainer, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
-                    let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-                    let file = new File([blob], `Okinawa_Day${day.dayNum}.png`, { type: 'image/png' });
-                    imageFiles.push(file);
-                    captureArea.innerHTML = '';
                 }
+
+                let footer = document.createElement('div');
+                footer.innerHTML = `<div style="text-align: center; margin-top: 10px; padding-top: 20px; border-top: 1px dashed #cbd5e1; color: #94a3b8; font-size: 12px; font-weight: bold; font-family: Pretendard, sans-serif;">오키나와 완벽 맞춤형 여행 플래너</div>`;
+                captureArea.appendChild(footer);
+
+                await new Promise(r => setTimeout(r, 600)); 
+                let canvas = await html2canvas(captureArea, { scale: 2, useCORS: true, backgroundColor: '#f8fafc' });
+                let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                let file = new File([blob], `Okinawa_All_Schedule.png`, { type: 'image/png' });
                 document.body.removeChild(captureArea);
 
-                if (navigator.canShare && navigator.canShare({ files: imageFiles })) {
-                    await navigator.share({ title: '오키나와 여행 일정', files: imageFiles });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file] });
                 } else {
-                    alert('현재 브라우저에서는 여러 장 동시 공유를 지원하지 않아, 각 일정 이미지를 기기에 다운로드합니다.');
-                    for (let file of imageFiles) {
-                        let url = URL.createObjectURL(file);
-                        let a = document.createElement('a'); a.href = url; a.download = file.name;
-                        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                        await new Promise(r => setTimeout(r, 400));
-                    }
+                    let url = URL.createObjectURL(file);
+                    let a = document.createElement('a'); a.href = url; a.download = file.name;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
                 }
             } catch (error) { console.error(error); alert('이미지 생성 또는 공유 중 오류가 발생했습니다.'); } 
             finally { let loaderEl = document.getElementById('share-loader'); if (loaderEl) document.body.removeChild(loaderEl); }
@@ -1877,31 +1591,19 @@ const defaultPlacesData = {
         function updateEventTransport(dayIdx, evtIdx, val) { tripData.days[dayIdx].events[evtIdx].transport = val; renderPlanner(); saveDataToLocalStorage(); }
 
         function openTimelineAddModal(mode, dayIdx) {
-            if(tripData.activeDay !== dayIdx && tripData.activeDay !== -1) {
-                setActiveDay(dayIdx);
-            }
+            addMode = mode; targetAddDayIdx = dayIdx; 
+            document.getElementById('modal-title').innerHTML = mode === 'hotel' ? '<i class="fa-solid fa-bed mr-2"></i>숙소로 등록할 호텔 선택' : `<i class="fa-solid fa-calendar-plus mr-2"></i>Day ${tripData.days[dayIdx].dayNum} 일정 추가`;
             switchCategory(mode === 'hotel' ? '호텔' : '관광지');
-            
-            if(rightPanelMode === 'expense') toggleRightPanel('place');
-
-            const rightPanel = document.getElementById('right-sidebar');
-            if(window.innerWidth < 768) {
-                rightPanel.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                rightPanel.classList.add('ring-4', 'ring-cyan-500', 'ring-opacity-50');
-                setTimeout(() => rightPanel.classList.remove('ring-4', 'ring-cyan-500', 'ring-opacity-50'), 800);
-            }
+            document.getElementById('timelineAddModal').classList.remove('hidden'); renderPlaces();
         }
+        function closeTimelineAddModal() { document.getElementById('timelineAddModal').classList.add('hidden'); }
         
         function openAddModal() {
             document.getElementById('editingPlaceId').value = '';
             document.getElementById('custom-modal-title').innerHTML = '<i class="fa-solid fa-plus-circle mr-2"></i>새로운 장소 / 호텔 직접 등록';
             document.getElementById('customAddBtn').innerText = '등록하기';
             document.getElementById('modal-header-bg').className = 'bg-gradient-to-r from-indigo-500 to-purple-600 px-5 py-4 flex justify-between items-center text-white';
-            document.getElementById('customPlaceName').value = ''; 
-            document.getElementById('customLat').value = ''; 
-            document.getElementById('customLng').value = ''; 
-            document.getElementById('customPlaceDesc').value = '';
+            document.getElementById('customPlaceName').value = ''; document.getElementById('customLat').value = ''; document.getElementById('customLng').value = ''; document.getElementById('customPlaceDesc').value = '';
             if (addMode === 'hotel') document.getElementById('customPlaceGroup').value = '호텔';
             document.getElementById('addPlaceModal').classList.remove('hidden');
             document.getElementById('customPlaceName').focus();
@@ -1965,7 +1667,7 @@ const defaultPlacesData = {
                 switchRegion(region); switchCategory(group); renderPlaces(); renderPlanner(); saveDataToLocalStorage(); closeAddModal();
                 alert(`[${name}] 장소 정보가 수정되었습니다.`);
             } else {
-                const newPlace = { id: 'custom-' + Date.now(), group: group, name: name, category: group === '호텔' ? '호텔/숙소' : '구글 맵 명소', desc: desc, lat: latNum, lng: lngNum, recommended: false };
+                const newPlace = { id: 'custom-' + Date.now(), group: group, name: name, category: group === '호텔' ? '호텔/숙소' : '구글 맵 명소', desc: desc, lat: latNum, lng: lngNum };
                 if(!placesData[region]) placesData[region] = []; 
                 placesData[region].push(newPlace);
                 switchRegion(region); switchCategory(group); renderPlaces(); saveDataToLocalStorage(); closeAddModal();
@@ -1973,7 +1675,10 @@ const defaultPlacesData = {
             }
         }
 
-        // --- 경비 정산 및 송금 계산기 로직 ---
+        // --- 경비 정산 앱 관련 로직 ---
+        function openExpenseModal() { document.getElementById('expenseModal').classList.remove('hidden'); initExpenseApp(); }
+        function closeExpenseModal() { document.getElementById('expenseModal').classList.add('hidden'); }
+
         function initExpenseApp() {
             cleanInvalidCouples();
             updateSettlementModeUI();
@@ -1991,8 +1696,7 @@ const defaultPlacesData = {
                 if (!participants.includes(c.member1) || !participants.includes(c.member2)) return false;
                 if (c.member1 === c.member2) return false;
                 if (used.has(c.member1) || used.has(c.member2)) return false;
-                used.add(c.member1);
-                used.add(c.member2);
+                used.add(c.member1); used.add(c.member2);
                 if (c.rep !== c.member1 && c.rep !== c.member2) c.rep = c.member1;
                 return true;
             });
@@ -2005,7 +1709,7 @@ const defaultPlacesData = {
             renderExpenseParticipantsCheckboxes();
             renderExpenses();
             calculateSettlement();
-            autoSaveExpenseAppData();
+            saveExpenseAppData();
         }
 
         function updateSettlementModeUI() {
@@ -2015,22 +1719,19 @@ const defaultPlacesData = {
             if (!indBtn || !cplBtn || !setupSec) return;
 
             if (settlementMode === 'couple') {
-                indBtn.className = 'px-3 py-1.5 rounded-lg text-sm font-bold transition text-slate-500 hover:text-slate-700';
-                cplBtn.className = 'px-3 py-1.5 rounded-lg text-sm font-bold transition bg-white text-emerald-700 shadow-sm border border-slate-200';
+                indBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800';
+                cplBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm';
                 setupSec.classList.remove('hidden');
             } else {
-                indBtn.className = 'px-3 py-1.5 rounded-lg text-sm font-bold transition bg-white text-emerald-700 shadow-sm border border-slate-200';
-                cplBtn.className = 'px-3 py-1.5 rounded-lg text-sm font-bold transition text-slate-500 hover:text-slate-700';
+                indBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition bg-cyan-600 text-white shadow-sm';
+                cplBtn.className = 'px-3 py-1 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-800';
                 setupSec.classList.add('hidden');
             }
         }
 
         function getAssignedCoupleMembers() {
             const set = new Set();
-            couples.forEach(c => {
-                set.add(c.member1);
-                set.add(c.member2);
-            });
+            couples.forEach(c => { set.add(c.member1); set.add(c.member2); });
             return set;
         }
 
@@ -2049,13 +1750,11 @@ const defaultPlacesData = {
                 creatorBox.classList.remove('hidden');
                 m1Select.innerHTML = unassigned.map((p, idx) => `<option value="${p}" ${idx === 0 ? 'selected' : ''}>${p}</option>`).join('');
                 m2Select.innerHTML = unassigned.map((p, idx) => `<option value="${p}" ${idx === 1 ? 'selected' : ''}>${p}</option>`).join('');
-            } else {
-                creatorBox.classList.add('hidden');
-            }
+            } else { creatorBox.classList.add('hidden'); }
 
             let html = '';
             if (couples.length === 0) {
-                html += `<p class="text-sm text-slate-400 text-center py-1 font-medium">아직 묶인 부부가 없습니다. 위에서 두 명을 선택해 부부로 묶어주세요.</p>`;
+                html += `<p class="text-[11px] text-slate-500 text-center py-1">아직 묶인 부부가 없습니다.</p>`;
             } else {
                 html += couples.map((c, idx) => {
                     const isM1Rep = c.rep === c.member1;
@@ -2063,129 +1762,64 @@ const defaultPlacesData = {
                     return `
                         <div class="bg-white border border-slate-200 rounded-lg px-2.5 py-2 flex items-center justify-between gap-2 shadow-sm">
                             <div class="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
-                                <span class="text-xs font-bold text-emerald-600 mr-0.5">부부${idx + 1}</span>
-                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member1}')"
-                                    class="px-2 py-0.5 rounded-md text-sm font-bold border transition flex items-center gap-1 ${isM1Rep ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700'}"
-                                    title="클릭하여 대표자로 지정">
-                                    ${isM1Rep ? '<span>👑</span>' : ''}${c.member1}
-                                </button>
-                                <span class="text-slate-400 text-sm font-bold">&amp;</span>
-                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member2}')"
-                                    class="px-2 py-0.5 rounded-md text-sm font-bold border transition flex items-center gap-1 ${isM2Rep ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-700'}"
-                                    title="클릭하여 대표자로 지정">
-                                    ${isM2Rep ? '<span>👑</span>' : ''}${c.member2}
-                                </button>
+                                <span class="text-[10px] font-bold text-slate-500 mr-0.5">부부${idx + 1}</span>
+                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member1}')" class="px-2 py-0.5 rounded-md text-xs font-bold border transition flex items-center gap-1 ${isM1Rep ? 'bg-cyan-50 border-cyan-300 text-cyan-700' : 'bg-slate-50 border-slate-200 text-slate-500'}">${isM1Rep ? '<span>👑</span>' : ''}${c.member1}</button>
+                                <span class="text-slate-400 text-xs">&amp;</span>
+                                <button type="button" onclick="setCoupleRep(${c.id}, '${c.member2}')" class="px-2 py-0.5 rounded-md text-xs font-bold border transition flex items-center gap-1 ${isM2Rep ? 'bg-cyan-50 border-cyan-300 text-cyan-700' : 'bg-slate-50 border-slate-200 text-slate-500'}">${isM2Rep ? '<span>👑</span>' : ''}${c.member2}</button>
                             </div>
-                            <button type="button" onclick="removeCouplePair(${c.id})" class="text-slate-400 hover:text-rose-500 text-sm px-1.5 py-0.5 shrink-0 font-bold" title="부부 묶기 해제">
-                                해제
-                            </button>
+                            <button type="button" onclick="removeCouplePair(${c.id})" class="text-slate-400 hover:text-rose-500 text-xs px-1.5 py-0.5 shrink-0 font-bold">해제</button>
                         </div>
                     `;
                 }).join('');
             }
-
-            if (unassigned.length > 0) {
-                html += `<div class="text-sm text-slate-500 pt-1 px-1 font-medium">미지정(개인 단위 정산): <span class="text-slate-700 font-bold">${unassigned.join(', ')}</span></div>`;
-            }
-
             listContainer.innerHTML = html;
         }
 
         function addCouplePair() {
             const m1 = document.getElementById('coupleMember1').value;
             const m2 = document.getElementById('coupleMember2').value;
-            if (!m1 || !m2 || m1 === m2) {
-                alert('서로 다른 두 명의 참가자를 선택해주세요.');
-                return;
-            }
+            if (!m1 || !m2 || m1 === m2) { alert('서로 다른 두 명을 선택해주세요.'); return; }
             couples.push({ id: Date.now(), member1: m1, member2: m2, rep: m1 });
-            renderCoupleSetup();
-            renderExpenseParticipantsCheckboxes();
-            renderExpenses();
-            calculateSettlement();
-            autoSaveExpenseAppData();
+            renderCoupleSetup(); renderExpenseParticipantsCheckboxes(); renderExpenses(); calculateSettlement(); saveExpenseAppData();
         }
 
         function setCoupleRep(coupleId, memberName) {
             const target = couples.find(c => c.id === coupleId);
-            if (target && (target.member1 === memberName || target.member2 === memberName)) {
-                target.rep = memberName;
-                renderCoupleSetup();
-                renderExpenses();
-                calculateSettlement();
-                autoSaveExpenseAppData();
-            }
+            if (target) { target.rep = memberName; renderCoupleSetup(); renderExpenses(); calculateSettlement(); saveExpenseAppData(); }
         }
 
         function removeCouplePair(coupleId) {
             couples = couples.filter(c => c.id !== coupleId);
-            renderCoupleSetup();
-            renderExpenseParticipantsCheckboxes();
-            renderExpenses();
-            calculateSettlement();
-            autoSaveExpenseAppData();
+            renderCoupleSetup(); renderExpenseParticipantsCheckboxes(); renderExpenses(); calculateSettlement(); saveExpenseAppData();
         }
 
         function getSettlementEntities() {
             if (settlementMode !== 'couple') {
-                return participants.map(p => ({
-                    id: p, label: p, subLabel: '', fullTitle: p, rep: p, members: [p], isCouple: false
-                }));
+                return participants.map(p => ({ id: p, label: p, subLabel: '', fullTitle: p, rep: p, members: [p], isCouple: false }));
             }
-
             cleanInvalidCouples();
-            const entities = [];
-            const assigned = new Set();
-
+            const entities = []; const assigned = new Set();
             couples.forEach(c => {
-                assigned.add(c.member1);
-                assigned.add(c.member2);
+                assigned.add(c.member1); assigned.add(c.member2);
                 const rep = c.rep || c.member1;
-                entities.push({
-                    id: 'couple_' + c.id, label: rep, subLabel: `${c.member1} · ${c.member2} 부부 대표`, fullTitle: `${rep} (${c.member1}·${c.member2} 부부)`, rep: rep, members: [c.member1, c.member2], isCouple: true
-                });
+                entities.push({ id: 'couple_' + c.id, label: rep, subLabel: `${c.member1} · ${c.member2} 부부`, fullTitle: `${rep} (${c.member1}·${c.member2})`, rep: rep, members: [c.member1, c.member2], isCouple: true });
             });
-
             participants.forEach(p => {
-                if (!assigned.has(p)) {
-                    entities.push({
-                        id: 'solo_' + p, label: p, subLabel: '개인 정산', fullTitle: p, rep: p, members: [p], isCouple: false
-                    });
-                }
+                if (!assigned.has(p)) entities.push({ id: 'solo_' + p, label: p, subLabel: '개인', fullTitle: p, rep: p, members: [p], isCouple: false });
             });
-
             return entities;
         }
 
-        function findEntityByPerson(personName, entities) {
-            return entities.find(ent => ent.members.includes(personName));
-        }
-
-        function gcd(a, b) {
-            return b === 0 ? a : gcd(b, a % b);
-        }
-
-        function toggleExpenseList() {
-            document.getElementById('expenseListContainer').classList.toggle('hidden');
-        }
-
-        function toggleSummaryExpenseList() {
-            document.getElementById('summaryExpenseListContainer').classList.toggle('hidden');
-        }
+        function findEntityByPerson(personName, entities) { return entities.find(ent => ent.members.includes(personName)); }
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function toggleExpenseList() { document.getElementById('expenseListContainer').classList.toggle('hidden'); }
+        function toggleSummaryExpenseList() { document.getElementById('summaryExpenseListContainer').classList.toggle('hidden'); }
 
         function updateTripTitle() {
             const tripName = document.getElementById('tripTitleInput').value.trim();
-            const headerTitle = document.getElementById('expenseHeaderTitle');
-            const summaryMainTitle = document.getElementById('summaryMainTitle');
-
-            if (tripName) {
-                headerTitle.innerHTML = `<i class="fa-solid fa-won-sign mr-2"></i>${tripName} 정산 & 송금 계산기`;
-                summaryMainTitle.innerText = `${tripName} 정산 및 송금 요약`;
-            } else {
-                headerTitle.innerHTML = `<i class="fa-solid fa-won-sign mr-2"></i>여행 정산 & 송금 계산기`;
-                summaryMainTitle.innerText = `여행 정산 및 송금 요약`;
-            }
-            autoSaveExpenseAppData();
+            document.getElementById('expenseHeaderTitle').innerText = tripName ? `${tripName} 정산 & 송금 계산기` : `여행 정산 & 송금 계산기`;
+            document.getElementById('summaryMainTitle').innerText = tripName ? `${tripName} 정산 및 송금 요약` : `여행 정산 및 송금 요약`;
+            saveExpenseAppData();
         }
 
         function renderParticipants() {
@@ -2193,40 +1827,26 @@ const defaultPlacesData = {
             const countBadge = document.getElementById('participantCount');
             if(!container) return;
             countBadge.innerText = `${participants.length}명`;
-            
             container.innerHTML = participants.map(p => `
-                <span class="inline-flex items-center gap-1.5 bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
-                    ${p}
-                    ${participants.length > 1 ? `<button onclick="removeParticipant('${p}')" class="text-slate-400 hover:text-rose-500 font-extrabold">&times;</button>` : ''}
+                <span class="inline-flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm">
+                    ${p} ${participants.length > 1 ? `<button onclick="removeParticipant('${p}')" class="text-slate-400 hover:text-rose-500 font-bold">&times;</button>` : ''}
                 </span>
             `).join('');
-            
-            updatePayerDropdown();
-            renderCoupleSetup();
-            renderExpenseParticipantsCheckboxes();
+            updatePayerDropdown(); renderCoupleSetup(); renderExpenseParticipantsCheckboxes();
         }
 
         function addParticipant() {
-            const input = document.getElementById('newParticipantName');
-            const name = input.value.trim();
-            if (!name) return;
-            if (participants.includes(name)) { alert('이미 존재하는 참여자입니다.'); return; }
-            participants.push(name);
-            input.value = '';
-            renderParticipants();
-            autoSaveExpenseAppData();
+            const input = document.getElementById('newParticipantName'); const name = input.value.trim();
+            if (!name || participants.includes(name)) return;
+            participants.push(name); input.value = '';
+            renderParticipants(); saveExpenseAppData();
         }
 
         function removeParticipant(name) {
             participants = participants.filter(p => p !== name);
             couples = couples.filter(c => c.member1 !== name && c.member2 !== name);
-            expenses.forEach(exp => {
-                exp.targets = exp.targets.filter(t => t !== name);
-            });
-            renderParticipants();
-            renderExpenses();
-            calculateSettlement();
-            autoSaveExpenseAppData();
+            expenses.forEach(e => { e.targets = e.targets.filter(t => t !== name); });
+            renderParticipants(); renderExpenses(); calculateSettlement(); saveExpenseAppData();
         }
 
         function updatePayerDropdown() {
@@ -2239,46 +1859,18 @@ const defaultPlacesData = {
         function renderExpenseParticipantsCheckboxes() {
             const container = document.getElementById('expenseParticipants');
             if(!container) return;
-
             if (settlementMode === 'couple' && couples.length > 0) {
                 const assigned = getAssignedCoupleMembers();
                 let html = '';
-
                 couples.forEach(c => {
-                    html += `
-                        <div class="inline-flex items-center gap-1.5 bg-emerald-50 px-2 py-1.5 rounded-lg border border-emerald-200 shadow-sm">
-                            <span class="text-xs text-emerald-700 font-extrabold mr-0.5">부부</span>
-                            <label class="inline-flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer bg-white px-2.5 py-1 rounded border border-slate-200 font-bold shadow-sm">
-                                <input type="checkbox" value="${c.member1}" checked class="accent-emerald-600 expense-target-checkbox w-4 h-4 mt-0.5">
-                                ${c.member1}
-                            </label>
-                            <label class="inline-flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer bg-white px-2.5 py-1 rounded border border-slate-200 font-bold shadow-sm">
-                                <input type="checkbox" value="${c.member2}" checked class="accent-emerald-600 expense-target-checkbox w-4 h-4 mt-0.5">
-                                ${c.member2}
-                            </label>
-                        </div>
-                    `;
+                    html += `<div class="inline-flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200"><span class="text-[10px] text-cyan-700 font-bold">부부</span><label class="inline-flex items-center gap-1 text-xs text-slate-700 bg-white px-2 py-0.5 rounded border"><input type="checkbox" value="${c.member1}" checked class="accent-cyan-600 expense-target-checkbox">${c.member1}</label><label class="inline-flex items-center gap-1 text-xs text-slate-700 bg-white px-2 py-0.5 rounded border"><input type="checkbox" value="${c.member2}" checked class="accent-cyan-600 expense-target-checkbox">${c.member2}</label></div>`;
                 });
-
                 participants.forEach(p => {
-                    if (!assigned.has(p)) {
-                        html += `
-                            <label class="inline-flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm font-bold">
-                                <input type="checkbox" value="${p}" checked class="accent-emerald-600 expense-target-checkbox w-4 h-4 mt-0.5">
-                                ${p}
-                            </label>
-                        `;
-                    }
+                    if (!assigned.has(p)) html += `<label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white px-2.5 py-1 rounded border"><input type="checkbox" value="${p}" checked class="accent-cyan-600 expense-target-checkbox">${p}</label>`;
                 });
-
                 container.innerHTML = html;
             } else {
-                container.innerHTML = participants.map(p => `
-                    <label class="inline-flex items-center gap-1.5 text-sm text-slate-700 cursor-pointer bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm font-bold">
-                        <input type="checkbox" value="${p}" checked class="accent-emerald-600 expense-target-checkbox w-4 h-4 mt-0.5">
-                        ${p}
-                    </label>
-                `).join('');
+                container.innerHTML = participants.map(p => `<label class="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-white px-2.5 py-1 rounded border"><input type="checkbox" value="${p}" checked class="accent-cyan-600 expense-target-checkbox">${p}</label>`).join('');
             }
         }
 
@@ -2287,37 +1879,24 @@ const defaultPlacesData = {
             const amountInput = document.getElementById('expenseAmount');
             const payerSelect = document.getElementById('expensePayer');
             const checkboxes = document.querySelectorAll('.expense-target-checkbox:checked');
-
             const title = titleInput.value.trim() || '일반 지출';
             const amount = parseFloat(amountInput.value);
             const payer = payerSelect.value;
             const targets = Array.from(checkboxes).map(cb => cb.value);
 
-            if (isNaN(amount) || amount <= 0) { alert('올바른 금액을 입력해주세요.'); return; }
-            if (targets.length === 0) { alert('참여 인원을 최소 1명 이상 선택해주세요.'); return; }
-
+            if (isNaN(amount) || amount <= 0 || targets.length === 0) { alert('금액과 참여 인원을 확인해주세요.'); return; }
             expenses.push({ id: Date.now(), title, amount, payer, targets });
-            
-            titleInput.value = '';
-            amountInput.value = '';
-            renderExpenses();
-            calculateSettlement();
-            autoSaveExpenseAppData();
+            titleInput.value = ''; amountInput.value = '';
+            renderExpenses(); calculateSettlement(); saveExpenseAppData();
         }
 
-        function deleteExpense(id) {
-            expenses = expenses.filter(e => e.id !== id);
-            renderExpenses();
-            calculateSettlement();
-            autoSaveExpenseAppData();
-        }
+        function deleteExpense(id) { expenses = expenses.filter(e => e.id !== id); renderExpenses(); calculateSettlement(); saveExpenseAppData(); }
 
         function renderExpenses() {
             const container = document.getElementById('expenseListContainer');
             const summary = document.getElementById('totalExpenseSummary');
             const summaryContainer = document.getElementById('summaryExpenseListContainer');
             const summaryTotal = document.getElementById('summaryTotalExpense');
-
             if(!container) return;
 
             let total = expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -2325,54 +1904,15 @@ const defaultPlacesData = {
             if (summaryTotal) summaryTotal.innerText = `총 지출: ${total.toLocaleString()}원`;
 
             if (expenses.length === 0) {
-                const emptyHtml = `<p class="text-sm text-slate-400 font-medium text-center py-4">등록된 지출 내역이 없습니다.</p>`;
-                container.innerHTML = emptyHtml;
-                if (summaryContainer) summaryContainer.innerHTML = emptyHtml;
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">등록된 지출이 없습니다.</p>`;
+                if (summaryContainer) summaryContainer.innerHTML = container.innerHTML;
                 return;
             }
 
             const entities = getSettlementEntities();
-
             const listHtml = expenses.map(e => {
                 const validTargets = e.targets.filter(t => participants.includes(t));
-                let ratioHtml = '';
-
-                if (settlementMode === 'couple' && validTargets.length > 0) {
-                    const countMap = {};
-                    validTargets.forEach(t => {
-                        const ent = findEntityByPerson(t, entities);
-                        if (ent) countMap[ent.id] = (countMap[ent.id] || 0) + 1;
-                    });
-                    const denom = validTargets.length;
-                    const parts = entities
-                        .filter(ent => countMap[ent.id] > 0)
-                        .map(ent => {
-                            const num = countMap[ent.id];
-                            const g = gcd(num, denom);
-                            return `${ent.label}${ent.isCouple ? ' 부부' : ''} ${num / g}/${denom / g}`;
-                        });
-                    if (parts.length > 0) {
-                        ratioHtml = `<div class="text-xs text-emerald-600 font-bold mt-1">부담 비율: ${parts.join(' · ')}</div>`;
-                    }
-                }
-
-                return `
-                    <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex justify-between items-center text-sm shadow-sm">
-                        <div class="space-y-1.5">
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-800 text-base">${e.title}</span>
-                                <span class="text-emerald-700 font-extrabold text-base">${e.amount.toLocaleString()}원</span>
-                            </div>
-                            <div class="text-slate-500 font-medium">
-                                결제자: <span class="text-slate-800 font-bold">${e.payer}</span> | 참여 인원 (${validTargets.length}명): <span class="font-bold">${validTargets.join(', ')}</span>
-                            </div>
-                            ${ratioHtml}
-                        </div>
-                        <button onclick="deleteExpense(${e.id})" class="text-slate-400 hover:text-rose-500 p-2 transition shrink-0 font-bold" title="삭제">
-                            <i class="fa-solid fa-trash-can text-base"></i>
-                        </button>
-                    </div>
-                `;
+                return `<div class="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs shadow-sm"><div class="space-y-1"><div class="flex items-center gap-2"><span class="font-bold text-slate-800 text-sm">${e.title}</span><span class="text-cyan-700 font-bold">${e.amount.toLocaleString()}원</span></div><div class="text-slate-500">결자: <b>${e.payer}</b> | 참여 (${validTargets.length}명): ${validTargets.join(', ')}</div></div><button onclick="deleteExpense(${e.id})" class="text-slate-400 hover:text-rose-500 p-1.5"><i class="fa-solid fa-trash-can text-lg"></i></button></div>`;
             }).join('');
 
             container.innerHTML = listHtml;
@@ -2380,11 +1920,9 @@ const defaultPlacesData = {
         }
 
         function calculateSettlement() {
-            renderExpenses(); 
-
+            renderExpenses();
             const entities = getSettlementEntities();
             let paidMap = {}; let shareMap = {}; let personShareMap = {};
-
             entities.forEach(ent => { paidMap[ent.id] = 0; shareMap[ent.id] = 0; });
             participants.forEach(p => { personShareMap[p] = 0; });
 
@@ -2394,19 +1932,17 @@ const defaultPlacesData = {
             expenses.forEach(e => {
                 const validTargets = e.targets.filter(t => participants.includes(t));
                 if (validTargets.length === 0) return;
-
                 const payerEntity = findEntityByPerson(e.payer, entities);
-                if (payerEntity) { paidMap[payerEntity.id] = (paidMap[payerEntity.id] || 0) + e.amount; }
+                if (payerEntity) paidMap[payerEntity.id] += e.amount;
 
                 let sharePerPerson = e.amount / validTargets.length;
-                
                 validTargets.forEach(t => {
-                    personShareMap[t] = (personShareMap[t] || 0) + sharePerPerson;
+                    personShareMap[t] += sharePerPerson;
                     const targetEntity = findEntityByPerson(t, entities);
                     if (targetEntity) {
-                        shareMap[targetEntity.id] = (shareMap[targetEntity.id] || 0) + sharePerPerson;
+                        shareMap[targetEntity.id] += sharePerPerson;
                         if (payerEntity && targetEntity.id !== payerEntity.id) {
-                            debtMatrix[targetEntity.id][payerEntity.id] = (debtMatrix[targetEntity.id][payerEntity.id] || 0) + sharePerPerson;
+                            debtMatrix[targetEntity.id][payerEntity.id] += sharePerPerson;
                         }
                     }
                 });
@@ -2425,140 +1961,53 @@ const defaultPlacesData = {
             entities.forEach(fromEnt => {
                 entities.forEach(toEnt => {
                     let amt = debtMatrix[fromEnt.id][toEnt.id];
-                    if (amt > 0.1) { detailedTransfers.push({ from: fromEnt, to: toEnt, amount: Math.round(amt) }); }
+                    if (amt > 0.1) detailedTransfers.push({ from: fromEnt, to: toEnt, amount: Math.round(amt) });
                 });
             });
 
             let outgoingMap = {}; let incomingMap = {};
             entities.forEach(ent => { outgoingMap[ent.id] = []; incomingMap[ent.id] = []; });
-
             detailedTransfers.forEach(t => {
                 outgoingMap[t.from.id].push({ to: t.to, amount: t.amount });
                 incomingMap[t.to.id].push({ from: t.from, amount: t.amount });
             });
 
-            const summarySub = document.getElementById('summarySubTitle');
-            const summaryBadge = document.getElementById('summaryModeBadge');
-            const summaryHeading = document.getElementById('summaryCardsHeading');
-            if (settlementMode === 'couple') {
-                if (summarySub) summarySub.innerText = '지출 내역 및 부부(대표자)별 정산 결과';
-                if (summaryBadge) summaryBadge.innerText = '💑 부부별 정산';
-                if (summaryHeading) summaryHeading.innerText = '부부(대표자)별 정산 카드';
-            } else {
-                if (summarySub) summarySub.innerText = '지출 내역 및 개인별 정산 결과';
-                if (summaryBadge) summaryBadge.innerText = '👤 개인별 정산';
-                if (summaryHeading) summaryHeading.innerText = '개인별 정산 카드';
-            }
-
             document.getElementById('settlementResultSection').classList.remove('hidden');
-            
             const personalContainer = document.getElementById('personalSummaries');
+            
             personalContainer.innerHTML = entities.map(ent => {
                 let paid = paidMap[ent.id] || 0; let share = shareMap[ent.id] || 0; let net = paid - share;
-                
                 let outList = outgoingMap[ent.id] || []; let inList = incomingMap[ent.id] || [];
                 let totalOut = outList.reduce((sum, o) => sum + o.amount, 0);
 
-                let badgeHtml = '';
-                if (net > 0.5) {
-                    badgeHtml = `<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 text-sm px-3 py-1 rounded-full font-bold shadow-sm">+${Math.round(net).toLocaleString()}원 받을 예정</span>`;
-                } else if (net < -0.5) {
-                    badgeHtml = `<span class="bg-rose-100 text-rose-600 border border-rose-200 text-sm px-3 py-1 rounded-full font-bold shadow-sm">${Math.round(-net).toLocaleString()}원 보낼 예정</span>`;
-                } else {
-                    badgeHtml = `<span class="bg-slate-100 text-slate-600 border border-slate-200 text-sm px-3 py-1 rounded-full font-bold shadow-sm">정산 완료 (0원)</span>`;
-                }
-
-                const titleHtml = ent.isCouple
-                    ? `<div>
-                         <div class="flex items-center gap-1.5">
-                           <span class="text-amber-500 text-base">👑</span>
-                           <span class="font-extrabold text-slate-800 text-lg">${ent.label}</span>
-                         </div>
-                         <div class="text-sm font-bold text-emerald-600 mt-0.5">${ent.subLabel}</div>
-                       </div>`
-                    : `<div>
-                         <span class="font-extrabold text-slate-800 text-lg">${ent.label}</span>
-                         ${ent.subLabel ? `<div class="text-sm font-bold text-slate-500 mt-0.5">${ent.subLabel}</div>` : ''}
-                       </div>`;
-
-                const memberBreakdownHtml = ent.isCouple
-                    ? `<div class="text-xs font-bold text-slate-500 text-right mt-1">
-                         (${ent.members.map(m => `${m} ${Math.round(personShareMap[m] || 0).toLocaleString()}원`).join(' + ')})
-                       </div>`
-                    : '';
+                let badgeHtml = net > 0.5 ? `<span class="bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-bold">+${Math.round(net).toLocaleString()}원 받을 예정</span>` : (net < -0.5 ? `<span class="bg-rose-100 text-rose-700 text-xs px-2.5 py-1 rounded-full font-bold">${Math.round(-net).toLocaleString()}원 보낼 예정</span>` : `<span class="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full font-bold">정상 (0원)</span>`);
 
                 return `
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
                         <div class="flex justify-between items-start gap-2">
-                            ${titleHtml}
-                            <div class="shrink-0">${badgeHtml}</div>
+                            <div><span class="font-bold text-slate-800 text-base">${ent.label}</span>${ent.subLabel ? `<div class="text-[11px] text-slate-500">${ent.subLabel}</div>` : ''}</div>
+                            <div>${badgeHtml}</div>
                         </div>
-                        <div class="text-sm space-y-2 text-slate-600 border-t border-slate-100 pt-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-slate-500">${ent.isCouple ? '부부 결제 금액:' : '내가 결제한 금액:'}</span>
-                                <span class="font-extrabold text-slate-800 text-base">${paid.toLocaleString()}원</span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-slate-500">${ent.isCouple ? '부부 부담할 몫 (사용 금액):' : '내가 부담할 몫 (사용 금액):'}</span>
-                                <span class="font-extrabold text-slate-800 text-base">${Math.round(share).toLocaleString()}원</span>
-                            </div>
-                            ${memberBreakdownHtml}
+                        <div class="text-xs space-y-1 text-slate-600 border-t pt-2 font-medium">
+                            <div class="flex justify-between"><span>결제금액:</span><b>${paid.toLocaleString()}원</b></div>
+                            <div class="flex justify-between"><span>부담 몫:</span><b>${Math.round(share).toLocaleString()}원</b></div>
                         </div>
-
-                        ${outList.length > 0 ? `
-                            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2 text-sm shadow-inner mt-2">
-                                <div class="text-rose-600 font-extrabold">총 송금할 금액: ${totalOut.toLocaleString()}원</div>
-                                ${outList.map(o => `<div class="text-slate-600 pl-2 font-medium">👉 <span class="text-slate-800 font-extrabold">${o.to.fullTitle}</span> 님에게: <span class="font-extrabold text-slate-800">${o.amount.toLocaleString()}원</span></div>`).join('')}
-                            </div>
-                        ` : `
-                            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-sm font-bold text-slate-400 text-center shadow-inner mt-2">
-                                ${ent.isCouple ? '부부 대표가 송금할 금액: 0원 (보낼 금액 없음)' : '내가 송금할 금액: 0원 (보낼 금액 없음)'}
-                            </div>
-                        `}
-
-                        ${inList.length > 0 ? `
-                            <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-100 space-y-2 text-sm shadow-inner mt-2">
-                                <div class="text-emerald-700 font-extrabold">받을 상세 내역:</div>
-                                ${inList.map(i => `<div class="text-emerald-800 pl-2 font-medium">👉 <span class="text-emerald-900 font-extrabold">${i.from.fullTitle}</span> 님으로부터: <span class="font-extrabold text-emerald-900">${i.amount.toLocaleString()}원</span></div>`).join('')}
-                            </div>
-                        ` : ''}
+                        ${outList.length > 0 ? `<div class="bg-rose-50 p-2.5 rounded-xl border border-rose-100 text-xs space-y-1"><div class="text-rose-700 font-bold">보낼금액: ${totalOut.toLocaleString()}원</div>${outList.map(o => `<div>👉 <b>${o.to.fullTitle}</b> 님에게: <span class="text-rose-600 font-bold">${o.amount.toLocaleString()}원</span></div>`).join('')}</div>` : `<div class="bg-slate-50 p-2.5 rounded-xl text-xs text-slate-500">보낼 금액 없음</div>`}
                     </div>
                 `;
             }).join('');
-
-            autoSaveExpenseAppData();
+            saveExpenseAppData();
         }
 
         function shareAsImage() {
             const targetElement = document.getElementById('captureArea');
-            
-            if (document.getElementById('settlementResultSection').classList.contains('hidden')) {
-                alert('먼저 "정산하기" 버튼을 눌러 정산 결과를 생성해주세요!');
-                return;
-            }
-
-            alert('정산 요약 내역을 이미지로 변환 중입니다. 잠시만 기다려주세요!');
-
-            html2canvas(targetElement, {
-                scale: 2,
-                backgroundColor: '#f8fafc',
-                useCORS: true
-            }).then(canvas => {
+            if (document.getElementById('settlementResultSection').classList.contains('hidden')) { alert('먼저 정산을 진행해주세요!'); return; }
+            html2canvas(targetElement, { scale: 2, backgroundColor: '#f8fafc', useCORS: true }).then(canvas => {
                 canvas.toBlob(blob => {
-                    const file = new File([blob], 'travel-settlement-summary.png', { type: 'image/png' });
-                    
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            title: '여행 정산 요약 내역',
-                            text: '여행 정산 및 송금 요약 결과입니다.',
-                            files: [file]
-                        }).catch(() => {});
-                    } else {
-                        const link = document.createElement('a');
-                        link.download = '여행정산요약내역.png';
-                        link.href = canvas.toDataURL('image/png');
-                        link.click();
-                        alert('이미지가 저장되었습니다! 카카오톡 채팅창에 이 이미지를 첨부하여 공유해 주세요.');
+                    const file = new File([blob], 'travel-settlement.png', { type: 'image/png' });
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) { navigator.share({ files: [file] }).catch(() => {}); }
+                    else {
+                        const link = document.createElement('a'); link.download = '여행정산요약.png'; link.href = canvas.toDataURL('image/png'); link.click();
                     }
                 });
             });

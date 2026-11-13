@@ -1005,8 +1005,8 @@ const defaultPlacesData = {
                 let hotelMapQ = (firstEvt.lat && firstEvt.lng) ? `${firstEvt.lat},${firstEvt.lng}` : encodeURIComponent(firstEvt.name + ' 오키나와');
                 const hotelMapUrl = `https://www.google.com/maps/search/?api=1&query=${hotelMapQ}`;
 
-                let hotelDeleteBtn = `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
-                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[11px] sm:text-[12px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
+                let hotelDeleteBtn = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, 0)" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="숙소 삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
+                let memoInputHtml = `<input type="text" value="${firstEvt.memo || ''}" oninput="updateEventMemo(${dayIdx}, 0, this.value)" placeholder="메모 (체크인 시간 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[11px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
 
                 eventsHtml += `
                     <div class="px-3 sm:px-4 py-1.5">
@@ -1026,16 +1026,19 @@ const defaultPlacesData = {
                     </div>
                 `;
             } else {
-                eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
-                    <button onclick="openTimelineAddModal('hotel', ${dayIdx})" class="w-full bg-slate-50 text-indigo-600 py-2.5 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-indigo-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> Day ${currentDayObj.dayNum} 숙소 추가</button>
-                </div>`;
+                if (!isAllView) {
+                    eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
+                        <button onclick="openTimelineAddModal('hotel', ${dayIdx})" class="w-full bg-slate-50 text-indigo-600 py-2.5 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-indigo-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-bed"></i> Day ${currentDayObj.dayNum} 숙소 추가</button>
+                    </div>`;
+                }
             }
 
             const startIndex = hasHotel ? 1 : 0;
             const actualEvents = currentDayObj.events.slice(startIndex);
 
             if (actualEvents.length === 0 && !hasHotel) {
-                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p><button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button></div>`;
+                let emptyAddBtn = isAllView ? '' : `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white font-bold text-sm sm:text-base px-5 py-2.5 rounded-lg shadow-sm">일정 추가하기</button>`;
+                eventsHtml += `<div class="py-12 mx-4 sm:mx-6 mt-4 bg-white rounded-2xl border border-dashed border-slate-300 text-center flex flex-col items-center justify-center"><i class="fa-solid fa-map-location-dot text-4xl text-slate-200 mb-3"></i><p class="text-sm sm:text-base text-slate-500 mb-4">등록된 방문 순서가 없습니다.</p>${emptyAddBtn}</div>`;
             } else {
                 actualEvents.forEach((evt, subIdx) => {
                     const evtIdx = startIndex + subIdx;
@@ -1047,7 +1050,7 @@ const defaultPlacesData = {
                         let travelModeMap = { '운전': 'driving', '대중교통': 'transit', '도보': 'walking', '자전거': 'bicycling' };
                         let routeUrl = `https://www.google.com/maps/dir/?api=1&origin=${prevValidEvent.lat},${prevValidEvent.lng}&destination=${evt.lat},${evt.lng}&travelmode=${travelModeMap[currentTransport]}`;
 
-                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-normal shadow-sm cursor-pointer hover:border-cyan-400 text-[12px] sm:text-[12px]">
+                        let transportSelectorHtml = `<select onchange="updateEventTransport(${dayIdx}, ${evtIdx}, this.value)" ${isAllView ? 'disabled' : ''} class="bg-white border border-slate-200 rounded-md px-2.5 py-1.5 outline-none text-slate-700 font-normal shadow-sm ${isAllView ? 'cursor-default appearance-none' : 'cursor-pointer hover:border-cyan-400'} text-[12px] sm:text-[12px]">
                                 <option value="운전" ${currentTransport==='운전'?'selected':''}>운전</option>
                                 <option value="대중교통" ${currentTransport==='대중교통'?'selected':''}>대중교통</option>
                                 <option value="도보" ${currentTransport==='도보'?'selected':''}>도보</option>
@@ -1077,10 +1080,10 @@ const defaultPlacesData = {
                     
                     let moveUpBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, -1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition border-b border-slate-200" title="위로"><i class="fa-solid fa-chevron-up text-xs"></i></button>`;
                     let moveDownBtn = `<button onclick="moveEvent(${dayIdx}, ${evtIdx}, 1)" class="w-full h-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition" title="아래로"><i class="fa-solid fa-chevron-down text-xs"></i></button>`;
-                    let reorderBoxHtml = `<div class="flex flex-col w-7 h-[38px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
-                    let deleteBtnHtml = `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
+                    let reorderBoxHtml = isAllView ? '' : `<div class="flex flex-col w-7 h-[38px] bg-slate-50 rounded border border-slate-200 overflow-hidden shrink-0 shadow-inner ml-2">${moveUpBtn}${moveDownBtn}</div>`;
+                    let deleteBtnHtml = isAllView ? '' : `<button onclick="removeEvent(${dayIdx}, ${evtIdx})" class="text-rose-400 hover:bg-rose-50 w-8 h-8 rounded-full flex items-center justify-center transition" title="삭제"><i class="fa-solid fa-trash-can text-sm sm:text-base"></i></button>`;
 
-                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[12px] text-slate-700 outline-none focus:bg-white focus:border-cyan-400">`;
+                    let memoInputHtml = `<input type="text" value="${evt.memo || ''}" oninput="updateEventMemo(${dayIdx}, ${evtIdx}, this.value)" placeholder="메모 (주차, 입장료 등)" ${isAllView ? 'readonly' : ''} class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-[12px] sm:text-[12px] text-slate-700 outline-none ${isAllView ? 'cursor-default' : 'focus:bg-white focus:border-cyan-400'}">`;
 
                     eventsHtml += `
                         <div class="px-3 sm:px-4 py-1.5">
@@ -1106,44 +1109,45 @@ const defaultPlacesData = {
                     `;
                 });
 
-                eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
-                    <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
-                </div>`;
+                if (!isAllView) {
+                    eventsHtml += `<div class="px-3 sm:px-4 py-2 bg-white">
+                        <button onclick="openTimelineAddModal('place', ${dayIdx})" class="w-full bg-slate-50 text-slate-600 py-3 px-2 rounded-xl font-bold text-sm sm:text-base transition border border-dashed border-slate-300 flex items-center justify-center gap-1.5 shadow-sm"><i class="fa-solid fa-plus"></i> <span class="tracking-tight">일정 추가</span></button>
+                    </div>`;
+                }
             }
 
             let dayCompanionsHtml = currentDayObj.companions ? `<div class="text-[11px] sm:text-xs font-bold text-cyan-800 mt-0.5 truncate"><i class="fa-solid fa-users mr-1"></i>${currentDayObj.companions}</div>` : '';
             
-            let headerWrapperClass = isAllView ? 
-                "px-4 sm:px-6 pt-4 pb-3 flex justify-between items-start" 
-                : 
-                "day-header-sticky sticky bg-cyan-50/95 backdrop-blur-md border-b border-cyan-200 px-4 sm:px-6 py-3 z-[30] shadow-sm flex justify-between items-center transition-all";
-            
-            let dayTitleHtml = isAllView ? 
-                `<div>
-                    <span class="font-extrabold text-xl sm:text-2xl text-cyan-900">Day ${currentDayObj.dayNum}</span>
-                    <span class="text-sm text-cyan-700 ml-2 font-medium">${currentDayObj.date}</span>
-                </div>${dayCompanionsHtml}`
-                :
-                `<div class="flex-1 min-w-0 pr-2">
+            let dayTitleHtml = `
+                <div class="flex-1 min-w-0 pr-2">
                     <div class="flex items-baseline gap-2 flex-wrap">
                         <span class="font-extrabold text-xl sm:text-2xl text-cyan-900 tracking-tight">Day ${currentDayObj.dayNum}</span>
                         <span class="text-sm sm:text-base text-cyan-700 font-medium">${currentDayObj.date}</span>
                     </div>
                     ${dayCompanionsHtml}
-                </div>`;
+                </div>
+            `;
 
+            let headerWrapperClass = isAllView ? 
+                "bg-cyan-50/95 border-b border-cyan-200 px-4 sm:px-6 py-3 shadow-sm flex justify-between items-center transition-all" 
+                : 
+                "day-header-sticky sticky top-0 bg-cyan-50/95 backdrop-blur-md border-b border-cyan-200 px-4 sm:px-6 py-3 z-[30] shadow-sm flex justify-between items-center transition-all";
+            
             let actionButtonsHtml = `
                 <button onclick="openExpenseModal()" class="bg-emerald-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-700" title="경비"><i class="fa-solid fa-won-sign sm:mr-1.5"></i><span class="hidden sm:inline">경비</span></button>
-                <button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>
+                ${isAllView ? '' : `<button onclick="manualSaveData()" class="bg-slate-800 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-slate-900" title="저장"><i class="fa-solid fa-floppy-disk sm:mr-1.5"></i><span class="hidden sm:inline">저장</span></button>`}
                 <button onclick="openDayMapModal(${dayIdx})" class="bg-emerald-500 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-emerald-600" title="지도보기"><i class="fa-solid fa-map-location-dot sm:mr-1.5"></i><span class="hidden sm:inline">지도</span></button>
-                <button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>
+                ${isAllView ? '' : `<button onclick="openTimelineAddModal('place', ${dayIdx})" class="bg-cyan-600 text-white w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 rounded-lg text-[14px] font-bold shadow-sm flex items-center justify-center transition hover:bg-cyan-700" title="추가"><i class="fa-solid fa-plus sm:mr-1.5"></i><span class="hidden sm:inline">추가</span></button>`}
             `;
 
             let topActionHtml = `<div class="flex items-center gap-1.5 sm:gap-2 shrink-0">${actionButtonsHtml}</div>`;
 
-            let topSectionHtml = `<div class="${headerWrapperClass}">
-                ${isAllView ? `<div>${dayTitleHtml}</div>${topActionHtml}` : `${dayTitleHtml}${topActionHtml}`}
-            </div>`;
+            let topSectionHtml = `
+                <div class="${headerWrapperClass}">
+                    ${dayTitleHtml}
+                    ${topActionHtml}
+                </div>
+            `;
 
             return `
                 <div class="${isAllView ? 'bg-cyan-50/30 border-y border-cyan-100/60 shadow-sm overflow-hidden mb-6' : 'bg-transparent pb-6'}">

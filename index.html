@@ -1343,7 +1343,7 @@ leafletMap = L.map('dayMapContainer', { zoomControl: false });
         function openTimelineAddModal(mode, dayIdx) {
             addMode = mode;
             targetAddDayIdx = dayIdx; 
-            document.getElementById('modal-title').innerHTML = mode === 'hotel' ? '<i class="fa-solid fa-bed mr-2"></i>숙소로 등록할 호텔 선택' : `<i class="fa-solid fa-calendar-plus mr-2"></i>Day ${tripData.days[dayIdx].dayNum} 방문 장소 추가`;
+            document.getElementById('modal-title').innerHTML = mode === 'hotel' ? '<i class="fa-solid fa-bed mr-2"></i>숙소로 등록할 호텔 선택' : `<i class="fa-solid fa-calendar-plus mr-2"></i>Day ${tripData.days[dayIdx].dayNum}일정 추가`;
             switchCategory(mode === 'hotel' ? '호텔' : '관광지');
             document.getElementById('timelineAddModal').classList.remove('hidden'); renderPlaces();
         }
